@@ -17,12 +17,12 @@ const Header = () => {
     }, []);
 
     const navLinks = [
-        { name: 'Home', href: '#' },
-        { name: 'Benefits', href: '#benefits' },
-        { name: 'Internships', href: '#internships', hasDropdown: true },
-        { name: 'Webinar', href: '#webinar' },
-        { name: 'Hackathon', href: '#hackathon' },
-        { name: 'Contact', href: '#contact' },
+        { name: 'Home', href: '/' },
+        { name: 'Benefits', href: '/#benefits' },
+        { name: 'Internships', href: '/#internships', hasDropdown: true },
+        { name: 'Webinar', href: '/#webinar' },
+        { name: 'Hackathon', href: '/#hackathon' },
+        { name: 'Contact', href: '/contact' },
     ];
 
     return (

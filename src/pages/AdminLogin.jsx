@@ -12,8 +12,9 @@ const AdminLogin = () => {
         e.preventDefault();
         // Mock Authentication
         if (email === 'admin@tsarit.com' && password === 'admin123') {
+            localStorage.setItem('adminToken', 'mock-jwt-token-123456');
             localStorage.setItem('isAdmin', 'true');
-            navigate('/admin/webinars');
+            navigate('/admin/dashboard');
         } else {
             setError('Invalid credentials');
         }

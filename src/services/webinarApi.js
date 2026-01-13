@@ -86,6 +86,18 @@ export const deleteWebinar = async (id) => {
     return axios.delete(`${API_URL}/${id}`);
 };
 
+export const updateWebinar = async (id, updatedData) => {
+    if (MOCK_MODE) {
+        return new Promise((resolve) => {
+            const currentData = getLocalData();
+            const updatedList = currentData.map(w => w.id === id ? { ...w, ...updatedData } : w);
+            setLocalData(updatedList);
+            setTimeout(() => resolve({ data: { ...updatedData, id } }), 500);
+        });
+    }
+    return axios.put(`${API_URL}/${id}`, updatedData);
+};
+
 export const registerForWebinar = async (id, studentData) => {
     if (MOCK_MODE) {
         return new Promise((resolve) => {

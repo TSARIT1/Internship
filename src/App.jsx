@@ -15,9 +15,14 @@ import PythonProgramming from './pages/PythonProgramming';
 import AWSCloudComputing from './pages/AWSCloudComputing';
 import CyberSecurity from './pages/CyberSecurity';
 import Webinars from './pages/Webinars';
-import AdminWebinars from './pages/AdminWebinars';
+
 import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminWebinars from './pages/AdminWebinars';
+import AdminTestimonials from './pages/AdminTestimonials';
+import AdminStudents from './pages/AdminStudents';
 
 function App() {
   return (
@@ -35,22 +40,19 @@ function App() {
         <Route path="/python-programming" element={<PythonProgramming />} />
         <Route path="/aws-cloud-computing" element={<AWSCloudComputing />} />
         <Route path="/cyber-security" element={<CyberSecurity />} />
-        <Route path="/python-programming" element={<PythonProgramming />} />
-        <Route path="/aws-cloud-computing" element={<AWSCloudComputing />} />
-        <Route path="/cyber-security" element={<CyberSecurity />} />
         <Route path="/internship/:id" element={<InternshipDetails />} />
         <Route path="/webinars" element={<Webinars />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
-        <Route
-          path="/admin/webinars"
-          element={
-            <ProtectedRoute>
-              <AdminWebinars />
-            </ProtectedRoute>
-          }
-        />
+
+        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="webinars" element={<AdminWebinars />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
+          <Route path="students" element={<AdminStudents />} />
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );

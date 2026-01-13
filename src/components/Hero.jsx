@@ -1,109 +1,175 @@
 import React from 'react';
-import { ArrowRight, Play, Briefcase, GraduationCap, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Briefcase, GraduationCap, ArrowRight, Code, Cpu, Globe, Server, Cloud, Database, Zap } from 'lucide-react';
+
+const LogoMarquee = () => {
+    const logos = [
+        { name: 'Google', icon: Globe },
+        { name: 'Microsoft', icon: Code },
+        { name: 'Amazon', icon: Cloud },
+        { name: 'Tesla', icon: Zap },
+        { name: 'Meta', icon: Server },
+        { name: 'Netflix', icon: Database },
+        { name: 'Adobe', icon: Cpu },
+        { name: 'Google', icon: Globe },
+        { name: 'Microsoft', icon: Code },
+        { name: 'Amazon', icon: Cloud },
+    ];
+
+    return (
+        <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+            <ul className="flex items-center justify-center md:justify-start [&_li]:mx-12 [&_img]:max-w-none animate-infinite-scroll">
+                {logos.map((logo, index) => (
+                    <li key={index} className="flex items-center gap-3 text-slate-400 font-bold text-xl uppercase tracking-wider hover:text-blue-500 transition-colors cursor-default">
+                        <logo.icon size={28} className="text-slate-300" />
+                        {logo.name}
+                    </li>
+                ))}
+            </ul>
+            <ul className="flex items-center justify-center md:justify-start [&_li]:mx-12 [&_img]:max-w-none animate-infinite-scroll" aria-hidden="true">
+                {logos.map((logo, index) => (
+                    <li key={`duplicate-${index}`} className="flex items-center gap-3 text-slate-400 font-bold text-xl uppercase tracking-wider hover:text-blue-500 transition-colors cursor-default">
+                        <logo.icon size={28} className="text-slate-300" />
+                        {logo.name}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
 
 const Hero = () => {
     return (
-        <section className="relative pt-28 pb-20 lg:pt-36 lg:pb-32 overflow-hidden bg-white">
-            <div className="container mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative bg-slate-50 overflow-hidden">
+            {/* Background Elements */}
+            <div className="absolute inset-0 bg-grid opacity-[0.6] pointer-events-none" />
+            <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl pointer-events-none mix-blend-multiply animate-blob" />
+            <div className="absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-96 h-96 bg-secondary-400/20 rounded-full blur-3xl pointer-events-none mix-blend-multiply animate-blob animation-delay-2000" />
 
-                    {/* Left Content */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-left"
-                    >
-                        <h1 className="text-5xl lg:text-7xl font-bold font-display tracking-tight text-slate-900 mb-6 leading-[1.1]">
-                            Build Your Future with <br />
-                            <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">Smart Internships</span>
-                        </h1>
-                        <p className="text-lg text-slate-600 max-w-lg mb-8 leading-relaxed">
-                            Practical learning, expert guidance, and career-focused training.
-                            The only platform that guarantees real-world work experience.
-                        </p>
+            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+                <div className="container mx-auto px-6">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        {/* Text Content */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            className="flex-1 text-center lg:text-left z-10"
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-white border border-blue-100 shadow-sm shadow-blue-500/10 text-sm font-semibold text-slate-600 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
+                            >
+                                <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
+                                New Batches Starting Soon
+                                <ArrowRight size={14} className="text-blue-500 group-hover:translate-x-1 transition-transform" />
+                            </motion.div>
 
-                        <div className="flex flex-wrap gap-4">
-                            <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-orange-500/30 hover:-translate-y-1 flex items-center gap-2">
-                                <Briefcase size={20} /> Companies: Hire
-                            </button>
-                            <button className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-blue-500 hover:text-blue-600 shadow-sm hover:shadow-md flex items-center gap-2">
-                                <GraduationCap size={20} /> Students: Apply
-                            </button>
-                        </div>
-                        <div className="mt-6">
-                            <button className="bg-gradient-to-r from-blue-600 to-teal-500 hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-blue-500/30 w-full sm:w-auto flex items-center justify-center gap-2 hover:-translate-y-1">
-                                <Users size={20} /> Interns: Apply
-                            </button>
-                        </div>
-                    </motion.div>
+                            <h1 className="text-5xl lg:text-7xl font-extrabold font-display tracking-tight text-slate-900 mb-8 leading-[1.1]">
+                                Engineering the <br />
+                                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+                                    Future Workforce
+                                </span>
+                            </h1>
+                            <p className="text-lg lg:text-xl text-slate-600 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                                Join the elite internship program designed for the AI era.
+                                Master <span className="text-slate-900 font-semibold underline decoration-blue-300 underline-offset-4 decoration-2">Data Science</span>, <span className="text-slate-900 font-semibold underline decoration-indigo-300 underline-offset-4 decoration-2">Machine Learning</span>, and <span className="text-slate-900 font-semibold underline decoration-orange-300 underline-offset-4 decoration-2">Full Stack Dev</span> with direct industry mentorship.
+                            </p>
 
-                    {/* Right Image/Graphic area */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="relative"
-                    >
-                        {/* Abstract Background Shapes mimicking the reference */}
-                        <div className="absolute top-0 right-0 w-[120%] h-[120%] bg-teal-50 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4"></div>
+                            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                                <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-900 text-white font-bold text-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 hover:-translate-y-1 flex items-center justify-center gap-2 group">
+                                    Explore Internships <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </button>
+                                <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-900 border border-slate-200 font-bold text-lg hover:bg-slate-50 transition-all shadow-sm hover:shadow-md hover:-translate-y-1 flex items-center justify-center gap-2">
+                                    Hire Talent
+                                </button>
+                            </div>
 
-                        {/* Main Circular Graphic */}
-                        <div className="relative z-10">
-                            <div className="relative rounded-full overflow-hidden border-8 border-white shadow-2xl bg-teal-600 aspect-square max-w-md mx-auto">
-                                {/* Placeholder for student image - using a gradient/abstract fallback if no image provided yet, but structure is ready for img tag */}
+                            <div className="mt-12 flex items-center justify-center lg:justify-start gap-6 pt-8 border-t border-slate-200/60">
+                                <div className="flex -space-x-4">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <div key={i} className="w-12 h-12 rounded-full border-4 border-slate-50 bg-slate-200 overflow-hidden shadow-sm">
+                                            <img src={`https://i.pravatar.cc/100?img=${10 + i}`} alt="Student" className="w-full h-full object-cover" />
+                                        </div>
+                                    ))}
+                                    <div className="w-12 h-12 rounded-full border-4 border-slate-50 bg-white flex items-center justify-center text-xs font-bold text-slate-600 shadow-sm">
+                                        +5k
+                                    </div>
+                                </div>
+                                <div className="text-left">
+                                    <div className="flex text-amber-500 mb-1">★★★★★</div>
+                                    <p className="text-sm font-semibold text-slate-600">Loved by <span className="text-slate-900">5,000+</span> students</p>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Hero Graphic */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, delay: 0.3 }}
+                            className="flex-1 w-full max-w-xl lg:max-w-none relative z-10"
+                        >
+                            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-[2.8rem] opacity-20 blur-2xl -z-10 animate-pulse" />
+                            <div className="relative aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-900/20 border text-slate-200 bg-slate-900">
                                 <img
-                                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                    alt="Student learning"
-                                    className="w-full h-full object-cover"
+                                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                                    alt="Collaborative working environment"
+                                    className="w-full h-full object-cover opacity-80 hover:scale-105 transition-transform duration-700"
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
 
-                                {/* Overlay shapes from reference */}
-                                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-teal-900/50 to-transparent"></div>
+                                {/* Floating Badge 1 */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.7 }}
+                                    className="absolute bottom-10 left-10 right-10 md:right-auto bg-white/10 backdrop-blur-xl p-5 rounded-2xl shadow-xl border border-white/20 max-w-xs"
+                                >
+                                    <div className="flex items-center gap-4 mb-3">
+                                        <div className="w-12 h-12 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400 border border-blue-500/30">
+                                            <Briefcase size={24} />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-slate-300 font-bold uppercase tracking-wider mb-1">Placement Rate</div>
+                                            <div className="text-3xl font-bold text-white">94%</div>
+                                        </div>
+                                    </div>
+                                    <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                        <div className="bg-blue-500 h-full w-[94%] shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                                    </div>
+                                </motion.div>
+
+                                {/* Floating Badge 2 */}
+                                <motion.div
+                                    initial={{ x: 20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.9 }}
+                                    className="absolute top-10 right-10 bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-xl shadow-black/10 border border-white/40 flex items-center gap-3 transform rotate-3 hover:rotate-0 transition-all duration-300"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                        <GraduationCap size={20} />
+                                    </div>
+                                    <div className="text-sm font-bold text-slate-900 leading-tight">
+                                        ISO Certified <br /> Excellence
+                                    </div>
+                                </motion.div>
                             </div>
-
-                            {/* Floating Elements */}
-                            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl animate-bounce duration-[3000ms]">
-                                <div className="flex items-center gap-3">
-                                    <div className="bg-orange-100 p-2 rounded-lg">
-                                        <Briefcase className="text-orange-600" size={24} />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-slate-900">95%</div>
-                                        <div className="text-xs text-slate-500">Hiring Rate</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="absolute top-10 -right-4 bg-white p-4 rounded-xl shadow-xl animate-pulse">
-                                <div className="flex items-center gap-3">
-                                    <div className="bg-teal-100 p-2 rounded-lg">
-                                        <Users className="text-teal-600" size={24} />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-slate-900">5000+</div>
-                                        <div className="text-xs text-slate-500">Active Interns</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Decorative Circles */}
-                        <div className="absolute top-1/2 right-0 w-64 h-64 border-2 border-orange-300 rounded-full -z-10 translate-x-1/2"></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                    </motion.div>
-
+                        </motion.div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Wave Separator at bottom */}
-            <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
-                <svg className="relative block w-[calc(100%+1.3px)] h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="fill-slate-900"></path>
-                </svg>
+            {/* Logo Marquee Section */}
+            <div className="py-12 border-y border-slate-200 bg-white/50 backdrop-blur-sm relative z-10">
+                <div className="container mx-auto px-6 mb-8 text-center">
+                    <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Our Graduates Work At</p>
+                </div>
+                <LogoMarquee />
             </div>
-        </section>
+        </div>
     );
 };
 

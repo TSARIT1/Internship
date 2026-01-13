@@ -5,19 +5,65 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply font-sans antialiased text-slate-800 bg-slate-50;
+  html {
+    scroll-behavior: smooth;
   }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+
+  body {
+    @apply font-sans antialiased text-slate-600 bg-slate-50;
+  }
+
+  ::selection {
+    background-color: #dbeafe;
+    /* primary-100 */
+    color: #1d4ed8;
+    /* primary-700 */
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight text-slate-900;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600;
   }
+
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-primary-600 to-indigo-600;
+  }
+
   .glass-card {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl shadow-slate-200/50;
+  }
+
+  .glass-panel {
+    @apply bg-white/40 backdrop-blur-md border border-white/30;
+  }
+
+  .blob {
+    @apply absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .bg-grid {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+    mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
   }
 }

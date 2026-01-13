@@ -10,8 +10,23 @@ const students = [
     { id: 7, name: "Chris Wilson", email: "chris@example.com", webinar: "AWS Cloud Fundamentals", date: "2024-03-07" },
 ];
 
+
 export const getStudents = async () => {
     return new Promise((resolve) => {
         setTimeout(() => resolve({ data: [...students] }), 500);
+    });
+};
+
+export const enrollStudent = async (studentData) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newStudent = {
+                id: students.length + 1,
+                ...studentData,
+                date: new Date().toISOString().split('T')[0]
+            };
+            students.push(newStudent);
+            resolve({ success: true, data: newStudent });
+        }, 1000);
     });
 };

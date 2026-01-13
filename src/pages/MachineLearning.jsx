@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import {
     BookOpen, CheckCircle, ChevronDown, ChevronUp, Clock,
     Code, Database, Layout, Server, Award, Users,
@@ -141,9 +142,9 @@ const MachineLearning = () => {
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-6">
-                        <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg shadow-purple-600/30 flex items-center gap-2">
+                        <Link to="/enroll?course=Machine Learning Internship" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg shadow-purple-600/30 flex items-center gap-2">
                             Enroll Now <ArrowRight size={20} />
-                        </button>
+                        </Link>
 
                     </div>
                 </div>
@@ -327,9 +328,9 @@ const MachineLearning = () => {
                                     <span className="text-5xl font-bold text-slate-900">₹5,999</span>
                                     <span className="text-slate-400 line-through text-lg">₹9,999</span>
                                 </div>
-                                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2">
+                                <Link to="/enroll?course=Machine Learning Internship" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2">
                                     Enroll Now <ArrowRight size={18} />
-                                </button>
+                                </Link>
                                 <p className="text-xs text-slate-400">Limited seats available for next batch</p>
                             </div>
 

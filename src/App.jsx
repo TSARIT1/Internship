@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Contact from './pages/Contact';
 import InternshipDetails from './pages/InternshipDetails';
+import Enroll from './pages/Enroll';
 
 import DataScience from './pages/DataScience';
 import MachineLearning from './pages/MachineLearning';
@@ -24,9 +25,12 @@ import AdminWebinars from './pages/AdminWebinars';
 import AdminTestimonials from './pages/AdminTestimonials';
 import AdminStudents from './pages/AdminStudents';
 
+import ScrollToTop from './components/ScrollToTop';
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -41,6 +45,7 @@ function App() {
         <Route path="/aws-cloud-computing" element={<AWSCloudComputing />} />
         <Route path="/cyber-security" element={<CyberSecurity />} />
         <Route path="/internship/:id" element={<InternshipDetails />} />
+        <Route path="/enroll" element={<Enroll />} />
         <Route path="/webinars" element={<Webinars />} />
 
         {/* Admin Routes */}

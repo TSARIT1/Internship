@@ -59,7 +59,10 @@ const Header = () => {
                     >
                         Login
                     </button>
-                    <button className="bg-slate-900 hover:bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5">
+                    <button
+                        onClick={() => navigate('/enroll')}
+                        className="bg-slate-900 hover:bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5"
+                    >
                         Enroll Now
                     </button>
                 </div>
@@ -100,7 +103,13 @@ const Header = () => {
                                 >
                                     Login
                                 </button>
-                                <button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors">
+                                <button
+                                    onClick={() => {
+                                        navigate('/enroll');
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors"
+                                >
                                     Enroll Now
                                 </button>
                             </div>

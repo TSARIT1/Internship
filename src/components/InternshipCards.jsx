@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getPricing } from '../services/studentApi';
 import { ArrowRight, Brain, Database, Cloud, Code, Server, Coffee, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SpotlightCard from './ui/SpotlightCard';
@@ -66,7 +67,7 @@ const internships = [
         shadow: 'group-hover:shadow-sky-500/20'
     },
     {
-        title: 'Java Full-stack',
+        title: 'Java Full Stack',
         duration: '6 Months',
         level: 'Advanced',
         description: 'Build robust enterprise applications with Java, Spring Boot, Microservices, and React.',
@@ -116,6 +117,21 @@ const internships = [
 ];
 
 const InternshipCards = () => {
+    const [pricing, setPricing] = useState({});
+
+    useEffect(() => {
+        const loadPricing = async () => {
+            const response = await getPricing();
+            // Convert to object for easier lookup: { "Data Science": { totalFee: X, discount: Y } }
+            const pricingMap = response.data.reduce((acc, item) => {
+                acc[item.course] = item;
+                return acc;
+            }, {});
+            setPricing(pricingMap);
+        };
+        loadPricing();
+    }, []);
+
     return (
         <section id="internships" className="py-24 bg-slate-50 relative overflow-hidden">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.03] pointer-events-none" />
@@ -156,6 +172,23 @@ const InternshipCards = () => {
                                         <item.icon size={32} />
                                     </div>
 
+                                    {/* Pricing Badge */}
+                                    {pricing[item.title] && (
+                                        <div className="absolute top-8 right-8 text-right">
+                                            <div className="text-slate-400 text-sm line-through font-medium">
+                                                ₹{pricing[item.title].totalFee.toLocaleString()}
+                                            </div>
+                                            <div className="text-2xl font-bold text-slate-900">
+                                                ₹{(pricing[item.title].totalFee - pricing[item.title].discount).toLocaleString()}
+                                            </div>
+                                            {pricing[item.title].discount > 0 && (
+                                                <div className="text-green-600 text-xs font-bold uppercase tracking-wide">
+                                                    Save ₹{pricing[item.title].discount.toLocaleString()}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {/* Title */}
                                     <h3 className="text-2xl font-bold text-slate-900 mb-3 font-display group-hover:text-blue-600 transition-colors">
                                         {item.title}
@@ -182,7 +215,7 @@ const InternshipCards = () => {
                                                     item.title === 'AI' ? "/ai" :
                                                         item.title === 'MERN Stack' ? "/mern-stack" :
                                                             item.title === 'DevOps' ? "/devops" :
-                                                                item.title === 'Java Full-stack' ? "/java-full-stack" :
+                                                                item.title === 'Java Full Stack' ? "/java-full-stack" :
                                                                     item.title === 'Python Programming' ? "/python-programming" :
                                                                         item.title === 'AWS Cloud Computing' ? "/aws-cloud-computing" :
                                                                             item.title === 'Cyber Security' ? "/cyber-security" :

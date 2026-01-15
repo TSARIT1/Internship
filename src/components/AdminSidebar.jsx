@@ -8,7 +8,8 @@ import {
     LogOut,
     Menu,
     X,
-    ChevronRight
+    ChevronRight,
+    CircleDollarSign
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -29,6 +30,7 @@ const AdminSidebar = () => {
         { path: '/admin/webinars', name: 'Webinars', icon: Video },
         { path: '/admin/testimonials', name: 'Testimonials', icon: MessageSquareQuote },
         { path: '/admin/students', name: 'Registered Students', icon: Users },
+        { path: '/admin/pricing', name: 'Pricing', icon: CircleDollarSign },
     ];
 
     const toggleSidebar = () => setIsOpen(!isOpen);

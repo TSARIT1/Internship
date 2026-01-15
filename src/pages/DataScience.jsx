@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import useCoursePricing from '../hooks/usePricing';
 
 import {
     BookOpen, CheckCircle, ChevronDown, ChevronUp, Clock,
@@ -114,6 +115,7 @@ const DataScience = () => {
     ];
 
     const [openSection, setOpenSection] = useState(0);
+    const { totalFee, discount, finalFee, loading } = useCoursePricing("Data Science");
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-100">
@@ -325,8 +327,14 @@ const DataScience = () => {
                                 </div>
                                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-2">Total Fees</p>
                                 <div className="flex items-center justify-center gap-2 mb-8">
-                                    <span className="text-5xl font-bold text-slate-900">₹4,999</span>
-                                    <span className="text-slate-400 line-through text-lg">₹8,999</span>
+                                    <span className="text-5xl font-bold text-slate-900">
+                                        {loading ? "..." : `₹${finalFee.toLocaleString()}`}
+                                    </span>
+                                    {discount > 0 && (
+                                        <span className="text-slate-400 line-through text-lg">
+                                            ₹{totalFee.toLocaleString()}
+                                        </span>
+                                    )}
                                 </div>
                                 <Link to="/enroll?course=Data Science Internship" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2">
                                     Enroll Now <ArrowRight size={18} />

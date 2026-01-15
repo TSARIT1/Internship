@@ -1,5 +1,6 @@
 import React from 'react';
 import { Users, Video, MessageSquareQuote, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow">
@@ -14,6 +15,8 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 );
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
+
     // Mock Data
     const stats = [
         { title: 'Total Webinars', value: '12', icon: Video, color: 'bg-blue-600' },
@@ -58,10 +61,16 @@ const AdminDashboard = () => {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <h2 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h2>
                     <div className="grid grid-cols-2 gap-4">
-                        <button className="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-medium transition-colors text-center border border-slate-100">
+                        <button
+                            onClick={() => navigate('/admin/webinars')}
+                            className="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-medium transition-colors text-center border border-slate-100"
+                        >
                             Add Webinar
                         </button>
-                        <button className="p-4 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-600 font-medium transition-colors text-center border border-slate-100">
+                        <button
+                            onClick={() => navigate('/admin/students')}
+                            className="p-4 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-600 font-medium transition-colors text-center border border-slate-100"
+                        >
                             View Students
                         </button>
                     </div>

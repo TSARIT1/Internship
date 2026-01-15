@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import useCoursePricing from '../hooks/usePricing';
 import {
     BookOpen, CheckCircle, ChevronDown, ChevronUp,
     Code, Database, Server, Award, Users,
@@ -113,6 +114,7 @@ const CyberSecurity = () => {
     ];
 
     const [openSection, setOpenSection] = useState(0);
+    const { totalFee, discount, finalFee, loading } = useCoursePricing("Cyber Security");
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-rose-100">
@@ -331,8 +333,14 @@ const CyberSecurity = () => {
                                     </div>
                                     <p className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-2">Total Fees</p>
                                     <div className="flex items-center justify-center gap-2 mb-8">
-                                        <span className="text-5xl font-bold text-slate-900">₹4,999</span>
-                                        <span className="text-slate-400 line-through text-lg">₹8,999</span>
+                                        <span className="text-5xl font-bold text-slate-900">
+                                            {loading ? "..." : `₹${finalFee.toLocaleString()}`}
+                                        </span>
+                                        {discount > 0 && (
+                                            <span className="text-slate-400 line-through text-lg">
+                                                ₹{totalFee.toLocaleString()}
+                                            </span>
+                                        )}
                                     </div>
                                     <Link to="/enroll?course=Cyber Security" className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-rose-500/20 transition-all transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2">
                                         Enroll Now <ArrowRight size={18} />

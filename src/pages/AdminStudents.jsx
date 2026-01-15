@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Mail } from 'lucide-react';
-import { getStudents } from '../services/studentApi';
+import { Search, Filter, Mail, Edit2, Check, X } from 'lucide-react';
+import { getStudents, updateStudentFee } from '../services/studentApi';
 
 const AdminStudents = () => {
     const [allStudents, setAllStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterWebinar, setFilterWebinar] = useState('All');
+
+    // Fee Editing State
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({ totalFee: 0, discount: 0 });
 
     useEffect(() => {
         loadStudents();
@@ -20,6 +24,30 @@ const AdminStudents = () => {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleEditClick = (student) => {
+        setEditingId(student.id);
+        setEditForm({ totalFee: student.totalFee, discount: student.discount });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setEditForm({ totalFee: 0, discount: 0 });
+    };
+
+    const handleSaveEdit = async (studentId) => {
+        try {
+            const response = await updateStudentFee(studentId, editForm.totalFee, editForm.discount);
+            if (response.success) {
+                setAllStudents(prev => prev.map(s =>
+                    s.id === studentId ? { ...s, totalFee: Number(editForm.totalFee), discount: Number(editForm.discount) } : s
+                ));
+                setEditingId(null);
+            }
+        } catch (error) {
+            console.error("Failed to update fee", error);
         }
     };
 
@@ -74,6 +102,9 @@ const AdminStudents = () => {
                                 <th className="p-4 pl-6 font-bold text-slate-700 text-sm">Student Name</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Email Address</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Webinar</th>
+                                <th className="p-4 font-bold text-slate-700 text-sm">Total Fee</th>
+                                <th className="p-4 font-bold text-slate-700 text-sm">Discount</th>
+                                <th className="p-4 font-bold text-slate-700 text-sm">Final Fee</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Date</th>
                                 <th className="p-4 pr-6 text-right font-bold text-slate-700 text-sm">Action</th>
                             </tr>
@@ -89,17 +120,76 @@ const AdminStudents = () => {
                                                 {student.webinar}
                                             </span>
                                         </td>
+                                        <td className="p-4 text-slate-700 font-medium">
+                                            {editingId === student.id ? (
+                                                <input
+                                                    type="number"
+                                                    className="w-24 p-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                                    value={editForm.totalFee}
+                                                    onChange={(e) => setEditForm({ ...editForm, totalFee: e.target.value })}
+                                                />
+                                            ) : (
+                                                `₹${student.totalFee?.toLocaleString() || 0}`
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-slate-700 font-medium">
+                                            {editingId === student.id ? (
+                                                <input
+                                                    type="number"
+                                                    className="w-24 p-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                                    value={editForm.discount}
+                                                    onChange={(e) => setEditForm({ ...editForm, discount: e.target.value })}
+                                                />
+                                            ) : (
+                                                student.discount > 0 ? (
+                                                    <span className="text-green-600 font-bold">-₹{student.discount?.toLocaleString()}</span>
+                                                ) : '-'
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-slate-900 font-bold">
+                                            ₹{((student.totalFee || 0) - (student.discount || 0)).toLocaleString()}
+                                        </td>
                                         <td className="p-4 text-slate-500 text-sm">{student.date}</td>
                                         <td className="p-4 pr-6 text-right">
-                                            <button className="text-slate-400 hover:text-blue-600 transition-colors" title="Send Email">
-                                                <Mail size={18} />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                {editingId === student.id ? (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleSaveEdit(student.id)}
+                                                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                            title="Save"
+                                                        >
+                                                            <Check size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={handleCancelEdit}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Cancel"
+                                                        >
+                                                            <X size={18} />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleEditClick(student)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit Fee"
+                                                        >
+                                                            <Edit2 size={18} />
+                                                        </button>
+                                                        <button className="text-slate-400 hover:text-blue-600 p-2 hover:bg-slate-50 rounded-lg transition-colors" title="Send Email">
+                                                            <Mail size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="p-8 text-center text-slate-500">
+                                    <td colSpan="8" className="p-8 text-center text-slate-500">
                                         No students found matching your criteria.
                                     </td>
                                 </tr>

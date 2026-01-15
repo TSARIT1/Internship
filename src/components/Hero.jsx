@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, GraduationCap, ArrowRight, Code, Cpu, Globe, Server, Cloud, Database, Zap } from 'lucide-react';
+import ShinyButton from './ui/ShinyButton';
 
 const LogoMarquee = () => {
     const logos = [
@@ -79,9 +80,12 @@ const Hero = () => {
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                                <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-900 text-white font-bold text-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 hover:-translate-y-1 flex items-center justify-center gap-2 group">
-                                    Explore Internships <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                                </button>
+                                <ShinyButton
+                                    className="w-full sm:w-auto text-lg !py-4 !px-8 hover:-translate-y-1 shadow-xl shadow-slate-900/20"
+                                    icon={ArrowRight}
+                                >
+                                    Explore Internships
+                                </ShinyButton>
                                 <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-900 border border-slate-200 font-bold text-lg hover:bg-slate-50 transition-all shadow-sm hover:shadow-md hover:-translate-y-1 flex items-center justify-center gap-2">
                                     Hire Talent
                                 </button>

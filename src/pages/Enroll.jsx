@@ -54,7 +54,7 @@ const Enroll = () => {
         "Data Science",
         "Machine Learning",
         "AI",
-        "Mern Stack",
+        "MERN Stack",
         "DevOps",
         "Java Full Stack",
         "Python Programming",

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ShinyButton from './ui/ShinyButton';
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -59,12 +60,12 @@ const Header = () => {
                     >
                         Login
                     </button>
-                    <button
+                    <ShinyButton
                         onClick={() => navigate('/enroll')}
-                        className="bg-slate-900 hover:bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5"
+                        className="!py-2.5 !px-6"
                     >
                         Enroll Now
-                    </button>
+                    </ShinyButton>
                 </div>
 
                 {/* Mobile Toggle */}
@@ -96,28 +97,27 @@ const Header = () => {
                                     {link.name}
                                 </a>
                             ))}
-                            <div className="flex flex-col gap-3 mt-4">
-                                <button
-                                    onClick={() => navigate('/login')}
-                                    className="w-full text-slate-700 font-bold py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        navigate('/enroll');
-                                        setMobileMenuOpen(false);
-                                    }}
-                                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors"
-                                >
-                                    Enroll Now
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full text-slate-700 font-bold py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                            >
+                                Login
+                            </button>
+                            <ShinyButton
+                                onClick={() => {
+                                    navigate('/enroll');
+                                    setMobileMenuOpen(false);
+                                }}
+                                className="w-full !rounded-xl"
+                            >
+                                Enroll Now
+                            </ShinyButton>
                         </div>
+
                     </motion.div>
                 )}
             </AnimatePresence>
-        </header>
+        </header >
     );
 };
 

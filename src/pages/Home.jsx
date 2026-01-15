@@ -7,6 +7,8 @@ import Advantage from '../components/Advantage';
 import Technologies from '../components/Technologies';
 import Footer from '../components/Footer';
 
+import VideoTestimonials from '../components/VideoTestimonials';
+
 const Home = () => {
     return (
         <div className="min-h-screen bg-slate-50 selection:bg-teal-100 selection:text-teal-900">
@@ -15,6 +17,7 @@ const Home = () => {
                 <Hero />
                 <Advantage />
                 <InternshipCards />
+                <VideoTestimonials />
                 <Testimonials />
                 <Technologies />
             </main>

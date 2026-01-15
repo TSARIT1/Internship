@@ -42,3 +42,39 @@ export const deleteTestimonial = async (id) => {
         }, 500);
     });
 };
+
+const INITIAL_VIDEO_DATA = [
+    {
+        id: 1,
+        name: "Sarah Jenkins",
+        course: "Full Stack Web Development",
+        message: "The practical projects gave me the confidence to apply for senior roles. Absolutely game-changing!",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder (Rick Roll for testing, but works) -> Better real tech talks? Let's use generic tech ones.
+        thumbnail: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
+        rating: 5
+    },
+    {
+        id: 2,
+        name: "Michael Chen",
+        course: "Data Science Mastery",
+        message: "I never thought I could master Python this quickly. The mentorship was top-notch.",
+        videoUrl: "https://www.youtube.com/embed/LXb3EKWsInQ", 
+        thumbnail: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=600",
+        rating: 5
+    },
+    {
+        id: 3,
+        name: "Emma Davis",
+        course: "UI/UX Design Specialist",
+        message: "From wireframes to prototypes, this course covered everything I needed to know.",
+        videoUrl: "https://www.youtube.com/embed/pQN-pnXPaVg",
+        thumbnail: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=600",
+        rating: 4
+    }
+];
+
+export const getVideoTestimonials = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ data: INITIAL_VIDEO_DATA }), 500);
+    });
+};

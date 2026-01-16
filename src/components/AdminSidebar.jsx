@@ -28,6 +28,7 @@ const AdminSidebar = () => {
     const menuItems = [
         { path: '/admin/dashboard', name: 'Dashboard', icon: LayoutDashboard },
         { path: '/admin/webinars', name: 'Webinars', icon: Video },
+        { path: '/admin/video-testimonials', name: 'Video Reviews', icon: Video }, // Using Video icon since it matches
         { path: '/admin/testimonials', name: 'Testimonials', icon: MessageSquareQuote },
         { path: '/admin/students', name: 'Registered Students', icon: Users },
         { path: '/admin/pricing', name: 'Pricing', icon: CircleDollarSign },

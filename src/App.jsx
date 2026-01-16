@@ -25,6 +25,7 @@ import AdminWebinars from './pages/AdminWebinars';
 import AdminTestimonials from './pages/AdminTestimonials';
 import AdminStudents from './pages/AdminStudents';
 import AdminPricing from './pages/AdminPricing';
+import AdminVideoTestimonials from './pages/AdminVideoTestimonials';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -55,6 +56,7 @@ function App() {
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="webinars" element={<AdminWebinars />} />
+          <Route path="video-testimonials" element={<AdminVideoTestimonials />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="students" element={<AdminStudents />} />
           <Route path="pricing" element={<AdminPricing />} />

@@ -31,9 +31,17 @@ const VideoModal = ({ isOpen, onClose, videoUrl }) => {
     // although our mock data uses embed URLs already.
     const getEmbedUrl = (url) => {
         if (!url) return '';
-        if (url.includes('embed')) return url;
-        const videoId = url.split('v=')[1]?.split('&')[0];
-        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : url;
+
+        // Handle standard YouTube / Watch / Embed / Short links / Shorts
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+        const match = url.match(regExp);
+
+        if (match && match[2].length === 11) {
+            return `https://www.youtube.com/embed/${match[2]}`;
+        }
+
+        // Return original if regex doesn't match (fallback for other providers if added later)
+        return url;
     };
 
     const finalUrl = getEmbedUrl(videoUrl);

@@ -75,6 +75,37 @@ const INITIAL_VIDEO_DATA = [
 
 export const getVideoTestimonials = async () => {
     return new Promise((resolve) => {
-        setTimeout(() => resolve({ data: INITIAL_VIDEO_DATA }), 500);
+        setTimeout(() => {
+            const data = localStorage.getItem('videoTestimonials');
+            if (data) {
+                resolve({ data: JSON.parse(data) });
+            } else {
+                localStorage.setItem('videoTestimonials', JSON.stringify(INITIAL_VIDEO_DATA));
+                resolve({ data: INITIAL_VIDEO_DATA });
+            }
+        }, 500);
+    });
+};
+
+export const addVideoTestimonial = async (testimonial) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const currentData = JSON.parse(localStorage.getItem('videoTestimonials') || JSON.stringify(INITIAL_VIDEO_DATA));
+            const newTestimonial = { ...testimonial, id: Date.now(), rating: 5 }; // Default rating 5 for now
+            const updatedData = [...currentData, newTestimonial];
+            localStorage.setItem('videoTestimonials', JSON.stringify(updatedData));
+            resolve({ data: newTestimonial });
+        }, 500);
+    });
+};
+
+export const deleteVideoTestimonial = async (id) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const currentData = JSON.parse(localStorage.getItem('videoTestimonials') || JSON.stringify(INITIAL_VIDEO_DATA));
+            const updatedData = currentData.filter(t => t.id !== id);
+            localStorage.setItem('videoTestimonials', JSON.stringify(updatedData));
+            resolve({ data: { success: true } });
+        }, 500);
     });
 };

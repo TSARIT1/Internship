@@ -2,7 +2,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-const StudentProtectedRoute = () => {
+const StudentProtectedRoute = ({ children }) => {
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
     const student = JSON.parse(localStorage.getItem('student'));
 
@@ -14,7 +14,7 @@ const StudentProtectedRoute = () => {
         return <Navigate to="/login" replace />;
     }
 
-    return <Outlet />;
+    return children ? children : <Outlet />;
 };
 
 export default StudentProtectedRoute;

@@ -29,8 +29,16 @@ const StudentWebinars = () => {
 
     const handleRegister = (webinar) => {
         // Mock Registration Logic
-        // In a real app, this would call an API
-        const updatedRegistered = [...registeredIds, webinar.id];
+        // Store object with id and date instead of just ID
+        const newRegistration = {
+            id: webinar.id,
+            registeredAt: new Date().toISOString()
+        };
+
+        // Remove existing if any (toggle logic not really needed here since we disable button, but good for safety)
+        const filtered = registeredIds.filter(item => typeof item === 'object' ? item.id !== webinar.id : item !== webinar.id);
+        const updatedRegistered = [...filtered, newRegistration];
+
         setRegisteredIds(updatedRegistered);
 
         // Update local storage for persistence
@@ -41,7 +49,6 @@ const StudentWebinars = () => {
         setStudent(updatedStudent);
         localStorage.setItem('student', JSON.stringify(updatedStudent));
 
-        // Optional: Call generic register API if needed but local update is enough for UI
         alert("Successfully registered for " + webinar.title);
     };
 
@@ -54,7 +61,9 @@ const StudentWebinars = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {webinars.map((webinar) => {
-                    const isRegistered = registeredIds.includes(webinar.id);
+                    const isRegistered = registeredIds.some(r =>
+                        (typeof r === 'object' ? r.id === webinar.id : r === webinar.id)
+                    );
 
                     return (
                         <div key={webinar.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
@@ -96,8 +105,8 @@ const StudentWebinars = () => {
                                     onClick={() => handleRegister(webinar)}
                                     disabled={isRegistered}
                                     className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isRegistered
-                                            ? 'bg-emerald-50 text-emerald-600 cursor-default'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20'
+                                        ? 'bg-emerald-50 text-emerald-600 cursor-default'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20'
                                         }`}
                                 >
                                     {isRegistered ? (

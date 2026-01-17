@@ -29,6 +29,9 @@ const Login = () => {
                 // Login Logic
                 const response = await loginStudent(email, password);
                 if (response.success) {
+                    // Clear potential admin session to prevent redirect conflicts
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('isAdmin');
                     localStorage.setItem('student', JSON.stringify(response.data));
                     navigate('/studentdashboard');
                 }
@@ -44,6 +47,9 @@ const Login = () => {
                 const response = await enrollStudent(studentData);
                 if (response.success) {
                     // Auto login after signup
+                    // Clear potential admin session
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('isAdmin');
                     localStorage.setItem('student', JSON.stringify(response.data));
                     navigate('/studentdashboard');
                 }

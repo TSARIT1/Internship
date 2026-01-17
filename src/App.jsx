@@ -33,6 +33,7 @@ import StudentDashboardHome from './pages/student/StudentDashboardHome';
 import StudentWebinars from './pages/student/StudentWebinars';
 import StudentRegistrations from './pages/student/StudentRegistrations';
 import StudentTestimonials from './pages/student/StudentTestimonials';
+import StudentCourses from './pages/student/StudentCourses';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -71,6 +72,7 @@ function App() {
         {/* Student Routes */}
         <Route path="/studentdashboard" element={<StudentProtectedRoute><StudentLayout /></StudentProtectedRoute>}>
           <Route index element={<StudentDashboardHome />} />
+          <Route path="courses" element={<StudentCourses />} />
           <Route path="webinars" element={<StudentWebinars />} />
           <Route path="my-registrations" element={<StudentRegistrations />} />
           <Route path="testimonials" element={<StudentTestimonials />} />

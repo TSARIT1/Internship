@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
+import { getPricing } from '../../services/studentApi';
 import { Calendar, CheckCircle, Search, Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,7 +11,7 @@ const StudentDashboardHome = () => {
     const [stats, setStats] = useState({
         webinarsCount: 0,
         registeredCount: 0,
-        availableInternships: 9 // Fixed value from our course list
+        availableInternships: 0
     });
     const [recentWebinars, setRecentWebinars] = useState([]);
 
@@ -19,27 +20,52 @@ const StudentDashboardHome = () => {
             // Fetch webinars
             const webinarsResponse = await getWebinars();
             const allWebinars = webinarsResponse.data || [];
+
+            // Fetch courses
+            const coursesResponse = await getPricing();
+            const coursesCount = coursesResponse.data ? coursesResponse.data.length : 0;
+
             setRecentWebinars(allWebinars.slice(0, 3)); // Show top 3
+
+            // Calculate upcoming webinars count (dates in future)
+            const upcomingCount = allWebinars.filter(w => new Date(w.date) >= new Date()).length;
 
             // Calculate registered count
             const registered = student.registeredWebinars?.length || (student.webinar ? 1 : 0);
 
-            setStats(prev => ({
-                ...prev,
-                webinarsCount: allWebinars.length,
-                registeredCount: registered
-            }));
+            setStats({
+                webinarsCount: upcomingCount,
+                registeredCount: registered,
+                availableInternships: coursesCount
+            });
         };
 
         fetchData();
     }, []);
 
+    const enrolledCourse = student.webinar || student.course;
+
     return (
         <div className="space-y-8">
-            {/* Find available internships header card or just welcome */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Welcome, {student.name}!</h1>
-                <p className="text-slate-500 mt-1">Here's what's happening today.</p>
+            {/* Header & Enrolled Course */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900">Welcome, {student.name}!</h1>
+                    <p className="text-slate-500 mt-1">Here's what's happening today.</p>
+                </div>
+
+                {enrolledCourse && (
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 w-full md:w-auto md:min-w-[320px]">
+                        <p className="text-blue-100 text-sm font-medium mb-1 uppercase tracking-wider">Your Active Course</p>
+                        <h2 className="text-2xl font-bold mb-4">{enrolledCourse}</h2>
+                        <div className="flex items-center gap-4">
+                            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+                                <CheckCircle size={14} /> Active
+                            </div>
+                            <span className="text-sm text-blue-100">Joined {student.date}</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Stats Cards */}

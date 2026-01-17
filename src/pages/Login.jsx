@@ -1,15 +1,75 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Mail, Lock, User, UserPlus, LogIn, Phone } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, Mail, Lock, User, UserPlus, LogIn, Phone, BookOpen } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { loginStudent, enrollStudent } from '../services/studentApi';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const navigate = useNavigate();
+
+    // Form States
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [course, setCourse] = useState('');
+
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            if (isLogin) {
+                // Login Logic
+                const response = await loginStudent(email, password);
+                if (response.success) {
+                    localStorage.setItem('student', JSON.stringify(response.data));
+                    navigate('/studentdashboard');
+                }
+            } else {
+                // Signup Logic
+                const studentData = {
+                    name,
+                    email,
+                    phone,
+                    password,
+                    course: course || 'General' // Default if not selected, though we'll add a selector
+                };
+                const response = await enrollStudent(studentData);
+                if (response.success) {
+                    // Auto login after signup
+                    localStorage.setItem('student', JSON.stringify(response.data));
+                    navigate('/studentdashboard');
+                }
+            }
+        } catch (err) {
+            setError(err.message || "An error occurred. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const courses = [
+        "Data Science",
+        "Machine Learning",
+        "AI",
+        "MERN Stack",
+        "DevOps",
+        "Java Full Stack",
+        "Python Programming",
+        "AWS Cloud Computing",
+        "Cyber Security"
+    ];
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             {/* Background decoration */}
-            {/* Background Image & Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
                     src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
@@ -36,22 +96,24 @@ const Login = () => {
 
                     <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
                         <button
+                            type="button"
                             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${isLogin ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                                 }`}
-                            onClick={() => setIsLogin(true)}
+                            onClick={() => { setIsLogin(true); setError(''); }}
                         >
                             Login
                         </button>
                         <button
+                            type="button"
                             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${!isLogin ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                                 }`}
-                            onClick={() => setIsLogin(false)}
+                            onClick={() => { setIsLogin(false); setError(''); }}
                         >
                             Sign Up
                         </button>
                     </div>
 
-                    <form className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         {!isLogin && (
                             <div className="space-y-4">
                                 <div>
@@ -62,6 +124,9 @@ const Login = () => {
                                         </div>
                                         <input
                                             type="text"
+                                            required
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
                                             className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
                                             placeholder="Enter your Name"
                                         />
@@ -75,6 +140,9 @@ const Login = () => {
                                         </div>
                                         <input
                                             type="email"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
                                             placeholder="name@example.com"
                                         />
@@ -88,9 +156,31 @@ const Login = () => {
                                         </div>
                                         <input
                                             type="tel"
+                                            required
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
                                             className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
                                             placeholder="Enter your mobile number"
                                         />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Course</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <BookOpen size={18} className="text-slate-400" />
+                                        </div>
+                                        <select
+                                            required
+                                            value={course}
+                                            onChange={(e) => setCourse(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 appearance-none cursor-pointer"
+                                        >
+                                            <option value="" disabled>Select a Course</option>
+                                            {courses.map((c, i) => (
+                                                <option key={i} value={c}>{c}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -105,6 +195,9 @@ const Login = () => {
                                     </div>
                                     <input
                                         type="email"
+                                        required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
                                         placeholder="name@example.com"
                                     />
@@ -120,11 +213,20 @@ const Login = () => {
                                 </div>
                                 <input
                                     type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
                                     placeholder="••••••••"
                                 />
                             </div>
                         </div>
+
+                        {error && (
+                            <div className="text-red-500 text-sm p-2 bg-red-50 rounded-lg text-center font-medium">
+                                {error}
+                            </div>
+                        )}
 
                         {isLogin && (
                             <div className="flex items-center justify-end">
@@ -135,10 +237,13 @@ const Login = () => {
                         )}
 
                         <button
-                            type="button" // Change to submit in real app
-                            className="w-full bg-secondary hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-orange-500/25 flex items-center justify-center gap-2 mt-2"
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-secondary hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-orange-500/25 flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            {isLogin ? (
+                            {loading ? (
+                                <span className="animate-pulse">Processing...</span>
+                            ) : isLogin ? (
                                 <>
                                     <LogIn size={20} /> Login Securely
                                 </>
@@ -155,14 +260,14 @@ const Login = () => {
                         {isLogin ? (
                             <>
                                 Don't have an account?{' '}
-                                <button onClick={() => setIsLogin(false)} className="text-primary font-bold hover:underline">
+                                <button onClick={() => { setIsLogin(false); setError(''); }} className="text-primary font-bold hover:underline">
                                     Sign Up
                                 </button>
                             </>
                         ) : (
                             <>
                                 Already have an account?{' '}
-                                <button onClick={() => setIsLogin(true)} className="text-primary font-bold hover:underline">
+                                <button onClick={() => { setIsLogin(true); setError(''); }} className="text-primary font-bold hover:underline">
                                     Login
                                 </button>
                             </>

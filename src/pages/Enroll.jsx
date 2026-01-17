@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { enrollStudent } from '../services/studentApi';
-import { ArrowLeft, User, Mail, Phone, BookOpen, Send, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, BookOpen, Send, CheckCircle, Lock } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -14,7 +14,8 @@ const Enroll = () => {
         name: '',
         email: '',
         phone: '',
-        course: ''
+        course: '',
+        password: ''
     });
 
     const [submitted, setSubmitted] = useState(false);
@@ -187,6 +188,25 @@ const Enroll = () => {
                                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label htmlFor="password" className="text-sm font-semibold text-slate-700 ml-1">Password</label>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                                <Lock size={20} />
+                                            </div>
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                name="password"
+                                                required
+                                                placeholder="••••••••"
+                                                className="w-full bg-slate-50 text-slate-900 pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                            />
                                         </div>
                                     </div>
 

@@ -27,6 +27,13 @@ import AdminStudents from './pages/AdminStudents';
 import AdminPricing from './pages/AdminPricing';
 import AdminVideoTestimonials from './pages/AdminVideoTestimonials';
 
+import StudentLayout from './layouts/StudentLayout';
+import StudentProtectedRoute from './components/StudentProtectedRoute';
+import StudentDashboardHome from './pages/student/StudentDashboardHome';
+import StudentWebinars from './pages/student/StudentWebinars';
+import StudentRegistrations from './pages/student/StudentRegistrations';
+import StudentTestimonials from './pages/student/StudentTestimonials';
+
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
@@ -60,6 +67,13 @@ function App() {
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="students" element={<AdminStudents />} />
           <Route path="pricing" element={<AdminPricing />} />
+        </Route>
+        {/* Student Routes */}
+        <Route path="/studentdashboard" element={<StudentProtectedRoute><StudentLayout /></StudentProtectedRoute>}>
+          <Route index element={<StudentDashboardHome />} />
+          <Route path="webinars" element={<StudentWebinars />} />
+          <Route path="my-registrations" element={<StudentRegistrations />} />
+          <Route path="testimonials" element={<StudentTestimonials />} />
         </Route>
 
       </Routes>

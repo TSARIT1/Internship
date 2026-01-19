@@ -1,29 +1,61 @@
 import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
+import { getPricing } from '../../services/studentApi';
 import { internships } from '../../data/internships';
-import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const StudentDashboardHome = () => {
     const student = JSON.parse(localStorage.getItem('student') || '{}');
     const navigate = useNavigate();
     const [upcomingWebinar, setUpcomingWebinar] = useState(null);
+    const [stats, setStats] = useState({
+        upcomingWebinars: 0,
+        registeredWebinars: 0,
+        availableCourses: 0
+    });
 
     useEffect(() => {
-        const fetchWebinars = async () => {
+        const fetchData = async () => {
             try {
-                const response = await getWebinars();
-                const allWebinars = response.data || [];
-                // Find the next upcoming webinar
-                const next = allWebinars
-                    .filter(w => new Date(w.date) >= new Date())
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+                const [webinarsRes, coursesRes] = await Promise.all([
+                    getWebinars(),
+                    getPricing()
+                ]);
+
+                const allWebinars = webinarsRes.data || [];
+                const allCourses = coursesRes.data || [];
+
+                // Upcoming Webinars Count (Future Dates)
+                const upcoming = allWebinars.filter(w => new Date(w.date) >= new Date());
+
+                // Registered Webinars Count
+                const registeredIds = student.registeredWebinars || [];
+                // Handle legacy string format if present and not in array
+                let registeredCount = registeredIds.length;
+                if (student.webinar && !registeredIds.some(r => (typeof r === 'object' ? r.id : r) === allWebinars.find(w => w.title === student.webinar)?.id)) {
+                    // Only increment if not already counted (simple check)
+                    // Actually, if student.webinar exists, they have at least 1. 
+                    // But registeredWebinars is the source of truth now.
+                    // If registeredWebinars is empty but student.webinar is set (legacy), count is 1.
+                    if (registeredCount === 0) registeredCount = 1;
+                }
+
+                // Next Upcoming Webinar for card
+                const next = upcoming.sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+
                 setUpcomingWebinar(next);
+                setStats({
+                    upcomingWebinars: upcoming.length,
+                    registeredWebinars: registeredCount,
+                    availableCourses: allCourses.length
+                });
+
             } catch (error) {
-                console.error("Failed to fetch webinars", error);
+                console.error("Failed to fetch dashboard data", error);
             }
         };
-        fetchWebinars();
+        fetchData();
     }, []);
 
     const enrolledCourse = student.webinar || student.course;
@@ -41,6 +73,39 @@ const StudentDashboardHome = () => {
                 </div>
             </header>
 
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                        <Calendar size={24} />
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Upcoming Webinars</p>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.upcomingWebinars}</h3>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                        <Video size={24} />
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Registered Webinars</p>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.registeredWebinars}</h3>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+                        <Award size={24} />
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Available Courses</p>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.availableCourses}</h3>
+                    </div>
+                </div>
+            </div>
+
             {/* Active Commitments Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Active Course Card */}
@@ -56,7 +121,10 @@ const StudentDashboardHome = () => {
                             <p className="text-blue-100 text-sm">Continue learning where you left off.</p>
                         </div>
                         <div className="mt-8">
-                            <button className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm">
+                            <button
+                                onClick={() => navigate(`/student/course/${encodeURIComponent(enrolledCourse)}`)}
+                                className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm"
+                            >
                                 Go to Classroom
                             </button>
                         </div>
@@ -144,7 +212,7 @@ const StudentDashboardHome = () => {
 
                 <div className="mt-8 text-center">
                     <button
-                        onClick={() => navigate('/studentdashboard/courses')} // Assuming there is a courses route
+                        onClick={() => navigate('/studentdashboard/courses')}
                         className="inline-flex items-center gap-2 text-slate-600 font-semibold hover:text-blue-600 transition-colors"
                     >
                         View All Internships <ArrowRight size={16} />

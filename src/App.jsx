@@ -35,6 +35,7 @@ import StudentWebinars from './pages/student/StudentWebinars';
 import StudentRegistrations from './pages/student/StudentRegistrations';
 import StudentTestimonials from './pages/student/StudentTestimonials';
 import StudentCourses from './pages/student/StudentCourses';
+import StudentCourseView from './pages/StudentCourseView';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -72,6 +73,7 @@ function App() {
           <Route path="pricing" element={<AdminPricing />} />
         </Route>
         {/* Student Routes */}
+        <Route path="/student/course/:courseName" element={<StudentProtectedRoute><StudentCourseView /></StudentProtectedRoute>} />
         <Route path="/studentdashboard" element={<StudentProtectedRoute><StudentLayout /></StudentProtectedRoute>}>
           <Route index element={<StudentDashboardHome />} />
           <Route path="courses" element={<StudentCourses />} />

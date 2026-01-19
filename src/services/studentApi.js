@@ -1,7 +1,7 @@
 
 // Mock data for registered students
 const INITIAL_STUDENTS = [
-    { id: 1, name: "John Doe", email: "john@example.com", password: "password123", webinar: "React Masterclass", date: "2024-03-15", totalFee: 5000, discount: 0 },
+    { id: 1, name: "John Doe", email: "john@example.com", password: "password123", webinar: "Data Science", date: "2024-03-15", totalFee: 5000, discount: 0 },
     { id: 2, name: "Jane Smith", email: "jane@example.com", password: "password123", webinar: "AI & ML Workshop", date: "2024-03-14", totalFee: 8000, discount: 1000 },
     { id: 3, name: "Mike Johnson", email: "mike@example.com", password: "password123", webinar: "React Masterclass", date: "2024-03-12", totalFee: 5000, discount: 0 },
     { id: 4, name: "Sarah Williams", email: "sarah@example.com", password: "password123", webinar: "Data Science Bootcamp", date: "2024-03-10", totalFee: 12000, discount: 2000 },
@@ -215,3 +215,55 @@ export const loginStudent = async (email, password) => {
         }, 1000);
     });
 };
+
+// Mock Course Content
+const COURSE_CONTENT = {
+    "Data Science": [
+        {
+            id: 1,
+            title: "Introduction to Data Science",
+            videos: [
+                { id: "v1", title: "What is Data Science?", url: "https://www.youtube.com/embed/ua-CiDNNj30", duration: "10:30" },
+                { id: "v2", title: "Python Setup", url: "https://www.youtube.com/embed/t8pPdKYpowI", duration: "15:20" }
+            ]
+        },
+        {
+            id: 2,
+            title: "Python for Data Analysis",
+            videos: [
+                { id: "v3", title: "NumPy Basics", url: "https://www.youtube.com/embed/QUT1VHiLmmI", duration: "20:15" },
+                { id: "v4", title: "Pandas DataFrame", url: "https://www.youtube.com/embed/vmEHCJofslg", duration: "18:45" }
+            ]
+        }
+    ],
+    "Java Full Stack": [
+         {
+            id: 1,
+            title: "Java Core",
+            videos: [
+                { id: "j1", title: "Java Basics", url: "https://www.youtube.com/embed/grEKMHGYyns", duration: "12:00" },
+                { id: "j2", title: "OOPs Concepts", url: "https://www.youtube.com/embed/pTB0EiLXUC8", duration: "25:00" }
+            ]
+        }
+    ],
+    // Default fallback for others
+    "default": [
+        {
+            id: 1,
+            title: "Course Overview",
+            videos: [
+                { id: "d1", title: "Welcome to the Course", url: "https://www.youtube.com/embed/9bZkp7q19f0", duration: "05:00" }
+            ]
+        }
+    ]
+};
+
+export const getCourseContent = async (courseName) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const content = COURSE_CONTENT[courseName] || COURSE_CONTENT["default"];
+            resolve({ success: true, data: content });
+        }, 800);
+    });
+};
+

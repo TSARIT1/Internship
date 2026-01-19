@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Contact from './pages/Contact';
 import InternshipDetails from './pages/InternshipDetails';
 import Enroll from './pages/Enroll';
+import EnrollSuccess from './pages/EnrollSuccess';
 
 import DataScience from './pages/DataScience';
 import MachineLearning from './pages/MachineLearning';
@@ -56,6 +57,7 @@ function App() {
         <Route path="/cyber-security" element={<CyberSecurity />} />
         <Route path="/internship/:id" element={<InternshipDetails />} />
         <Route path="/enroll" element={<Enroll />} />
+        <Route path="/enroll-success" element={<ProtectedRoute><EnrollSuccess /></ProtectedRoute>} />
         <Route path="/webinars" element={<Webinars />} />
 
         {/* Admin Routes */}

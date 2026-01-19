@@ -1,148 +1,154 @@
-
 import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
-import { getPricing } from '../../services/studentApi';
-import { Calendar, CheckCircle, Search, Video } from 'lucide-react';
+import { internships } from '../../data/internships';
+import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const StudentDashboardHome = () => {
     const student = JSON.parse(localStorage.getItem('student') || '{}');
     const navigate = useNavigate();
-    const [stats, setStats] = useState({
-        webinarsCount: 0,
-        registeredCount: 0,
-        availableInternships: 0
-    });
-    const [recentWebinars, setRecentWebinars] = useState([]);
+    const [upcomingWebinar, setUpcomingWebinar] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            // Fetch webinars
-            const webinarsResponse = await getWebinars();
-            const allWebinars = webinarsResponse.data || [];
-
-            // Fetch courses
-            const coursesResponse = await getPricing();
-            const coursesCount = coursesResponse.data ? coursesResponse.data.length : 0;
-
-            setRecentWebinars(allWebinars.slice(0, 3)); // Show top 3
-
-            // Calculate upcoming webinars count (dates in future)
-            const upcomingCount = allWebinars.filter(w => new Date(w.date) >= new Date()).length;
-
-            // Calculate registered count
-            const registered = student.registeredWebinars?.length || (student.webinar ? 1 : 0);
-
-            setStats({
-                webinarsCount: upcomingCount,
-                registeredCount: registered,
-                availableInternships: coursesCount
-            });
+        const fetchWebinars = async () => {
+            try {
+                const response = await getWebinars();
+                const allWebinars = response.data || [];
+                // Find the next upcoming webinar
+                const next = allWebinars
+                    .filter(w => new Date(w.date) >= new Date())
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+                setUpcomingWebinar(next);
+            } catch (error) {
+                console.error("Failed to fetch webinars", error);
+            }
         };
-
-        fetchData();
+        fetchWebinars();
     }, []);
 
     const enrolledCourse = student.webinar || student.course;
 
     return (
-        <div className="space-y-8">
-            {/* Header & Enrolled Course */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-8 max-w-7xl mx-auto">
+            {/* Header Section */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Welcome, {student.name}!</h1>
-                    <p className="text-slate-500 mt-1">Here's what's happening today.</p>
+                    <h1 className="text-3xl font-bold text-slate-900">Welcome back, {student.name}!</h1>
+                    <p className="text-slate-500 mt-1">Track your progress and upcoming events.</p>
                 </div>
+                <div className="text-right hidden md:block">
+                    <p className="text-sm font-medium text-slate-500">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+            </header>
 
-                {enrolledCourse && (
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 w-full md:w-auto md:min-w-[320px]">
-                        <p className="text-blue-100 text-sm font-medium mb-1 uppercase tracking-wider">Your Active Course</p>
-                        <h2 className="text-2xl font-bold mb-4">{enrolledCourse}</h2>
-                        <div className="flex items-center gap-4">
-                            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
-                                <CheckCircle size={14} /> Active
+            {/* Active Commitments Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Active Course Card */}
+                {enrolledCourse ? (
+                    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                    <CheckCircle size={12} /> Active Course
+                                </span>
                             </div>
-                            <span className="text-sm text-blue-100">Joined {student.date}</span>
+                            <h2 className="text-2xl font-bold mb-2">{enrolledCourse}</h2>
+                            <p className="text-blue-100 text-sm">Continue learning where you left off.</p>
+                        </div>
+                        <div className="mt-8">
+                            <button className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm">
+                                Go to Classroom
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center space-y-4">
+                        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
+                            <BookOpen size={24} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900">No Active Course</h3>
+                            <p className="text-slate-500 text-sm">Enroll in an internship to get started.</p>
                         </div>
                     </div>
                 )}
-            </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                        <Video size={28} />
+                {/* Next Upcoming Webinar */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                            <Calendar size={18} className="text-blue-600" />
+                            Upcoming Webinar
+                        </h3>
+                        {upcomingWebinar && (
+                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                                {upcomingWebinar.date}
+                            </span>
+                        )}
                     </div>
-                    <div>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.webinarsCount}</h3>
-                        <p className="text-slate-500 font-medium">Upcoming Webinars</p>
-                    </div>
-                </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                        <CheckCircle size={28} />
-                    </div>
-                    <div>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.registeredCount}</h3>
-                        <p className="text-slate-500 font-medium">Registered Webinars</p>
-                    </div>
-                </div>
+                    {upcomingWebinar ? (
+                        <div className="flex-1 flex flex-col">
+                            <h4 className="text-lg font-bold text-slate-900 mb-2">{upcomingWebinar.title}</h4>
+                            <p className="text-slate-500 text-sm mb-4 line-clamp-2">{upcomingWebinar.description}</p>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-                        <Search size={28} />
-                    </div>
-                    <div>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.availableInternships}</h3>
-                        <p className="text-slate-500 font-medium">Available Internships</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Upcoming Webinars Section */}
-            <div>
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-slate-900">Recommended for You</h2>
-                    <button
-                        onClick={() => navigate('/studentdashboard/webinars')}
-                        className="text-blue-600 font-semibold text-sm hover:underline"
-                    >
-                        View All
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {recentWebinars.map((webinar) => (
-                        <div key={webinar.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow group">
-                            <div className="h-48 overflow-hidden relative">
-                                <img
-                                    src={webinar.image}
-                                    alt={webinar.title}
-                                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-blue-600 shadow-sm">
-                                    {webinar.time}
+                            <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+                                <div className="flex items-center gap-2 text-slate-500 text-sm">
+                                    <Clock size={16} />
+                                    <span>{upcomingWebinar.time}</span>
                                 </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="flex items-center gap-2 text-slate-500 text-sm mb-3">
-                                    <Calendar size={16} />
-                                    <span>{webinar.date}</span>
-                                </div>
-                                <h3 className="font-bold text-lg text-slate-900 mb-2 line-clamp-1" title={webinar.title}>{webinar.title}</h3>
-                                <p className="text-slate-500 text-sm line-clamp-2 mb-4">{webinar.description}</p>
-
                                 <button
                                     onClick={() => navigate('/studentdashboard/webinars')}
-                                    className="w-full py-2.5 bg-slate-50 text-slate-700 font-semibold rounded-xl hover:bg-slate-100 transition-colors"
+                                    className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1"
                                 >
-                                    View Details
+                                    View Details <ArrowRight size={14} />
                                 </button>
                             </div>
                         </div>
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+                            No upcoming webinars scheduled.
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Explore Internships Section */}
+            <div>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-slate-900">Explore Internships</h2>
+                    <span className="text-sm text-slate-500">Based on popular demand</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {internships.slice(0, 3).map((internship, index) => (
+                        <div key={index} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                            <div className={`w-12 h-12 rounded-lg ${internship.bg} ${internship.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                                <internship.icon size={24} />
+                            </div>
+                            <h3 className="font-bold text-slate-900 mb-1">{internship.title}</h3>
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{internship.duration}</span>
+                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{internship.level}</span>
+                            </div>
+                            <p className="text-sm text-slate-500 mb-4 line-clamp-2">{internship.description}</p>
+                            <button
+                                onClick={() => navigate('/studentdashboard/courses')}
+                                className="w-full py-2 text-sm font-bold text-slate-700 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
+                            >
+                                View Program
+                            </button>
+                        </div>
                     ))}
+                </div>
+
+                <div className="mt-8 text-center">
+                    <button
+                        onClick={() => navigate('/studentdashboard/courses')} // Assuming there is a courses route
+                        className="inline-flex items-center gap-2 text-slate-600 font-semibold hover:text-blue-600 transition-colors"
+                    >
+                        View All Internships <ArrowRight size={16} />
+                    </button>
                 </div>
             </div>
         </div>

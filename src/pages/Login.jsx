@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import ShinyButton from '../components/ui/ShinyButton';
 import { ArrowLeft, Mail, Lock, User, UserPlus, LogIn, Phone, BookOpen } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginStudent, enrollStudent } from '../services/studentApi';
@@ -25,35 +26,45 @@ const Login = () => {
         setLoading(true);
 
         try {
+            // Frontend-only Auth Simulation
+            // We are using the API for "real" authentication if available, but enforcing the storage requirements.
+
+            let response;
             if (isLogin) {
-                // Login Logic
-                const response = await loginStudent(email, password);
-                if (response.success) {
-                    // Clear potential admin session to prevent redirect conflicts
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('isAdmin');
-                    localStorage.setItem('student', JSON.stringify(response.data));
-                    navigate('/studentdashboard');
-                }
+                response = await loginStudent(email, password);
             } else {
-                // Signup Logic
                 const studentData = {
                     name,
                     email,
                     phone,
                     password,
-                    course: course || 'General' // Default if not selected, though we'll add a selector
+                    course: course || 'General'
                 };
-                const response = await enrollStudent(studentData);
-                if (response.success) {
-                    // Auto login after signup
-                    // Clear potential admin session
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('isAdmin');
-                    localStorage.setItem('student', JSON.stringify(response.data));
+                response = await enrollStudent(studentData);
+            }
+
+            if (response.success) {
+                // 1. Set Auth State per requirements
+                localStorage.setItem('token', 'dummy-token'); // Mock token as requested
+                localStorage.setItem('role', 'STUDENT');
+                localStorage.setItem('student', JSON.stringify(response.data));
+
+                // Clear potential admin session
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('isAdmin');
+
+                // 2. Redirect Logic
+                const redirectPath = localStorage.getItem('redirectAfterLogin');
+                if (redirectPath) {
+                    localStorage.removeItem('redirectAfterLogin');
+                    navigate(redirectPath);
+                } else {
                     navigate('/studentdashboard');
                 }
+            } else {
+                setError(response.message || "Authentication failed");
             }
+
         } catch (err) {
             setError(err.message || "An error occurred. Please try again.");
         } finally {
@@ -242,13 +253,16 @@ const Login = () => {
                             </div>
                         )}
 
-                        <button
+                        <ShinyButton
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-secondary hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-orange-500/25 flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            continuous={true}
+                            className="w-full justify-center !py-4 !text-lg bg-gradient-to-r from-orange-400 to-orange-600 shadow-orange-500/30 hover:shadow-orange-500/50"
                         >
                             {loading ? (
-                                <span className="animate-pulse">Processing...</span>
+                                <span className="animate-pulse flex items-center gap-2">
+                                    Processing...
+                                </span>
                             ) : isLogin ? (
                                 <>
                                     <LogIn size={20} /> Login Securely
@@ -258,7 +272,7 @@ const Login = () => {
                                     <UserPlus size={20} /> Create Account
                                 </>
                             )}
-                        </button>
+                        </ShinyButton>
                     </form>
 
                     {/* Footer of card */}

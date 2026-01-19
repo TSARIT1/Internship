@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import EnrollButton from '../components/EnrollButton';
 import {
     BookOpen, CheckCircle, ChevronDown, ChevronUp, Clock,
     Code, Database, Layout, Server, Award, Users,
@@ -259,9 +260,9 @@ const InternshipDetails = () => {
                                         <span className="text-slate-400 line-through text-sm">₹8,999</span>
                                     </div>
 
-                                    <Link to={`/enroll?course=${encodeURIComponent(dummyData.title)}`} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2">
+                                    <EnrollButton className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2">
                                         Enroll Now <ArrowRight size={18} />
-                                    </Link>
+                                    </EnrollButton>
                                     <p className="text-xs text-slate-400 mt-4">Top 5% performers get paid internships</p>
                                 </div>
 

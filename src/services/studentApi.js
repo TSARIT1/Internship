@@ -216,54 +216,162 @@ export const loginStudent = async (email, password) => {
     });
 };
 
-// Mock Course Content
-const COURSE_CONTENT = {
-    "Data Science": [
-        {
-            id: 1,
-            title: "Introduction to Data Science",
-            videos: [
-                { id: "v1", title: "What is Data Science?", url: "https://www.youtube.com/embed/ua-CiDNNj30", duration: "10:30" },
-                { id: "v2", title: "Python Setup", url: "https://www.youtube.com/embed/t8pPdKYpowI", duration: "15:20" }
-            ]
-        },
-        {
-            id: 2,
-            title: "Python for Data Analysis",
-            videos: [
-                { id: "v3", title: "NumPy Basics", url: "https://www.youtube.com/embed/QUT1VHiLmmI", duration: "20:15" },
-                { id: "v4", title: "Pandas DataFrame", url: "https://www.youtube.com/embed/vmEHCJofslg", duration: "18:45" }
-            ]
-        }
-    ],
-    "Java Full Stack": [
-         {
-            id: 1,
-            title: "Java Core",
-            videos: [
-                { id: "j1", title: "Java Basics", url: "https://www.youtube.com/embed/grEKMHGYyns", duration: "12:00" },
-                { id: "j2", title: "OOPs Concepts", url: "https://www.youtube.com/embed/pTB0EiLXUC8", duration: "25:00" }
-            ]
-        }
-    ],
-    // Default fallback for others
-    "default": [
-        {
-            id: 1,
-            title: "Course Overview",
-            videos: [
-                { id: "d1", title: "Welcome to the Course", url: "https://www.youtube.com/embed/9bZkp7q19f0", duration: "05:00" }
-            ]
-        }
-    ]
+
+// Mock Course Content - Initial Data
+const INITIAL_COURSE_CONTENT = {
+    "Data Science": {
+        liveLink: "",
+        sections: [
+            {
+                id: 1,
+                title: "Introduction to Data Science",
+                videos: [
+                    { id: "v1", title: "What is Data Science?", url: "https://www.youtube.com/embed/ua-CiDNNj30", duration: "10:30", type: "youtube" },
+                    { id: "v2", title: "Python Setup", url: "https://www.youtube.com/embed/t8pPdKYpowI", duration: "15:20", type: "youtube" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Python for Data Analysis",
+                videos: [
+                    { id: "v3", title: "NumPy Basics", url: "https://www.youtube.com/embed/QUT1VHiLmmI", duration: "20:15", type: "youtube" },
+                    { id: "v4", title: "Pandas DataFrame", url: "https://www.youtube.com/embed/vmEHCJofslg", duration: "18:45", type: "youtube" }
+                ]
+            }
+        ]
+    },
+    "Java Full Stack": {
+        liveLink: "",
+        sections: [
+            {
+                id: 1,
+                title: "Java Core",
+                videos: [
+                    { id: "j1", title: "Java Basics", url: "https://www.youtube.com/embed/grEKMHGYyns", duration: "12:00", type: "youtube" },
+                    { id: "j2", title: "OOPs Concepts", url: "https://www.youtube.com/embed/pTB0EiLXUC8", duration: "25:00", type: "youtube" }
+                ]
+            }
+        ]
+    },
+    // Default fallback
+    "default": {
+        liveLink: "",
+        sections: [
+            {
+                id: 1,
+                title: "Course Overview",
+                videos: [
+                    { id: "d1", title: "Welcome to the Course", url: "https://www.youtube.com/embed/9bZkp7q19f0", duration: "05:00", type: "youtube" }
+                ]
+            }
+        ]
+    }
+};
+
+const getLocalCourseContent = () => {
+    const data = localStorage.getItem('courseContent');
+    if (data) return JSON.parse(data);
+    localStorage.setItem('courseContent', JSON.stringify(INITIAL_COURSE_CONTENT));
+    return INITIAL_COURSE_CONTENT;
+};
+
+const setLocalCourseContent = (data) => {
+    localStorage.setItem('courseContent', JSON.stringify(data));
 };
 
 export const getCourseContent = async (courseName) => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            const content = COURSE_CONTENT[courseName] || COURSE_CONTENT["default"];
+            const contentStore = getLocalCourseContent();
+            // Fallback to default if course not found, but try to preserve the courseName structure if we want to prompt admin to create it?
+            // For now, if not found, return default structure but maybe empty? 
+            // Better to return default content so it's not empty.
+            const content = contentStore[courseName] || contentStore["default"];
             resolve({ success: true, data: content });
-        }, 800);
+        }, 500);
     });
 };
+
+export const updateLiveClassLink = async (courseName, link) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const contentStore = getLocalCourseContent();
+            if (!contentStore[courseName]) {
+                contentStore[courseName] = { liveLink: "", sections: [] };
+            }
+            contentStore[courseName].liveLink = link;
+            setLocalCourseContent(contentStore);
+            resolve({ success: true, data: link });
+        }, 500);
+    });
+};
+
+export const addCourseVideo = async (courseName, sectionTitle, videoData) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const contentStore = getLocalCourseContent();
+            if (!contentStore[courseName]) {
+                contentStore[courseName] = { liveLink: "", sections: [] };
+            }
+            
+            const courseData = contentStore[courseName];
+            let section = courseData.sections.find(s => s.title === sectionTitle);
+            
+            if (!section) {
+                // Create new section if it doesn't exist
+                section = {
+                    id: Date.now(),
+                    title: sectionTitle,
+                    videos: []
+                };
+                courseData.sections.push(section);
+            }
+
+            const newVideo = {
+                id: Date.now().toString(), // Simple ID generation
+                ...videoData
+            };
+
+            section.videos.push(newVideo);
+            setLocalCourseContent(contentStore);
+            resolve({ success: true, data: newVideo });
+        }, 500);
+    });
+};
+
+export const deleteCourseVideo = async (courseName, sectionId, videoId) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const contentStore = getLocalCourseContent();
+            if (contentStore[courseName]) {
+                const courseData = contentStore[courseName];
+                const section = courseData.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.videos = section.videos.filter(v => v.id !== videoId);
+                    // Cleanup empty sections if desired? Let's keep them for now.
+                    setLocalCourseContent(contentStore);
+                    resolve({ success: true });
+                    return;
+                }
+            }
+            resolve({ success: false, message: "Video not found" });
+        }, 500);
+    });
+};
+
+export const deleteCourseSection = async (courseName, sectionId) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const contentStore = getLocalCourseContent();
+             if (contentStore[courseName]) {
+                contentStore[courseName].sections = contentStore[courseName].sections.filter(s => s.id !== sectionId);
+                setLocalCourseContent(contentStore);
+                resolve({ success: true });
+            } else {
+                resolve({ success: false });
+            }
+        }, 500);
+    });
+};
+
 

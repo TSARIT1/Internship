@@ -26,7 +26,9 @@ import AdminWebinars from './pages/AdminWebinars';
 import AdminTestimonials from './pages/AdminTestimonials';
 import AdminStudents from './pages/AdminStudents';
 import AdminPricing from './pages/AdminPricing';
+
 import AdminVideoTestimonials from './pages/AdminVideoTestimonials';
+import AdminCourseContent from './pages/AdminCourseContent';
 
 import StudentLayout from './layouts/StudentLayout';
 import StudentProtectedRoute from './components/StudentProtectedRoute';
@@ -35,7 +37,7 @@ import StudentWebinars from './pages/student/StudentWebinars';
 import StudentRegistrations from './pages/student/StudentRegistrations';
 import StudentTestimonials from './pages/student/StudentTestimonials';
 import StudentCourses from './pages/student/StudentCourses';
-import StudentCourseView from './pages/StudentCourseView';
+import StudentCourseView from './pages/student/StudentCourseView';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -70,7 +72,9 @@ function App() {
           <Route path="video-testimonials" element={<AdminVideoTestimonials />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="students" element={<AdminStudents />} />
+
           <Route path="pricing" element={<AdminPricing />} />
+          <Route path="course-content" element={<AdminCourseContent />} />
         </Route>
         {/* Student Routes */}
         <Route path="/student/course/:courseName" element={<StudentProtectedRoute><StudentCourseView /></StudentProtectedRoute>} />

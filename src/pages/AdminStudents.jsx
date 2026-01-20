@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Mail, Edit2, Check, X } from 'lucide-react';
-import { getStudents, updateStudentFee } from '../services/studentApi';
+import { Search, Filter, Mail, Edit2, Check, X, Award } from 'lucide-react';
+import { getStudents, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
 
 const AdminStudents = () => {
     const [allStudents, setAllStudents] = useState([]);
@@ -48,6 +48,22 @@ const AdminStudents = () => {
             }
         } catch (error) {
             console.error("Failed to update fee", error);
+        }
+    };
+
+    const handleIssueCertificate = async (studentId, currentStatus) => {
+        try {
+            // If already issued, maybe we want to revoke? For now let's just allow issuing.
+            if (currentStatus) return; // Or toggle
+
+            const response = await updateStudentCertificate(studentId, true);
+            if (response.success) {
+                setAllStudents(prev => prev.map(s =>
+                    s.id === studentId ? { ...s, certificateIssued: true, certificateDate: new Date().toISOString().split('T')[0] } : s
+                ));
+            }
+        } catch (error) {
+            console.error("Failed to issue certificate", error);
         }
     };
 
@@ -180,6 +196,13 @@ const AdminStudents = () => {
                                                         </button>
                                                         <button className="text-slate-400 hover:text-blue-600 p-2 hover:bg-slate-50 rounded-lg transition-colors" title="Send Email">
                                                             <Mail size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleIssueCertificate(student.id, student.certificateIssued)}
+                                                            className={`p-2 rounded-lg transition-colors ${student.certificateIssued ? 'text-green-600 bg-green-50' : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'}`}
+                                                            title={student.certificateIssued ? "Certificate Issued" : "Issue Certificate"}
+                                                        >
+                                                            <Award size={18} />
                                                         </button>
                                                     </>
                                                 )}

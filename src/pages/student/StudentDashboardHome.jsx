@@ -4,6 +4,10 @@ import { getPricing } from '../../services/studentApi';
 import { internships } from '../../data/internships';
 import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import CertificateTemplate from '../../components/CertificateTemplate';
+import { useRef } from 'react';
 
 const StudentDashboardHome = () => {
     const student = JSON.parse(localStorage.getItem('student') || '{}');
@@ -59,6 +63,33 @@ const StudentDashboardHome = () => {
     }, []);
 
     const enrolledCourse = student.webinar || student.course;
+
+    const certificateRef = useRef(null);
+    const [downloading, setDownloading] = useState(false);
+
+    const handleDownloadCertificate = async () => {
+        if (!certificateRef.current) return;
+        setDownloading(true);
+        try {
+            const canvas = await html2canvas(certificateRef.current, {
+                scale: 2, // Higher quality
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape, mm, A4
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`${student.name.replace(/\s+/g, '_')}_Certificate.pdf`);
+        } catch (error) {
+            console.error("Certificate download failed", error);
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     return (
         <div className="space-y-8 max-w-7xl mx-auto">
@@ -140,6 +171,38 @@ const StudentDashboardHome = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Certificate Section - Render Hidden Template & Button */}
+                {student.certificateIssued && (
+                    <div className="md:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-lg flex items-center justify-between">
+                        <div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Award className="text-yellow-400" />
+                                <h3 className="text-xl font-bold">You've earned a Certificate!</h3>
+                            </div>
+                            <p className="text-slate-300 text-sm">Congratulations on completing your course. Download your official certificate now.</p>
+                        </div>
+                        <button
+                            onClick={handleDownloadCertificate}
+                            disabled={downloading}
+                            className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors shadow-lg flex items-center gap-2"
+                        >
+                            {downloading ? 'Generating...' : 'Download Certificate'}
+                            {!downloading && <Award size={18} />}
+                        </button>
+                    </div>
+                )}
+
+                {/* Hidden Certificate Template for Capture */}
+                <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none" style={{ position: 'fixed', left: '-9999px' }}>
+                    <CertificateTemplate
+                        ref={certificateRef}
+                        studentName={student.name}
+                        courseName={student.webinar || student.course || "Course Completion"}
+                        date={student.certificateDate || new Date().toLocaleDateString()}
+                        duration="8 Weeks"
+                    />
+                </div>
 
                 {/* Next Upcoming Webinar */}
                 <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col">

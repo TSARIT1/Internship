@@ -4,7 +4,7 @@ const INITIAL_STUDENTS = [
     { id: 1, name: "John Doe", email: "john@example.com", password: "password123", webinar: "Data Science", date: "2024-03-15", totalFee: 5000, discount: 0 },
     { id: 2, name: "Jane Smith", email: "jane@example.com", password: "password123", webinar: "AI & ML Workshop", date: "2024-03-14", totalFee: 8000, discount: 1000 },
     { id: 3, name: "Mike Johnson", email: "mike@example.com", password: "password123", webinar: "React Masterclass", date: "2024-03-12", totalFee: 5000, discount: 0 },
-    { id: 4, name: "Sarah Williams", email: "sarah@example.com", password: "password123", webinar: "Data Science Bootcamp", date: "2024-03-10", totalFee: 12000, discount: 2000 },
+    { id: 4, name: "Sarah Williams", email: "sarah@example.com", password: "password123", webinar: "Data Science Bootcamp", date: "2024-03-10", totalFee: 12000, discount: 2000, certificateIssued: true, certificateDate: "2024-05-10" },
     { id: 5, name: "David Brown", email: "david@example.com", password: "password123", webinar: "AI & ML Workshop", date: "2024-03-09", totalFee: 8000, discount: 0 },
     { id: 6, name: "Emily Davis", email: "emily@example.com", password: "password123", webinar: "Cyber Security Basics", date: "2024-03-08", totalFee: 6000, discount: 500 },
     { id: 7, name: "Chris Wilson", email: "chris@example.com", password: "password123", webinar: "AWS Cloud Fundamentals", date: "2024-03-07", totalFee: 7000, discount: 0 },
@@ -143,6 +143,32 @@ export const updateStudentFee = async (id, fee, discount) => {
                     discount: Number(discount) 
                 };
                 setLocalStudents(students);
+                resolve({ success: true, data: students[studentIndex] });
+            } else {
+                resolve({ success: false, message: "Student not found" });
+            }
+        }, 500);
+    });
+};
+
+export const updateStudentCertificate = async (id, status) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const students = getLocalStudents();
+            const studentIndex = students.findIndex(s => s.id === id);
+            if (studentIndex !== -1) {
+                const today = new Date().toISOString().split('T')[0];
+                students[studentIndex] = { 
+                    ...students[studentIndex], 
+                    certificateIssued: status,
+                    certificateDate: status ? today : null
+                };
+                setLocalStudents(students);
+                // Also update the current logged in student in session if it matches
+                const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
+                if (currentStudent.id === id) {
+                     localStorage.setItem('student', JSON.stringify(students[studentIndex]));
+                }
                 resolve({ success: true, data: students[studentIndex] });
             } else {
                 resolve({ success: false, message: "Student not found" });

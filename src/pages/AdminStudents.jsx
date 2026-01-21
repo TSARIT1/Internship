@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Mail, Edit2, Check, X, Award } from 'lucide-react';
+import { Search, Filter, Mail, Edit2, Check, X } from 'lucide-react';
 import { getStudents, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
 
 const AdminStudents = () => {
@@ -121,6 +121,7 @@ const AdminStudents = () => {
                                 <th className="p-4 font-bold text-slate-700 text-sm">Total Fee</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Discount</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Final Fee</th>
+                                <th className="p-4 font-bold text-slate-700 text-sm">Certificate</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Date</th>
                                 <th className="p-4 pr-6 text-right font-bold text-slate-700 text-sm">Action</th>
                             </tr>
@@ -165,6 +166,20 @@ const AdminStudents = () => {
                                         <td className="p-4 text-slate-900 font-bold">
                                             ₹{((student.totalFee || 0) - (student.discount || 0)).toLocaleString()}
                                         </td>
+                                        <td className="p-4">
+                                            {student.certificateIssued ? (
+                                                <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wide border border-green-200">
+                                                    <Check size={12} strokeWidth={3} /> Issued
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleIssueCertificate(student.id, student.certificateIssued)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded-lg text-xs font-bold uppercase tracking-wide shadow-sm hover:shadow transition-all"
+                                                >
+                                                    Issue
+                                                </button>
+                                            )}
+                                        </td>
                                         <td className="p-4 text-slate-500 text-sm">{student.date}</td>
                                         <td className="p-4 pr-6 text-right">
                                             <div className="flex items-center justify-end gap-2">
@@ -196,13 +211,6 @@ const AdminStudents = () => {
                                                         </button>
                                                         <button className="text-slate-400 hover:text-blue-600 p-2 hover:bg-slate-50 rounded-lg transition-colors" title="Send Email">
                                                             <Mail size={18} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleIssueCertificate(student.id, student.certificateIssued)}
-                                                            className={`p-2 rounded-lg transition-colors ${student.certificateIssued ? 'text-green-600 bg-green-50' : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'}`}
-                                                            title={student.certificateIssued ? "Certificate Issued" : "Issue Certificate"}
-                                                        >
-                                                            <Award size={18} />
                                                         </button>
                                                     </>
                                                 )}

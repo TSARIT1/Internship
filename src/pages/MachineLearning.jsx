@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useCoursePricing from '../hooks/usePricing';
+import EnrollButton from '../components/EnrollButton';
 
 import {
     BookOpen, CheckCircle, ChevronDown, ChevronUp, Clock,
@@ -144,9 +145,12 @@ const MachineLearning = () => {
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-6">
-                        <Link to="/enroll?course=Machine Learning Internship" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg shadow-purple-600/30 flex items-center gap-2">
+                        <EnrollButton
+                            course="Machine Learning"
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg shadow-purple-600/30 flex items-center gap-2"
+                        >
                             Enroll Now <ArrowRight size={20} />
-                        </Link>
+                        </EnrollButton>
 
                     </div>
                 </div>
@@ -336,9 +340,12 @@ const MachineLearning = () => {
                                         </span>
                                     )}
                                 </div>
-                                <Link to="/enroll?course=Machine Learning Internship" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2">
+                                <EnrollButton
+                                    course="Machine Learning"
+                                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2"
+                                >
                                     Enroll Now <ArrowRight size={18} />
-                                </Link>
+                                </EnrollButton>
                                 <p className="text-xs text-slate-400">Limited seats available for next batch</p>
                             </div>
 

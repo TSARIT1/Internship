@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import ShinyButton from '../components/ui/ShinyButton';
 import { ArrowLeft, Mail, Lock, User, UserPlus, LogIn, Phone, BookOpen } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginStudent, enrollStudent } from '../services/studentApi';
+import { loginStudent, enrollStudent, applyForInternship } from '../services/studentApi';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -19,6 +19,13 @@ const Login = () => {
 
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        const pending = localStorage.getItem('pendingEnrollment');
+        if (pending) {
+            setCourse(pending);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -54,6 +61,16 @@ const Login = () => {
                 localStorage.removeItem('isAdmin');
 
                 // 2. Redirect Logic
+                // 2. Redirect Logic
+                const pendingCourse = localStorage.getItem('pendingEnrollment');
+                if (pendingCourse && isLogin) {
+                    await applyForInternship(response.data.id, pendingCourse);
+                    localStorage.removeItem('pendingEnrollment');
+                    navigate('/enroll-success');
+                    return;
+                }
+                localStorage.removeItem('pendingEnrollment');
+
                 const redirectPath = localStorage.getItem('redirectAfterLogin');
                 if (redirectPath) {
                     localStorage.removeItem('redirectAfterLogin');

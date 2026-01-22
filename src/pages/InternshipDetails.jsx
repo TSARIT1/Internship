@@ -260,7 +260,7 @@ const InternshipDetails = () => {
                                         <span className="text-slate-400 line-through text-sm">₹8,999</span>
                                     </div>
 
-                                    <EnrollButton className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2">
+                                    <EnrollButton course="Data Science" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2">
                                         Enroll Now <ArrowRight size={18} />
                                     </EnrollButton>
                                     <p className="text-xs text-slate-400 mt-4">Top 5% performers get paid internships</p>

@@ -21,7 +21,10 @@ const EnrollButton = ({ className, children, course }) => {
                 try {
                     const student = JSON.parse(localStorage.getItem('student') || '{}');
                     if (student.id) {
-                        await applyForInternship(student.id, course);
+                        const updateRes = await applyForInternship(student.id, course);
+                        if (updateRes.success) {
+                            localStorage.setItem('student', JSON.stringify(updateRes.data));
+                        }
                     }
                     navigate('/enroll-success');
                 } catch (err) {

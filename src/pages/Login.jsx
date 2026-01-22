@@ -51,6 +51,14 @@ const Login = () => {
             }
 
             if (response.success) {
+                if (!isLogin) {
+                    setIsLogin(true);
+                    setError('');
+                    alert("Account created successfully! Please login with your credentials.");
+                    setLoading(false);
+                    return;
+                }
+
                 // 1. Set Auth State per requirements
                 localStorage.setItem('token', 'dummy-token'); // Mock token as requested
                 localStorage.setItem('role', 'STUDENT');
@@ -60,11 +68,13 @@ const Login = () => {
                 localStorage.removeItem('adminToken');
                 localStorage.removeItem('isAdmin');
 
-                // 2. Redirect Logic
-                // 2. Redirect Logic
+                // 2. Process Pending Enrollment & Redirect
                 const pendingCourse = localStorage.getItem('pendingEnrollment');
                 if (pendingCourse && isLogin) {
-                    await applyForInternship(response.data.id, pendingCourse);
+                    const updateRes = await applyForInternship(response.data.id, pendingCourse);
+                    if (updateRes.success) {
+                        localStorage.setItem('student', JSON.stringify(updateRes.data));
+                    }
                     localStorage.removeItem('pendingEnrollment');
                     navigate('/enroll-success');
                     return;

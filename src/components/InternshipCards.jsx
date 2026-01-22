@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Brain, Database, Cloud, Code, Server, Coffee, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SpotlightCard from './ui/SpotlightCard';
+import EnrollButton from './EnrollButton';
 
 import { internships } from '../data/internships';
 
@@ -68,23 +69,31 @@ const InternshipCards = () => {
                                         {item.description}
                                     </p>
 
-                                    <Link
-                                        to={
-                                            item.title === 'Data Science' ? "/data-science" :
-                                                item.title === 'Machine Learning' ? "/machine-learning" :
-                                                    item.title === 'AI' ? "/ai" :
-                                                        item.title === 'MERN Stack' ? "/mern-stack" :
-                                                            item.title === 'DevOps' ? "/devops" :
-                                                                item.title === 'Java Full Stack' ? "/java-full-stack" :
-                                                                    item.title === 'Python Programming' ? "/python-programming" :
-                                                                        item.title === 'AWS Cloud Computing' ? "/aws-cloud-computing" :
-                                                                            item.title === 'Cyber Security' ? "/cyber-security" :
-                                                                                "/internship/data-science"
-                                        }
-                                        className="mt-auto w-full inline-flex items-center justify-center gap-2 font-bold text-slate-700 bg-white border border-slate-200 py-3.5 rounded-xl group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all duration-300 shadow-sm"
-                                    >
-                                        View Program <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-                                    </Link>
+                                    <div className="mt-auto flex gap-3">
+                                        <EnrollButton
+                                            course={item.title}
+                                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all hover:scale-105"
+                                        >
+                                            Enroll
+                                        </EnrollButton>
+                                        <Link
+                                            to={
+                                                item.title === 'Data Science' ? "/data-science" :
+                                                    item.title === 'Machine Learning' ? "/machine-learning" :
+                                                        item.title === 'AI' ? "/ai" :
+                                                            item.title === 'MERN Stack' ? "/mern-stack" :
+                                                                item.title === 'DevOps' ? "/devops" :
+                                                                    item.title === 'Java Full Stack' ? "/java-full-stack" :
+                                                                        item.title === 'Python Programming' ? "/python-programming" :
+                                                                            item.title === 'AWS Cloud Computing' ? "/aws-cloud-computing" :
+                                                                                item.title === 'Cyber Security' ? "/cyber-security" :
+                                                                                    "/internship/data-science"
+                                            }
+                                            className="flex-1 inline-flex items-center justify-center gap-2 font-bold text-slate-600 bg-white border border-slate-200 py-3.5 rounded-xl hover:bg-slate-50 transition-all duration-300"
+                                        >
+                                            Details
+                                        </Link>
+                                    </div>
                                 </div>
                             </SpotlightCard>
                         </motion.div>

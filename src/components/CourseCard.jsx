@@ -1,22 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Globe, BarChart, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import EnrollButton from './EnrollButton';
 
 const CourseCard = ({ course, isEnrolled }) => {
     const navigate = useNavigate();
 
-    const handleEnroll = () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            // Save current path or specific enroll path to redirect back to
-            // Since we want to come back to "enroll success" usually or the course itself
-            // Let's redirect to enroll success flow if they click enroll
-            localStorage.setItem('redirectAfterLogin', '/enroll-success');
-            navigate('/login');
-        } else {
-            navigate('/enroll-success');
-        }
-    };
+
 
     const finalFee = course.totalFee - course.discount;
 
@@ -69,20 +59,21 @@ const CourseCard = ({ course, isEnrolled }) => {
                         <p className="text-2xl font-bold text-slate-900">₹{finalFee.toLocaleString()}</p>
                     </div>
 
-                    <button
-                        onClick={handleEnroll}
-                        disabled={isEnrolled}
-                        className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${isEnrolled
-                            ? 'bg-slate-100 text-slate-400 cursor-default'
-                            : 'bg-blue-600 text-white hover:bg-blue-700 hover:gap-3 shadow-lg shadow-blue-600/20'
-                            }`}
-                    >
-                        {isEnrolled ? (
-                            "Active"
-                        ) : (
-                            <>Enroll <ArrowRight size={16} /></>
-                        )}
-                    </button>
+                    {isEnrolled ? (
+                        <button
+                            disabled
+                            className="px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 bg-slate-100 text-slate-400 cursor-default"
+                        >
+                            Active
+                        </button>
+                    ) : (
+                        <EnrollButton
+                            course={course.course}
+                            className="px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 hover:gap-3 shadow-lg shadow-blue-600/20"
+                        >
+                            Enroll <ArrowRight size={16} />
+                        </EnrollButton>
+                    )}
                 </div>
             </div>
         </div>

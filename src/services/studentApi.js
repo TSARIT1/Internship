@@ -30,72 +30,72 @@ export const getStudents = async () => {
 // Enriched Course Data
 const INTERNSHIP_COURSES = {
     "Data Science": { 
-        totalFee: 12000, 
-        discount: 2000,
+        totalFee: 1, 
+        discount: 0,
         domain: "Data & AI",
         level: "Intermediate",
         duration: "8 Weeks",
         description: "Master data analysis, visualization, and Python libraries like Pandas and NumPy."
     },
     "Machine Learning": { 
-        totalFee: 12000, 
-        discount: 2000,
+        totalFee: 1, 
+        discount: 0,
         domain: "Data & AI",
         level: "Advanced",
         duration: "10 Weeks",
         description: "Build predictive models and neural networks using Scikit-learn and TensorFlow."
     },
     "AI": { 
-        totalFee: 15000, 
-        discount: 2500,
+        totalFee: 10, 
+        discount: 0,
         domain: "Data & AI",
         level: "Advanced",
         duration: "12 Weeks",
         description: "Explore deep learning, NLP, and computer vision in this comprehensive AI program."
     },
     "MERN Stack": { 
-        totalFee: 10000, 
-        discount: 1500,
+        totalFee: 1, 
+        discount: 0,
         domain: "Web Development",
         level: "Intermediate",
         duration: "8 Weeks",
         description: "Build full-stack web applications using MongoDB, Express, React, and Node.js."
     },
     "DevOps": { 
-        totalFee: 11000, 
-        discount: 1500,
+        totalFee: 1, 
+        discount: 0,
         domain: "Cloud & Ops",
         level: "Intermediate",
         duration: "8 Weeks",
         description: "Learn CI/CD, Docker, Kubernetes, and cloud infrastructure automation."
     },
     "Java Full Stack": { 
-        totalFee: 10000, 
-        discount: 1500,
+        totalFee: 1, 
+        discount: 0,
         domain: "Web Development",
         level: "Beginner",
         duration: "10 Weeks",
         description: "Master Java, Spring Boot, and frontend technologies for enterprise development."
     },
     "Python Programming": { 
-        totalFee: 8000, 
-        discount: 1000,
+        totalFee: 1, 
+        discount: 0,
         domain: "Programming",
         level: "Beginner",
         duration: "6 Weeks",
         description: "A solid foundation in Python programming, covering syntax, data structures, and algorithms."
     },
     "AWS Cloud Computing": { 
-        totalFee: 11000, 
-        discount: 1500,
+        totalFee: 1, 
+        discount: 0,
         domain: "Cloud & Ops",
         level: "Intermediate",
         duration: "8 Weeks",
         description: "Become an AWS expert. Learn EC2, S3, Lambda, and cloud architecture best practices."
     },
     "Cyber Security": { 
-        totalFee: 13000, 
-        discount: 2000,
+        totalFee: 1, 
+        discount: 0,
         domain: "Security",
         level: "Advanced",
         duration: "8 Weeks",

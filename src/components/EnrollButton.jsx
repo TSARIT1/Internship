@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { applyForInternship } from '../services/studentApi';
+import useCoursePricing from '../hooks/usePricing';
+import { loadRazorpay } from '../utils/razorpay';
 
 const EnrollButton = ({ className, children, course }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const { finalFee, loading: pricingLoading } = useCoursePricing(course);
 
     const handleEnroll = async () => {
         const token = localStorage.getItem('token');
@@ -17,22 +20,75 @@ const EnrollButton = ({ className, children, course }) => {
             navigate('/login');
         } else {
             if (course) {
+                // Payment Flow
                 setLoading(true);
-                try {
-                    const student = JSON.parse(localStorage.getItem('student') || '{}');
-                    if (student.id) {
-                        const updateRes = await applyForInternship(student.id, course);
-                        if (updateRes.success) {
-                            localStorage.setItem('student', JSON.stringify(updateRes.data));
-                        }
-                    }
-                    navigate('/enroll-success');
-                } catch (err) {
-                    console.error("Enrollment error", err);
-                    navigate('/enroll-success');
-                } finally {
+                const res = await loadRazorpay();
+
+                if (!res) {
+                    alert('Razorpay SDK failed to load. Are you online?');
                     setLoading(false);
+                    return;
                 }
+
+                // Get student info for prefill
+                let student = {};
+                try {
+                    student = JSON.parse(localStorage.getItem('student') || '{}');
+                } catch (e) { console.error(e); }
+
+                const options = {
+                    key: "rzp_live_Rz8vO7gI0lkWTk", // Enter the Key ID generated from the Dashboard
+                    amount: (finalFee || 5000) * 100, // Amount is in currency subunits. Default 5000 INR if loading fails
+                    currency: "INR",
+                    name: "TSAR IT Services",
+                    description: `Enrollment for ${course}`,
+                    image: "https://example.com/your_logo", // You can replace this with your logo URL
+                    handler: async function (response) {
+                        // Payment Successful, proceed to enroll
+                        try {
+                            // In a real app, verify signature on backend here
+                            // await verifyPayment(response); 
+
+                            if (student.id) {
+                                const updateRes = await applyForInternship(student.id, course);
+                                if (updateRes.success) {
+                                    localStorage.setItem('student', JSON.stringify(updateRes.data));
+                                    // Optional: Save transaction ID to student record
+                                }
+                            }
+                            navigate('/enroll-success');
+                        } catch (err) {
+                            console.error("Enrollment error", err);
+                            alert("Enrollment failed after payment. Please contact support.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                    prefill: {
+                        name: student.name || "Student Name",
+                        email: student.email || "student@example.com",
+                        contact: student.phone || "9999999999"
+                    },
+                    notes: {
+                        address: "Razorpay Corporate Office"
+                    },
+                    theme: {
+                        color: "#2563EB"
+                    }
+                };
+
+                const paymentObject = new window.Razorpay(options);
+                paymentObject.open();
+
+                // Note: setLoading(false) isn't called immediately here because we wait for user action in modal
+                // Ideally we handle modal close event to stop loading, but Razorpay JS doesn't expose a clean 'close' promise easily without handlers.
+                // For this implementation, the loading spinner might stay until modal opens.
+                // To fix "stuck" loading if they close modal:
+                paymentObject.on('payment.failed', function (response) {
+                    alert(response.error.description);
+                    setLoading(false);
+                });
+
             } else {
                 navigate('/enroll-success');
             }

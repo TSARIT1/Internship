@@ -12,7 +12,10 @@ const EnrollButton = ({ className, children, course }) => {
 
     const handleEnroll = async () => {
         const token = localStorage.getItem('token');
-        if (!token) {
+        const student = JSON.parse(localStorage.getItem('student') || 'null');
+
+        // Check for token, student existence, and ensure student is not an empty object
+        if (!token || !student || !student.id) {
             if (course) {
                 localStorage.setItem('pendingEnrollment', course);
             }

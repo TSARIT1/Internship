@@ -85,7 +85,7 @@ const Enroll = () => {
 
                         <div className="text-center mb-10">
                             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
-                                Start Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Learning Journey</span>
+                                Create Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Account</span>
                             </h1>
                             <p className="text-slate-500 text-lg">
                                 Fill out the form below to enroll in our premium courses.
@@ -166,30 +166,7 @@ const Enroll = () => {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label htmlFor="course" className="text-sm font-semibold text-slate-700 ml-1">Select Course</label>
-                                        <div className="relative group">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
-                                                <BookOpen size={20} />
-                                            </div>
-                                            <select
-                                                id="course"
-                                                name="course"
-                                                required
-                                                className="w-full bg-slate-50 text-slate-900 pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium appearance-none cursor-pointer"
-                                                value={formData.course}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="" disabled>Choose a course</option>
-                                                {courses.map((course, idx) => (
-                                                    <option key={idx} value={course}>{course}</option>
-                                                ))}
-                                            </select>
-                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                     <div className="space-y-2">
                                         <label htmlFor="password" className="text-sm font-semibold text-slate-700 ml-1">Password</label>
@@ -215,7 +192,7 @@ const Enroll = () => {
                                         disabled={isSubmitting}
                                         className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-4 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
-                                        {isSubmitting ? 'Enrolling...' : 'Enroll Now'} {!isSubmitting && <Send size={18} />}
+                                        {isSubmitting ? 'Processing...' : 'Register'} {!isSubmitting && <Send size={18} />}
                                     </button>
                                 </form>
                             )}

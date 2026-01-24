@@ -15,17 +15,17 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    const [course, setCourse] = useState('');
+    // const [course, setCourse] = useState('');
 
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    React.useEffect(() => {
-        const pending = localStorage.getItem('pendingEnrollment');
-        if (pending) {
-            setCourse(pending);
-        }
-    }, []);
+    // React.useEffect(() => {
+    //     const pending = localStorage.getItem('pendingEnrollment');
+    //     if (pending) {
+    //         setCourse(pending);
+    //     }
+    // }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -45,7 +45,7 @@ const Login = () => {
                     email,
                     phone,
                     password,
-                    course: course || 'General'
+                    // course: course || 'General' // Removed course
                 };
                 response = await enrollStudent(studentData);
             }
@@ -99,17 +99,17 @@ const Login = () => {
         }
     };
 
-    const courses = [
-        "Data Science",
-        "Machine Learning",
-        "AI",
-        "MERN Stack",
-        "DevOps",
-        "Java Full Stack",
-        "Python Programming",
-        "AWS Cloud Computing",
-        "Cyber Security"
-    ];
+    // const courses = [
+    //     "Data Science",
+    //     "Machine Learning",
+    //     "AI",
+    //     "MERN Stack",
+    //     "DevOps",
+    //     "Java Full Stack",
+    //     "Python Programming",
+    //     "AWS Cloud Computing",
+    //     "Cyber Security"
+    // ];
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -206,25 +206,6 @@ const Login = () => {
                                             className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
                                             placeholder="Enter your mobile number"
                                         />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Course</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <BookOpen size={18} className="text-slate-400" />
-                                        </div>
-                                        <select
-                                            required
-                                            value={course}
-                                            onChange={(e) => setCourse(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 appearance-none cursor-pointer"
-                                        >
-                                            <option value="" disabled>Select a Course</option>
-                                            {courses.map((c, i) => (
-                                                <option key={i} value={c}>{c}</option>
-                                            ))}
-                                        </select>
                                     </div>
                                 </div>
                             </div>

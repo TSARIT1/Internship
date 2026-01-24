@@ -9,6 +9,8 @@ const StudentNavbar = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('student');
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
         navigate('/login');
     };
 

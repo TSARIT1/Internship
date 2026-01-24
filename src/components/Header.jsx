@@ -26,6 +26,17 @@ const Header = () => {
         { name: 'Contact', href: '/contact' },
     ];
 
+    const handleEnrollClick = () => {
+        const token = localStorage.getItem('token');
+        const student = JSON.parse(localStorage.getItem('student') || 'null');
+
+        if (!token || !student) {
+            navigate('/login');
+        } else {
+            navigate('/enroll');
+        }
+    };
+
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-4 border-b border-white/50' : 'bg-transparent py-6'
@@ -54,14 +65,31 @@ const Header = () => {
 
                 {/* Desktop Buttons */}
                 <div className="hidden md:flex items-center gap-4">
-                    <button
-                        onClick={() => navigate('/login')}
-                        className="text-slate-700 font-semibold hover:text-blue-600 transition-colors px-4 py-2"
-                    >
-                        Login
-                    </button>
+                    {localStorage.getItem('token') && localStorage.getItem('student') ? (
+                        <div className="flex items-center gap-4">
+                            <span className="text-slate-700 font-semibold hidden lg:block">
+                                Hi, {JSON.parse(localStorage.getItem('student') || '{}').name?.split(' ')[0]}
+                            </span>
+                            <button
+                                onClick={() => {
+                                    localStorage.clear();
+                                    navigate('/login');
+                                }}
+                                className="text-slate-700 font-semibold hover:text-red-600 transition-colors px-4 py-2"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="text-slate-700 font-semibold hover:text-blue-600 transition-colors px-4 py-2"
+                        >
+                            Login
+                        </button>
+                    )}
                     <ShinyButton
-                        onClick={() => navigate('/enroll')}
+                        onClick={handleEnrollClick}
                         className="!py-2.5 !px-6"
                     >
                         Enroll Now
@@ -97,15 +125,28 @@ const Header = () => {
                                     {link.name}
                                 </a>
                             ))}
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="w-full text-slate-700 font-bold py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                            >
-                                Login
-                            </button>
+                            {localStorage.getItem('token') ? (
+                                <button
+                                    onClick={() => {
+                                        localStorage.clear();
+                                        setMobileMenuOpen(false);
+                                        navigate('/login');
+                                    }}
+                                    className="w-full text-red-600 font-bold py-3 border border-red-100 rounded-xl hover:bg-red-50 transition-colors"
+                                >
+                                    Logout
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="w-full text-slate-700 font-bold py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                                >
+                                    Login
+                                </button>
+                            )}
                             <ShinyButton
                                 onClick={() => {
-                                    navigate('/enroll');
+                                    handleEnrollClick();
                                     setMobileMenuOpen(false);
                                 }}
                                 className="w-full !rounded-xl"

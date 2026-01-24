@@ -182,12 +182,12 @@ export const enrollStudent = async (studentData) => {
         setTimeout(() => {
             const students = getLocalStudents();
             const course = studentData.course || studentData.webinar; 
-            const feeInfo = INTERNSHIP_COURSES[course] || { totalFee: 5000, discount: 0 }; 
+            const feeInfo = course ? (INTERNSHIP_COURSES[course] || { totalFee: 5000, discount: 0 }) : { totalFee: 0, discount: 0 }; 
 
             const newStudent = {
                 id: Date.now(),
                 ...studentData,
-                webinar: course,
+                webinar: course || null,
                 date: new Date().toISOString().split('T')[0],
                 totalFee: feeInfo.totalFee,
                 discount: feeInfo.discount

@@ -81,6 +81,7 @@ const Hero = () => {
 
                             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                                 <ShinyButton
+                                    onClick={() => document.getElementById('internships')?.scrollIntoView({ behavior: 'smooth' })}
                                     className="w-full sm:w-auto text-lg !py-4 !px-8 hover:-translate-y-1 shadow-xl shadow-slate-900/20"
                                     icon={ArrowRight}
                                 >

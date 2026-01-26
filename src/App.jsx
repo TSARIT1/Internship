@@ -20,6 +20,7 @@ import Webinars from './pages/Webinars';
 
 import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminWebinars from './pages/AdminWebinars';
@@ -66,7 +67,7 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
 
-        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+        <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="webinars" element={<AdminWebinars />} />
           <Route path="video-testimonials" element={<AdminVideoTestimonials />} />

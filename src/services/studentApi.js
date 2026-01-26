@@ -28,7 +28,8 @@ export const getStudents = async () => {
 };
 
 // Enriched Course Data
-const INTERNSHIP_COURSES = {
+// Enriched Course Data
+const INITIAL_INTERNSHIP_COURSES = {
     "Data Science": { 
         totalFee: 1, 
         discount: 0,
@@ -103,27 +104,43 @@ const INTERNSHIP_COURSES = {
     }
 };
 
+const getLocalPricingData = () => {
+    const data = localStorage.getItem('pricing');
+    if (data) return JSON.parse(data);
+    localStorage.setItem('pricing', JSON.stringify(INITIAL_INTERNSHIP_COURSES));
+    return INITIAL_INTERNSHIP_COURSES;
+};
+
+const setLocalPricingData = (data) => {
+    localStorage.setItem('pricing', JSON.stringify(data));
+};
+
 export const getPricing = async () => {
     return new Promise((resolve) => {
-        setTimeout(() => resolve({ 
-            data: Object.entries(INTERNSHIP_COURSES).map(([course, details]) => ({
-                course,
-                ...details
-            }))
-        }), 500);
+        setTimeout(() => {
+            const pricingData = getLocalPricingData();
+            resolve({ 
+                data: Object.entries(pricingData).map(([course, details]) => ({
+                    course,
+                    ...details
+                }))
+            });
+        }, 500);
     });
 };
 
 export const updatePricing = async (courseName, newFee, newDiscount) => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            if (INTERNSHIP_COURSES[courseName]) {
-                INTERNSHIP_COURSES[courseName] = { 
-                    ...INTERNSHIP_COURSES[courseName],
+            const pricingData = getLocalPricingData();
+            if (pricingData[courseName]) {
+                pricingData[courseName] = { 
+                    ...pricingData[courseName],
                     totalFee: Number(newFee), 
                     discount: Number(newDiscount) 
                 };
-                resolve({ success: true, data: INTERNSHIP_COURSES[courseName] });
+                setLocalPricingData(pricingData);
+                resolve({ success: true, data: pricingData[courseName] });
             } else {
                 resolve({ success: false, message: "Course not found" });
             }
@@ -182,7 +199,8 @@ export const enrollStudent = async (studentData) => {
         setTimeout(() => {
             const students = getLocalStudents();
             const course = studentData.course || studentData.webinar; 
-            const feeInfo = course ? (INTERNSHIP_COURSES[course] || { totalFee: 5000, discount: 0 }) : { totalFee: 0, discount: 0 }; 
+            const pricingData = getLocalPricingData();
+            const feeInfo = course ? (pricingData[course] || { totalFee: 5000, discount: 0 }) : { totalFee: 0, discount: 0 }; 
 
             const newStudent = {
                 id: Date.now(),
@@ -207,7 +225,8 @@ export const applyForInternship = async (studentId, courseName) => {
             const studentIndex = students.findIndex(s => s.id === studentId);
             
             if (studentIndex !== -1) {
-                const feeInfo = INTERNSHIP_COURSES[courseName] || { totalFee: 5000, discount: 0 };
+                const pricingData = getLocalPricingData();
+                const feeInfo = pricingData[courseName] || { totalFee: 5000, discount: 0 };
                 
                 // Update student record
                 // We update both 'webinar' (legacy) and a new 'course' field to be sure

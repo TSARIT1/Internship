@@ -15,7 +15,8 @@ const Enroll = () => {
         email: '',
         phone: '',
         course: '',
-        password: ''
+        password: '',
+        confirmPassword: ''
     });
 
     const [submitted, setSubmitted] = useState(false);
@@ -34,6 +35,12 @@ const Enroll = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match!");
+            setIsSubmitting(false);
+            return;
+        }
 
         try {
             await enrollStudent(formData);
@@ -182,6 +189,25 @@ const Enroll = () => {
                                                 placeholder="••••••••"
                                                 className="w-full bg-slate-50 text-slate-900 pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400"
                                                 value={formData.password}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label htmlFor="confirmPassword" className="text-sm font-semibold text-slate-700 ml-1">Confirm Password</label>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                                <Lock size={20} />
+                                            </div>
+                                            <input
+                                                type="password"
+                                                id="confirmPassword"
+                                                name="confirmPassword"
+                                                required
+                                                placeholder="••••••••"
+                                                className="w-full bg-slate-50 text-slate-900 pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400"
+                                                value={formData.confirmPassword}
                                                 onChange={handleChange}
                                             />
                                         </div>

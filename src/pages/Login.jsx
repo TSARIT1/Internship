@@ -13,6 +13,7 @@ const Login = () => {
     // Form States
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     // const [course, setCourse] = useState('');
@@ -40,6 +41,11 @@ const Login = () => {
             if (isLogin) {
                 response = await loginStudent(email, password);
             } else {
+                if (password !== confirmPassword) {
+                    setError("Passwords do not match!");
+                    setLoading(false);
+                    return;
+                }
                 const studentData = {
                     name,
                     email,
@@ -246,6 +252,25 @@ const Login = () => {
                                 />
                             </div>
                         </div>
+
+                        {!isLogin && (
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirm Password</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Lock size={18} className="text-slate-400" />
+                                    </div>
+                                    <input
+                                        type="password"
+                                        required
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {error && (
                             <div className="text-red-500 text-sm p-2 bg-red-50 rounded-lg text-center font-medium">

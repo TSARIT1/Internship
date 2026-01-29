@@ -21,11 +21,7 @@ const setLocalStudents = (data) => {
     localStorage.setItem('students', JSON.stringify(data));
 };
 
-export const getStudents = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve({ data: getLocalStudents() }), 500);
-    });
-};
+// getStudents removed from here, defined later
 
 // Enriched Course Data
 // Enriched Course Data
@@ -195,27 +191,12 @@ export const updateStudentCertificate = async (id, status) => {
 };
 
 export const enrollStudent = async (studentData) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const students = getLocalStudents();
-            const course = studentData.course || studentData.webinar; 
-            const pricingData = getLocalPricingData();
-            const feeInfo = course ? (pricingData[course] || { totalFee: 5000, discount: 0 }) : { totalFee: 0, discount: 0 }; 
-
-            const newStudent = {
-                id: Date.now(),
-                ...studentData,
-                webinar: course || null,
-                date: new Date().toISOString().split('T')[0],
-                totalFee: feeInfo.totalFee,
-                discount: feeInfo.discount
-            };
-            
-            const updatedStudents = [...students, newStudent];
-            setLocalStudents(updatedStudents);
-            resolve({ success: true, data: newStudent });
-        }, 1000);
-    });
+    // For now, enrolling acts as registering a new user in the backend.
+    // NOTE: The backend 'User' entity only stores username, email, password.
+    // It does NOT yet store the 'course' or 'fee' info.
+    // We will call the register API to at least create the account.
+    
+    return registerStudent(studentData);
 };
 
 export const applyForInternship = async (studentId, courseName) => {
@@ -247,18 +228,95 @@ export const applyForInternship = async (studentId, courseName) => {
     });
 };
 
+import axios from 'axios';
+
+const API_URL = "http://localhost:8080/api/auth";
+
+// Keep existing helper for other mock features like pricing/courses for now unless requested
+// But REPLACE the login/register functions to use the backend
+
 export const loginStudent = async (email, password) => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            const students = getLocalStudents();
-            const student = students.find(s => s.email === email && s.password === password);
-            if (student) {
-                resolve({ success: true, data: student });
-            } else {
-                reject({ success: false, message: "Invalid email or password" });
-            }
-        }, 1000);
-    });
+    try {
+        // Send login request to backend
+        // Note: Backend currently expects username, but frontend uses email. 
+        // We might need to adjust backend to accept email or frontend to send username.
+        // For this specific interaction, assuming backend can handle login by username, 
+        // we'll temporarily map email to username field if that's how your User entity works
+        // OR we should have updated the backend to login by email.
+        
+        // Let's assume for now we send the email as the "username" field since that's a common pattern,
+        // or valid JSON structure matching User entity.
+        
+        // Backend AuthController expects: { username, password }
+        // Frontend uses email.
+        // ADAPTATION: We will send email as the username for now to match backend expectations
+        // OR better: Update backend to support email login later.
+        
+        const response = await axios.post(`${API_URL}/login`, { 
+            username: email, // Temporary mapping: treating email as username
+            password 
+        });
+        
+        if (response.status === 200) {
+            // Mocking the returned user object since backend currently just returns text "Login successful"
+            // We need to store session state. 
+            // Ideally backend should return the User object.
+            const mockUserForSession = { email, password }; 
+            return { success: true, data: mockUserForSession };
+        }
+    } catch (error) {
+        return { success: false, message: error.response?.data || "Login failed" };
+    }
+};
+
+export const registerStudent = async (studentData) => {
+    try {
+        // studentData contains { name, email, password, ... }
+        // Backend User entity has { username, password, email }
+        
+        const response = await axios.post(`${API_URL}/register`, {
+            username: studentData.name || studentData.email, // Map name or email to username
+            email: studentData.email,
+            password: studentData.password,
+            phone: studentData.phone,
+            course: studentData.course || studentData.webinar // Handle both potential field names
+        });
+        
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data || "Registration failed" };
+    }
+};
+
+// ... keep other mock functions for now (getStudents, etc) if they are used for admin panels
+// that we haven't built backend for yet.
+
+export const getStudents = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/users`);
+        // Backend returns list of Users.
+        // AdminStudents expects { data: [...] }
+        
+        // Map backend fields to frontend expected fields if necessary
+        // Backend: username, email, phone, course (no totalFee, discount yet)
+        // Frontend expects: name, email, webinar(course), totalFee, discount
+        
+        const mappedData = response.data.map(user => ({
+            id: user.id,
+            name: user.username, // mapping username to name
+            email: user.email,
+            password: user.password,
+            webinar: user.course || "Not Selected", // mapping course to webinar
+            date: "2024-03-15", // Mock date for now as backend doesn't store created_at yet
+            totalFee: 0, // Default as backend doesn't have it
+            discount: 0  // Default as backend doesn't have it
+        }));
+
+        return { data: mappedData };
+    } catch (error) {
+        console.error("Failed to fetch students", error);
+        return { data: [] };
+    }
 };
 
 

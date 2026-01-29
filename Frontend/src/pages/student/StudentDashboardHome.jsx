@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
-import { getPricing } from '../../services/studentApi';
+import { getPricing, getMyEnrollments } from '../../services/studentApi';
 import { internships } from '../../data/internships';
 import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,14 @@ const StudentDashboardHome = () => {
     const student = JSON.parse(localStorage.getItem('student') || '{}');
     const navigate = useNavigate();
     const [upcomingWebinar, setUpcomingWebinar] = useState(null);
+    const [enrollments, setEnrollments] = useState([]);
+    // State for certificate generation to ensure correct course details are rendered
+    const [certificateData, setCertificateData] = useState({
+        studentName: student.name,
+        courseName: student.webinar || student.course || "Course Completion",
+        date: student.certificateDate || new Date().toLocaleDateString()
+    });
+
     const [stats, setStats] = useState({
         upcomingWebinars: 0,
         registeredWebinars: 0,
@@ -22,13 +30,16 @@ const StudentDashboardHome = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [webinarsRes, coursesRes] = await Promise.all([
+                const [webinarsRes, coursesRes, enrollmentsRes] = await Promise.all([
                     getWebinars(),
-                    getPricing()
+                    getPricing(),
+                    getMyEnrollments(student.id)
                 ]);
 
                 const allWebinars = webinarsRes.data || [];
                 const allCourses = coursesRes.data || [];
+                const myEnrollments = enrollmentsRes.success ? enrollmentsRes.data : [];
+                setEnrollments(myEnrollments);
 
                 // Upcoming Webinars Count (Future Dates)
                 const upcoming = allWebinars.filter(w => new Date(w.date) >= new Date());
@@ -67,9 +78,22 @@ const StudentDashboardHome = () => {
     const certificateRef = useRef(null);
     const [downloading, setDownloading] = useState(false);
 
-    const handleDownloadCertificate = async () => {
+    const handleDownloadCertificate = async (specificEnrollment = null) => {
         if (!certificateRef.current) return;
+
         setDownloading(true);
+
+        // Update certificate template data if specific enrollment is validated
+        if (specificEnrollment) {
+            setCertificateData({
+                studentName: student.name,
+                courseName: specificEnrollment.courseName,
+                date: specificEnrollment.certificateDate || new Date().toISOString().split('T')[0]
+            });
+            // Short delay to allow React to re-render the hidden template
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
         try {
             const canvas = await html2canvas(certificateRef.current, {
                 scale: 2, // Higher quality
@@ -83,11 +107,15 @@ const StudentDashboardHome = () => {
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`${student.name.replace(/\s+/g, '_')}_Certificate.pdf`);
+            const fileName = specificEnrollment
+                ? `${student.name.replace(/\s+/g, '_')}_${specificEnrollment.courseName.replace(/\s+/g, '_')}_Certificate.pdf`
+                : `${student.name.replace(/\s+/g, '_')}_Certificate.pdf`;
+            pdf.save(fileName);
         } catch (error) {
             console.error("Certificate download failed", error);
         } finally {
             setDownloading(false);
+            // Optionally reset certificate data if needed, but not strictly necessary
         }
     };
 
@@ -140,36 +168,83 @@ const StudentDashboardHome = () => {
             {/* Active Commitments Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Active Course Card */}
-                {enrolledCourse ? (
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
-                        <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                    <CheckCircle size={12} /> Active Course
-                                </span>
+                {/* Active Course Cards - List all enrollments */}
+                {enrollments.length > 0 ? (
+                    <div className="space-y-4">
+                        {enrollments.map((enrollment) => (
+                            <div key={enrollment.id} className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                            <CheckCircle size={12} /> {enrollment.status || "Active Mode"}
+                                        </span>
+                                        {enrollment.certificateIssued && (
+                                            <span className="bg-yellow-400/20 text-yellow-200 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                                <Award size={12} /> Certified
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h2 className="text-2xl font-bold mb-2">{enrollment.courseName}</h2>
+                                    <p className="text-blue-100 text-sm">Enrolled on: {enrollment.enrollmentDate}</p>
+                                </div>
+                                <div className="mt-8 flex gap-3">
+                                    <button
+                                        onClick={() => navigate(`/student/course/${encodeURIComponent(enrollment.courseName)}`)}
+                                        className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm"
+                                    >
+                                        Go to Classroom
+                                    </button>
+                                    {enrollment.certificateIssued && (
+                                        <button
+                                            onClick={() => {
+                                                // Trigger certificate download for this specific enrollment
+                                                // Since logic is currently bound to 'student' object ref, 
+                                                // we might need to refactor certificate download to accept params.
+                                                // For now, let's just alert or reuse the general one if it matches.
+                                                handleDownloadCertificate(enrollment);
+                                            }}
+                                            className="bg-yellow-400 text-slate-900 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-yellow-300 transition-colors shadow-sm flex items-center gap-2"
+                                        >
+                                            <Award size={16} /> Certificate
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <h2 className="text-2xl font-bold mb-2">{enrolledCourse}</h2>
-                            <p className="text-blue-100 text-sm">Continue learning where you left off.</p>
-                        </div>
-                        <div className="mt-8">
-                            <button
-                                onClick={() => navigate(`/student/course/${encodeURIComponent(enrolledCourse)}`)}
-                                className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm"
-                            >
-                                Go to Classroom
-                            </button>
-                        </div>
+                        ))}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center space-y-4">
-                        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
-                            <BookOpen size={24} />
+                    // Fallback for no API enrollments but potentially local legacy
+                    enrolledCourse ? (
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
+                            <div>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                        <CheckCircle size={12} /> Legacy Active
+                                    </span>
+                                </div>
+                                <h2 className="text-2xl font-bold mb-2">{enrolledCourse}</h2>
+                                <p className="text-blue-100 text-sm">Continue learning where you left off.</p>
+                            </div>
+                            <div className="mt-8">
+                                <button
+                                    onClick={() => navigate(`/student/course/${encodeURIComponent(enrolledCourse)}`)}
+                                    className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm"
+                                >
+                                    Go to Classroom
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-slate-900">No Active Course</h3>
-                            <p className="text-slate-500 text-sm">Enroll in an internship to get started.</p>
+                    ) : (
+                        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center space-y-4">
+                            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
+                                <BookOpen size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900">No Active Course</h3>
+                                <p className="text-slate-500 text-sm">Enroll in an internship to get started.</p>
+                            </div>
                         </div>
-                    </div>
+                    )
                 )}
 
                 {/* Certificate Section - Render Hidden Template & Button */}
@@ -197,9 +272,9 @@ const StudentDashboardHome = () => {
                 <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none" style={{ position: 'fixed', left: '-9999px' }}>
                     <CertificateTemplate
                         ref={certificateRef}
-                        studentName={student.name}
-                        courseName={student.webinar || student.course || "Course Completion"}
-                        date={student.certificateDate || new Date().toLocaleDateString()}
+                        studentName={certificateData.studentName}
+                        courseName={certificateData.courseName}
+                        date={certificateData.date}
                         duration="8 Weeks"
                     />
                 </div>

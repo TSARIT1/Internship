@@ -37,7 +37,11 @@ const StudentNavbar = () => {
                         <p className="text-sm font-bold text-slate-900 leading-tight">{student.name || 'Student'}</p>
                         <p className="text-xs text-slate-500">{student.course || student.webinar || 'General'}</p>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold border border-blue-100 shadow-sm">
+                    <div
+                        onClick={() => navigate('/studentdashboard/profile')}
+                        className="cursor-pointer w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold border border-blue-100 shadow-sm hover:scale-105 transition-transform"
+                        title="View Profile"
+                    >
                         {student.name ? student.name.charAt(0) : <User size={20} />}
                     </div>
 

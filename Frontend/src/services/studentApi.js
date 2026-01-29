@@ -164,30 +164,16 @@ export const updateStudentFee = async (id, fee, discount) => {
     });
 };
 
-export const updateStudentCertificate = async (id, status) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const students = getLocalStudents();
-            const studentIndex = students.findIndex(s => s.id === id);
-            if (studentIndex !== -1) {
-                const today = new Date().toISOString().split('T')[0];
-                students[studentIndex] = { 
-                    ...students[studentIndex], 
-                    certificateIssued: status,
-                    certificateDate: status ? today : null
-                };
-                setLocalStudents(students);
-                // Also update the current logged in student in session if it matches
-                const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
-                if (currentStudent.id === id) {
-                     localStorage.setItem('student', JSON.stringify(students[studentIndex]));
-                }
-                resolve({ success: true, data: students[studentIndex] });
-            } else {
-                resolve({ success: false, message: "Student not found" });
-            }
-        }, 500);
-    });
+export const updateStudentCertificate = async (enrollmentId, status) => {
+    try {
+        const response = await axios.put(`${ENROLLMENT_URL}/${enrollmentId}/certificate`, {
+            status
+        });
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Certificate update error:", error);
+         return { success: false, message: "Update failed" };
+    }
 };
 
 export const enrollStudent = async (studentData) => {
@@ -199,41 +185,100 @@ export const enrollStudent = async (studentData) => {
     return registerStudent(studentData);
 };
 
-export const applyForInternship = async (studentId, courseName) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const students = getLocalStudents();
-            const studentIndex = students.findIndex(s => s.id === studentId);
-            
-            if (studentIndex !== -1) {
-                const pricingData = getLocalPricingData();
-                const feeInfo = pricingData[courseName] || { totalFee: 5000, discount: 0 };
-                
-                // Update student record
-                // We update both 'webinar' (legacy) and a new 'course' field to be sure
-                students[studentIndex] = {
-                    ...students[studentIndex],
-                    course: courseName,
-                    webinar: courseName, // Keep compatible for now
-                    totalFee: feeInfo.totalFee,
-                    discount: feeInfo.discount
-                };
-                
-                setLocalStudents(students);
-                resolve({ success: true, data: students[studentIndex] });
-            } else {
-                resolve({ success: false, message: "Student not found" });
+// Replaced by enrollInCourse but keeping for legacy compatibility if strictly needed
+export const applyForInternship = async (studentId, courseName, paymentData = {}) => {
+    try {
+        // 1. Get Pricing Data
+        const pricingRes = await getPricing();
+        const courseData = pricingRes.data.find(c => c.course === courseName) || { totalFee: 5000, discount: 0 };
+        const amountPaid = (courseData.totalFee - courseData.discount);
+
+        // 2. Call new enrollment endpoint
+        const response = await enrollInCourse(
+            studentId, 
+            courseName, 
+            courseData.totalFee, 
+            courseData.discount,
+            paymentData.razorpay_payment_id || "OFFLINE_OR_TEST",
+            amountPaid
+        );
+
+        if (response.success) {
+            // 3. Update Local Storage for session consistency
+            // We still update the "student" object in local storage to have the *latest* course 
+            // even though strictly they have multiple.
+            const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
+            if (currentStudent.id === studentId) {
+                // We add a 'enrollments' array to local storage student for UI convenience
+                const enrollments = currentStudent.enrollments || [];
+                enrollments.push({ course: courseName, ...courseData });
+                currentStudent.enrollments = enrollments;
+                currentStudent.course = courseName; // Legacy field
+                localStorage.setItem('student', JSON.stringify(currentStudent));
             }
-        }, 800);
-    });
+            return { success: true, data: currentStudent };
+        } else {
+             return { success: false, message: response.message };
+        }
+    } catch (error) {
+        console.error("Enrollment failed", error);
+        return { success: false, message: "Enrollment failed. Please try again." };
+    }
 };
 
 import axios from 'axios';
 
 const API_URL = "http://localhost:8080/api/auth";
+const ENROLLMENT_URL = "http://localhost:8080/api/enrollments";
 
-// Keep existing helper for other mock features like pricing/courses for now unless requested
-// But REPLACE the login/register functions to use the backend
+// New Enrollment functions
+export const enrollInCourse = async (userId, courseName, fee, discount, transactionId, amountPaid) => {
+    try {
+        const response = await axios.post(`${ENROLLMENT_URL}/enroll`, {
+            userId,
+            courseName,
+            fee: Number(fee),
+            discount: Number(discount),
+            transactionId,
+            amountPaid: Number(amountPaid)
+        });
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Enrollment error:", error);
+        return { success: false, message: error.response?.data || "Enrollment failed" };
+    }
+};
+
+export const getMyEnrollments = async (userId) => {
+    try {
+        const response = await axios.get(`${ENROLLMENT_URL}/my-enrollments/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Fetch enrollment error:", error);
+        return { success: false, data: [] };
+    }
+};
+
+export const getAllCourses = async () => {
+    try {
+        const response = await axios.get(`${API_URL.replace('/auth', '')}/courses`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Fetch all courses error:", error);
+        return { success: false, data: [] };
+    }
+};
+
+export const getAllEnrollments = async () => {
+    try {
+        const response = await axios.get(`${ENROLLMENT_URL}/all`);
+        return { success: true, data: response.data };
+    } catch (error) {
+         console.error("Fetch all enrollments error:", error);
+        return { success: false, data: [] };
+    }
+};
+
 
 export const loginStudent = async (email, password) => {
     try {
@@ -258,11 +303,8 @@ export const loginStudent = async (email, password) => {
         });
         
         if (response.status === 200) {
-            // Mocking the returned user object since backend currently just returns text "Login successful"
-            // We need to store session state. 
-            // Ideally backend should return the User object.
-            const mockUserForSession = { email, password }; 
-            return { success: true, data: mockUserForSession };
+            // Backend returns the User object with ID
+            return { success: true, data: response.data };
         }
     } catch (error) {
         return { success: false, message: error.response?.data || "Login failed" };
@@ -285,6 +327,52 @@ export const registerStudent = async (studentData) => {
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, message: error.response?.data || "Registration failed" };
+    }
+};
+
+
+
+export const updateStudentProfile = async (id, profileData) => {
+    try {
+        // profileData: { username(name), phone }
+        // Note: Backend expects 'username' for name update based on User entity
+        // We might want to sending 'username' instead of 'name' or map it here.
+        // User entity has 'username', 'email', 'phone'.
+        
+        const payload = {
+            username: profileData.name,
+            phone: profileData.phone
+        };
+        
+        const response = await axios.put(`${API_URL}/update-user/${id}`, payload);
+        
+        if (response.status === 200) {
+            // Update local storage to reflect changes immediately
+            const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
+            const updatedStudent = { ...currentStudent, ...profileData };
+            // Ensure we update the name/username correctly
+            updatedStudent.name = profileData.name; 
+            localStorage.setItem('student', JSON.stringify(updatedStudent));
+            
+            return { success: true, message: "Profile updated successfully" };
+        }
+    } catch (error) {
+        return { success: false, message: error.response?.data || "Update failed" };
+    }
+};
+
+export const changePassword = async (id, { currentPassword, newPassword }) => {
+    try {
+        const response = await axios.post(`${API_URL}/change-password/${id}`, {
+            currentPassword,
+            newPassword
+        });
+        
+        if (response.status === 200) {
+            return { success: true, message: "Password changes successfully" };
+        }
+    } catch (error) {
+         return { success: false, message: error.response?.data || "Password change failed" };
     }
 };
 
@@ -383,83 +471,56 @@ const setLocalCourseContent = (data) => {
 };
 
 export const getCourseContent = async (courseName) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const contentStore = getLocalCourseContent();
-            // Fallback to default if course not found, but try to preserve the courseName structure if we want to prompt admin to create it?
-            // For now, if not found, return default structure but maybe empty? 
-            // Better to return default content so it's not empty.
-            const content = contentStore[courseName] || contentStore["default"];
-            resolve({ success: true, data: content });
-        }, 500);
-    });
+    try {
+        // Backend expects course name. Encoding handled by axios/browser usually, but check spaces.
+        const response = await axios.get(`${API_URL.replace('/auth', '')}/courses/${courseName}`);
+        
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+    } catch (error) {
+        console.error("Failed to fetch course content", error);
+        // Fallback or error handling
+        return { success: false, message: "Course content not found" };
+    }
 };
 
 export const updateLiveClassLink = async (courseName, link) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const contentStore = getLocalCourseContent();
-            if (!contentStore[courseName]) {
-                contentStore[courseName] = { liveLink: "", sections: [] };
-            }
-            contentStore[courseName].liveLink = link;
-            setLocalCourseContent(contentStore);
-            resolve({ success: true, data: link });
-        }, 500);
-    });
+    try {
+        const response = await axios.put(`${API_URL.replace('/auth', '')}/courses/${courseName}/live-link`, { link });
+        return { success: true, data: link };
+    } catch (error) {
+        console.error("Update Live Link Error:", error);
+        return { success: false, message: "Failed to update link" };
+    }
 };
 
 export const addCourseVideo = async (courseName, sectionTitle, videoData) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const contentStore = getLocalCourseContent();
-            if (!contentStore[courseName]) {
-                contentStore[courseName] = { liveLink: "", sections: [] };
-            }
-            
-            const courseData = contentStore[courseName];
-            let section = courseData.sections.find(s => s.title === sectionTitle);
-            
-            if (!section) {
-                // Create new section if it doesn't exist
-                section = {
-                    id: Date.now(),
-                    title: sectionTitle,
-                    videos: []
-                };
-                courseData.sections.push(section);
-            }
-
-            const newVideo = {
-                id: Date.now().toString(), // Simple ID generation
-                ...videoData
-            };
-
-            section.videos.push(newVideo);
-            setLocalCourseContent(contentStore);
-            resolve({ success: true, data: newVideo });
-        }, 500);
-    });
+    try {
+        // Backend expects: { title, url, duration, type, section }
+        const payload = {
+            title: videoData.title,
+            url: videoData.url,
+            duration: videoData.duration,
+            type: videoData.type,
+            section: sectionTitle
+        };
+        const response = await axios.post(`${API_URL.replace('/auth', '')}/courses/${courseName}/videos`, payload);
+        return { success: true, data: response.data }; // Returns success message mostly
+    } catch (error) {
+        console.error("Add Video Error:", error);
+        return { success: false, message: "Failed to add video" };
+    }
 };
 
 export const deleteCourseVideo = async (courseName, sectionId, videoId) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const contentStore = getLocalCourseContent();
-            if (contentStore[courseName]) {
-                const courseData = contentStore[courseName];
-                const section = courseData.sections.find(s => s.id === sectionId);
-                if (section) {
-                    section.videos = section.videos.filter(v => v.id !== videoId);
-                    // Cleanup empty sections if desired? Let's keep them for now.
-                    setLocalCourseContent(contentStore);
-                    resolve({ success: true });
-                    return;
-                }
-            }
-            resolve({ success: false, message: "Video not found" });
-        }, 500);
-    });
+    try {
+        await axios.delete(`${API_URL.replace('/auth', '')}/courses/${courseName}/sections/${sectionId}/videos/${videoId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Video Error:", error);
+        return { success: false, message: "Failed to delete video" };
+    }
 };
 
 export const deleteCourseSection = async (courseName, sectionId) => {

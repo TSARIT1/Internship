@@ -39,6 +39,7 @@ import StudentRegistrations from './pages/student/StudentRegistrations';
 import StudentTestimonials from './pages/student/StudentTestimonials';
 import StudentCourses from './pages/student/StudentCourses';
 import StudentCourseView from './pages/student/StudentCourseView';
+import StudentProfile from './pages/student/StudentProfile';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -85,6 +86,7 @@ function App() {
           <Route path="webinars" element={<StudentWebinars />} />
           <Route path="my-registrations" element={<StudentRegistrations />} />
           <Route path="testimonials" element={<StudentTestimonials />} />
+          <Route path="profile" element={<StudentProfile />} />
         </Route>
 
       </Routes>

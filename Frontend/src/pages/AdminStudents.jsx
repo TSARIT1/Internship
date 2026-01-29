@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Mail, Edit2, Check, X } from 'lucide-react';
-import { getStudents, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
+import { getAllEnrollments, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
 
 const AdminStudents = () => {
     const [allStudents, setAllStudents] = useState([]);
@@ -18,8 +18,27 @@ const AdminStudents = () => {
 
     const loadStudents = async () => {
         try {
-            const response = await getStudents();
-            setAllStudents(response.data);
+            const response = await getAllEnrollments();
+            // Map Enrollment entity to match table expectations
+            // Enrollment: { id, user: {username, email...}, courseName, fee, discount, enrollmentDate, certificateIssued }
+            // Mapped: { id (enrollmentId), name, email, webinar, totalFee, discount, date, certificateIssued... }
+
+            const mapped = response.data.map(enr => ({
+                id: enr.id, // Using Enrollment ID now, not Student ID, for editing specific enrollment
+                studentId: enr.user.id,
+                name: enr.user.username,
+                email: enr.user.email,
+                webinar: enr.courseName,
+                totalFee: enr.fee,
+                discount: enr.discount,
+                date: enr.enrollmentDate,
+                certificateIssued: enr.certificateIssued,
+                certificateDate: enr.certificateDate,
+                transactionId: enr.transactionId,
+                amountPaid: enr.amountPaid
+            }));
+
+            setAllStudents(mapped);
         } catch (error) {
             console.error(error);
         } finally {
@@ -118,6 +137,8 @@ const AdminStudents = () => {
                                 <th className="p-4 pl-6 font-bold text-slate-700 text-sm">Student Name</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Email Address</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Webinar</th>
+                                <th className="p-4 font-bold text-slate-700 text-sm">Txn ID</th>
+                                <th className="p-4 font-bold text-slate-700 text-sm">Amount Paid</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Total Fee</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Discount</th>
                                 <th className="p-4 font-bold text-slate-700 text-sm">Final Fee</th>
@@ -136,6 +157,14 @@ const AdminStudents = () => {
                                             <span className="bg-blue-100 text-blue-700 py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wide">
                                                 {student.webinar}
                                             </span>
+                                        </td>
+                                        <td className="p-4 text-slate-700 font-medium">
+                                            <span className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">
+                                                {student.transactionId || "N/A"}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-green-700 font-bold">
+                                            ₹{student.amountPaid?.toLocaleString() || "0"}
                                         </td>
                                         <td className="p-4 text-slate-700 font-medium">
                                             {editingId === student.id ? (

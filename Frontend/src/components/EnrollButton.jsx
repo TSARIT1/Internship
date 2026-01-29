@@ -53,10 +53,14 @@ const EnrollButton = ({ className, children, course }) => {
                             // await verifyPayment(response); 
 
                             if (student.id) {
-                                const updateRes = await applyForInternship(student.id, course);
+                                const updateRes = await applyForInternship(student.id, course, response);
                                 if (updateRes.success) {
                                     localStorage.setItem('student', JSON.stringify(updateRes.data));
                                     // Optional: Save transaction ID to student record
+                                } else {
+                                    alert(updateRes.message || "Enrollment failed. You might already be enrolled.");
+                                    setLoading(false);
+                                    return;
                                 }
                             }
                             navigate('/enroll-success');

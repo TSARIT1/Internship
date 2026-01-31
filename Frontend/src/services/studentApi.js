@@ -112,20 +112,30 @@ const setLocalPricingData = (data) => {
 };
 
 export const getPricing = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const pricingData = getLocalPricingData();
-            resolve({ 
-                data: Object.entries(pricingData).map(([course, details]) => ({
-                    course,
-                    ...details
-                }))
-            });
-        }, 500);
-    });
+    try {
+        const response = await axios.get(`${API_URL.replace('/auth', '')}/courses`);
+        // Map backend list to the expected format for consumers of getPricing
+        // Expected: { data: [ { course: "Name", totalFee: 1000 ... } ] }
+        const mappedData = response.data.map(c => ({
+            course: c.name,
+            totalFee: c.totalFee,
+            discount: c.discount,
+            description: c.description,
+            duration: c.duration,
+            level: c.level,
+            domain: c.domain,
+            // ... other fields
+        }));
+        return { data: mappedData };
+    } catch (error) {
+        console.error("Fetch pricing error:", error);
+        return { data: [] };
+    }
 };
 
 export const updatePricing = async (courseName, newFee, newDiscount) => {
+    // TODO: Implement Backend API for updating course pricing
+    console.warn("Update Pricing Backend API not yet implemented. Updating local cache only.");
     return new Promise((resolve) => {
         setTimeout(() => {
             const pricingData = getLocalPricingData();

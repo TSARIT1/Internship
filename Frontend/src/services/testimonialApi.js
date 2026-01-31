@@ -1,47 +1,43 @@
-const INITIAL_DATA = [
-    { id: 1, name: "Alice Johnson", course: "Data Science", message: "Amazing course! Highly recommended.", image: "https://randomuser.me/api/portraits/women/44.jpg" },
-    { id: 2, name: "Bob Smith", course: "Web Development", message: "Learned so much in just 4 weeks.", image: "https://randomuser.me/api/portraits/men/32.jpg" },
-];
+import axios from 'axios';
 
-const getLocalData = () => {
-    const data = localStorage.getItem('testimonials');
-    if (data) return JSON.parse(data);
-    localStorage.setItem('testimonials', JSON.stringify(INITIAL_DATA));
-    return INITIAL_DATA;
-};
+const API_URL = "http://localhost:8080/api/testimonials";
 
-const setLocalData = (data) => {
-    localStorage.setItem('testimonials', JSON.stringify(data));
-};
+// --- TEXT TESTIMONIALS (REAL BACKEND) ---
 
 export const getTestimonials = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve({ data: getLocalData() }), 500);
-    });
+    try {
+        const response = await axios.get(`${API_URL}?type=TEXT`);
+        return { data: response.data };
+    } catch (error) {
+        console.error("Error fetching testimonials:", error);
+        return { data: [] };
+    }
 };
 
 export const addTestimonial = async (testimonial) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const currentData = getLocalData();
-            const newTestimonial = { ...testimonial, id: Date.now() };
-            const updatedData = [...currentData, newTestimonial];
-            setLocalData(updatedData);
-            resolve({ data: newTestimonial });
-        }, 500);
-    });
+    try {
+        const payload = { ...testimonial, type: 'TEXT' };
+        const response = await axios.post(API_URL, payload);
+        return { data: response.data };
+    } catch (error) {
+        console.error("Error adding testimonial:", error);
+        throw error;
+    }
 };
 
 export const deleteTestimonial = async (id) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const currentData = getLocalData();
-            const updatedData = currentData.filter(t => t.id !== id);
-            setLocalData(updatedData);
-            resolve({ data: { success: true } });
-        }, 500);
-    });
+    try {
+        await axios.delete(`${API_URL}/${id}`);
+        return { data: { success: true } };
+    } catch (error) {
+        console.error("Error deleting testimonial:", error);
+        throw error;
+    }
 };
+
+// --- VIDEO TESTIMONIALS (STILL MOCK - FOR NOW) ---
+// If you want to move video testimonials to backend soon, we can replicate the pattern above.
+// For now, keeping as local storage mock to avoid breaking that page until backend ready.
 
 const INITIAL_VIDEO_DATA = [
     {
@@ -49,7 +45,7 @@ const INITIAL_VIDEO_DATA = [
         name: "Sarah Jenkins",
         course: "Full Stack Web Development",
         message: "The practical projects gave me the confidence to apply for senior roles. Absolutely game-changing!",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder (Rick Roll for testing, but works) -> Better real tech talks? Let's use generic tech ones.
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", 
         thumbnail: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
         rating: 5
     },
@@ -74,38 +70,32 @@ const INITIAL_VIDEO_DATA = [
 ];
 
 export const getVideoTestimonials = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const data = localStorage.getItem('videoTestimonials');
-            if (data) {
-                resolve({ data: JSON.parse(data) });
-            } else {
-                localStorage.setItem('videoTestimonials', JSON.stringify(INITIAL_VIDEO_DATA));
-                resolve({ data: INITIAL_VIDEO_DATA });
-            }
-        }, 500);
-    });
+    try {
+        const response = await axios.get(`${API_URL}?type=VIDEO`);
+        return { data: response.data };
+    } catch (error) {
+        console.error("Error fetching video testimonials:", error);
+        return { data: [] };
+    }
 };
 
 export const addVideoTestimonial = async (testimonial) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const currentData = JSON.parse(localStorage.getItem('videoTestimonials') || JSON.stringify(INITIAL_VIDEO_DATA));
-            const newTestimonial = { ...testimonial, id: Date.now(), rating: 5 }; // Default rating 5 for now
-            const updatedData = [...currentData, newTestimonial];
-            localStorage.setItem('videoTestimonials', JSON.stringify(updatedData));
-            resolve({ data: newTestimonial });
-        }, 500);
-    });
+    try {
+        const payload = { ...testimonial, type: 'VIDEO' };
+        const response = await axios.post(API_URL, payload);
+        return { data: response.data };
+    } catch (error) {
+        console.error("Error adding video testimonial:", error);
+        throw error;
+    }
 };
 
 export const deleteVideoTestimonial = async (id) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const currentData = JSON.parse(localStorage.getItem('videoTestimonials') || JSON.stringify(INITIAL_VIDEO_DATA));
-            const updatedData = currentData.filter(t => t.id !== id);
-            localStorage.setItem('videoTestimonials', JSON.stringify(updatedData));
-            resolve({ data: { success: true } });
-        }, 500);
-    });
+    try {
+        await axios.delete(`${API_URL}/${id}`);
+        return { data: { success: true } };
+    } catch (error) {
+        console.error("Error deleting video testimonial:", error);
+        throw error;
+    }
 };

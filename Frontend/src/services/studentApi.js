@@ -134,24 +134,17 @@ export const getPricing = async () => {
 };
 
 export const updatePricing = async (courseName, newFee, newDiscount) => {
-    // TODO: Implement Backend API for updating course pricing
-    console.warn("Update Pricing Backend API not yet implemented. Updating local cache only.");
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const pricingData = getLocalPricingData();
-            if (pricingData[courseName]) {
-                pricingData[courseName] = { 
-                    ...pricingData[courseName],
-                    totalFee: Number(newFee), 
-                    discount: Number(newDiscount) 
-                };
-                setLocalPricingData(pricingData);
-                resolve({ success: true, data: pricingData[courseName] });
-            } else {
-                resolve({ success: false, message: "Course not found" });
-            }
-        }, 500);
-    });
+    try {
+        const payload = {
+            totalFee: Number(newFee),
+            discount: Number(newDiscount)
+        };
+        const response = await axios.put(`${API_URL.replace('/auth', '')}/courses/${courseName}`, payload);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Update Pricing Error:", error);
+        return { success: false, message: "Failed to update pricing" };
+    }
 };
 
 export const updateStudentFee = async (id, fee, discount) => {
@@ -534,18 +527,13 @@ export const deleteCourseVideo = async (courseName, sectionId, videoId) => {
 };
 
 export const deleteCourseSection = async (courseName, sectionId) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const contentStore = getLocalCourseContent();
-             if (contentStore[courseName]) {
-                contentStore[courseName].sections = contentStore[courseName].sections.filter(s => s.id !== sectionId);
-                setLocalCourseContent(contentStore);
-                resolve({ success: true });
-            } else {
-                resolve({ success: false });
-            }
-        }, 500);
-    });
+    try {
+        await axios.delete(`${API_URL.replace('/auth', '')}/courses/${courseName}/sections/${sectionId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Section Error:", error);
+        return { success: false, message: "Failed to delete section" };
+    }
 };
 
 

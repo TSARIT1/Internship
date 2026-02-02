@@ -81,7 +81,7 @@ const AdminPricing = () => {
                                                 onChange={(e) => setEditForm({ ...editForm, totalFee: e.target.value })}
                                             />
                                         ) : (
-                                            `₹${item.totalFee.toLocaleString()}`
+                                            `₹${(item.totalFee || 0).toLocaleString()}`
                                         )}
                                     </td>
 
@@ -95,15 +95,15 @@ const AdminPricing = () => {
                                                 onChange={(e) => setEditForm({ ...editForm, discount: e.target.value })}
                                             />
                                         ) : (
-                                            item.discount > 0 ? (
-                                                <span className="text-green-600 font-bold">-₹{item.discount.toLocaleString()}</span>
+                                            (item.discount || 0) > 0 ? (
+                                                <span className="text-green-600 font-bold">-₹{(item.discount || 0).toLocaleString()}</span>
                                             ) : '-'
                                         )}
                                     </td>
 
                                     {/* Calculated Final Price */}
                                     <td className="p-4 text-slate-900 font-bold">
-                                        ₹{(item.totalFee - item.discount).toLocaleString()}
+                                        ₹{((item.totalFee || 0) - (item.discount || 0)).toLocaleString()}
                                     </td>
 
                                     {/* Actions */}

@@ -116,18 +116,7 @@ const InternshipCards = () => {
                                                 Enroll
                                             </EnrollButton>
                                             <Link
-                                                to={
-                                                    item.name === 'Data Science' ? "/data-science" :
-                                                        item.name === 'Machine Learning' ? "/machine-learning" :
-                                                            item.name === 'AI' ? "/ai" :
-                                                                item.name === 'MERN Stack' ? "/mern-stack" :
-                                                                    item.name === 'DevOps' ? "/devops" :
-                                                                        item.name === 'Java Full Stack' ? "/java-full-stack" :
-                                                                            item.name === 'Python Programming' ? "/python-programming" :
-                                                                                item.name === 'AWS Cloud Computing' ? "/aws-cloud-computing" :
-                                                                                    item.name === 'Cyber Security' ? "/cyber-security" :
-                                                                                        "/internship/data-science"
-                                                }
+                                                to={item.slug || `/internship/${item.name.toLowerCase().replace(/\s+/g, '-')}`}
                                                 className="flex-1 inline-flex items-center justify-center gap-2 font-bold text-slate-600 bg-white border border-slate-200 py-3.5 rounded-xl hover:bg-slate-50 transition-all duration-300"
                                             >
                                                 Details

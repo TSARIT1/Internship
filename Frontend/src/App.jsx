@@ -23,6 +23,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminCourses from './pages/AdminCourses';
 import AdminWebinars from './pages/AdminWebinars';
 import AdminTestimonials from './pages/AdminTestimonials';
 import AdminStudents from './pages/AdminStudents';
@@ -70,6 +71,7 @@ function App() {
 
         <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="courses" element={<AdminCourses />} />
           <Route path="webinars" element={<AdminWebinars />} />
           <Route path="video-testimonials" element={<AdminVideoTestimonials />} />
           <Route path="testimonials" element={<AdminTestimonials />} />

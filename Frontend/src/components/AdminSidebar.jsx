@@ -9,7 +9,8 @@ import {
     Menu,
     X,
     ChevronRight,
-    CircleDollarSign
+    CircleDollarSign,
+    BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,6 +28,7 @@ const AdminSidebar = () => {
 
     const menuItems = [
         { path: '/admin/dashboard', name: 'Dashboard', icon: LayoutDashboard },
+        { path: '/admin/courses', name: 'Courses', icon: BookOpen },
         { path: '/admin/webinars', name: 'Webinars', icon: Video },
         { path: '/admin/video-testimonials', name: 'Video Reviews', icon: Video }, // Using Video icon since it matches
         { path: '/admin/testimonials', name: 'Testimonials', icon: MessageSquareQuote },

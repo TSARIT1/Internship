@@ -272,6 +272,26 @@ export const getAllCourses = async () => {
     }
 };
 
+export const addCourse = async (courseData) => {
+    try {
+        const response = await axios.post(`${API_URL.replace('/auth', '')}/courses`, courseData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Add course error:", error);
+        return { success: false, message: "Failed to add course" };
+    }
+};
+
+export const deleteCourse = async (courseId) => {
+    try {
+        await axios.delete(`${API_URL.replace('/auth', '')}/courses/${courseId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Delete course error:", error);
+        return { success: false, message: "Failed to delete course" };
+    }
+};
+
 export const getAllEnrollments = async () => {
     try {
         const response = await axios.get(`${ENROLLMENT_URL}/all`);

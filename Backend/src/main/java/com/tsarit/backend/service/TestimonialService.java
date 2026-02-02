@@ -13,7 +13,12 @@ public class TestimonialService {
     @Autowired
     private TestimonialRepository testimonialRepository;
 
-    public List<Testimonial> getAllTestimonials() {
+    public List<Testimonial> getAllTestimonials(String type) {
+        if ("VIDEO".equalsIgnoreCase(type)) {
+            return testimonialRepository.findByVideoUrlIsNotNull();
+        } else if ("TEXT".equalsIgnoreCase(type)) {
+            return testimonialRepository.findByVideoUrlIsNull();
+        }
         return testimonialRepository.findAll();
     }
 

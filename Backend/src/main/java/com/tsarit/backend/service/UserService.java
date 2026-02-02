@@ -22,11 +22,11 @@ public class UserService {
     }
 
     public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findFirstByUsername(username);
     }
 
     public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findFirstByEmail(email);
     }
 
     public java.util.List<User> getAllUsers() {

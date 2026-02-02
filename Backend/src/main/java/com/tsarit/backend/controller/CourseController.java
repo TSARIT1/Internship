@@ -24,9 +24,32 @@ public class CourseController {
         if (course.isPresent()) {
             return ResponseEntity.ok(course.get());
         } else {
-            // Return 404 if not found, OR return empty structure/default if preferred for
-            // behavior consistency
             return ResponseEntity.status(404).body("Course not found");
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllCourses() {
+        return ResponseEntity.ok(courseService.getAllCourses());
+    }
+
+    @PutMapping("/{name}")
+    public ResponseEntity<?> updateCourse(@PathVariable String name, @RequestBody Course course) {
+        try {
+            Course updated = courseService.updateCourse(name, course);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseName}/sections/{sectionId}")
+    public ResponseEntity<?> deleteSection(@PathVariable String courseName, @PathVariable Long sectionId) {
+        boolean removed = courseService.deleteSection(courseName, sectionId);
+        if (removed) {
+            return ResponseEntity.ok("Section deleted successfully");
+        } else {
+            return ResponseEntity.status(404).body("Section or Course not found");
         }
     }
 

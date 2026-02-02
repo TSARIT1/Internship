@@ -25,6 +25,41 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
+    public java.util.List<Course> getAllCourses() {
+        return courseRepository.findAll();
+    }
+
+    public Course updateCourse(String name, Course updatedData) {
+        Course course = courseRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (updatedData.getTotalFee() != null)
+            course.setTotalFee(updatedData.getTotalFee());
+        if (updatedData.getDiscount() != null)
+            course.setDiscount(updatedData.getDiscount());
+        if (updatedData.getDescription() != null)
+            course.setDescription(updatedData.getDescription());
+        if (updatedData.getDuration() != null)
+            course.setDuration(updatedData.getDuration());
+        if (updatedData.getLevel() != null)
+            course.setLevel(updatedData.getLevel());
+
+        return courseRepository.save(course);
+    }
+
+    public boolean deleteSection(String courseName, Long sectionId) {
+        Optional<Course> courseOpt = courseRepository.findByName(courseName);
+        if (courseOpt.isPresent()) {
+            Course course = courseOpt.get();
+            boolean removed = course.getSections().removeIf(s -> s.getId().equals(sectionId));
+            if (removed) {
+                courseRepository.save(course);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @PostConstruct
     public void seedCourses() {
         if (courseRepository.count() == 0) {

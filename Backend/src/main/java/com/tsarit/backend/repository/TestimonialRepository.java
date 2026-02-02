@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TestimonialRepository extends JpaRepository<Testimonial, Long> {
+    java.util.List<Testimonial> findByVideoUrlIsNotNull();
+
+    java.util.List<Testimonial> findByVideoUrlIsNull();
 }

@@ -16,7 +16,7 @@ export const getTestimonials = async () => {
 
 export const addTestimonial = async (testimonial) => {
     try {
-        const payload = { ...testimonial, type: 'TEXT' };
+        const payload = { ...testimonial };
         const response = await axios.post(API_URL, payload);
         return { data: response.data };
     } catch (error) {
@@ -81,7 +81,7 @@ export const getVideoTestimonials = async () => {
 
 export const addVideoTestimonial = async (testimonial) => {
     try {
-        const payload = { ...testimonial, type: 'VIDEO' };
+        const payload = { ...testimonial };
         const response = await axios.post(API_URL, payload);
         return { data: response.data };
     } catch (error) {

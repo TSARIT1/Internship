@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Entity
 @Table(name = "testimonials")
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 public class Testimonial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +18,8 @@ public class Testimonial {
     private String message;
 
     private String image;
-    private Integer rating;
+
+    private String videoUrl;
 
     // Getters and Setters
     public Long getId() {
@@ -60,11 +62,11 @@ public class Testimonial {
         this.image = image;
     }
 
-    public Integer getRating() {
-        return rating;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
-    public void setRating(Integer rating) {
-        this.rating = rating;
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

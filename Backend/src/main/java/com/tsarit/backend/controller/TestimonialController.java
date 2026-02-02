@@ -17,8 +17,8 @@ public class TestimonialController {
     private TestimonialService testimonialService;
 
     @GetMapping
-    public ResponseEntity<List<Testimonial>> getAllTestimonials() {
-        return ResponseEntity.ok(testimonialService.getAllTestimonials());
+    public ResponseEntity<List<Testimonial>> getAllTestimonials(@RequestParam(required = false) String type) {
+        return ResponseEntity.ok(testimonialService.getAllTestimonials(type));
     }
 
     @PostMapping

@@ -25,6 +25,10 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
+    public void deleteCourse(Long id) {
+        courseRepository.deleteById(id);
+    }
+
     public java.util.List<Course> getAllCourses() {
         return courseRepository.findAll();
     }

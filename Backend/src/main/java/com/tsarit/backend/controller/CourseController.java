@@ -18,6 +18,17 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
+    @PostMapping
+    public ResponseEntity<?> createCourse(@RequestBody Course course) {
+        return ResponseEntity.ok(courseService.saveCourse(course));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
+        courseService.deleteCourse(id);
+        return ResponseEntity.ok("Course deleted successfully");
+    }
+
     @GetMapping("/{name}")
     public ResponseEntity<?> getCourseByName(@PathVariable String name) {
         Optional<Course> course = courseService.getCourseByName(name);

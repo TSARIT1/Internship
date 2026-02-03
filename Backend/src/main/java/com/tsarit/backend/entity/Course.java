@@ -15,6 +15,8 @@ public class Course {
     @Column(unique = true)
     private String name;
 
+    private String slug;
+
     private String liveLink;
 
     private Double totalFee;
@@ -53,6 +55,14 @@ public class Course {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     // --- Getters and Setters for New Fields ---

@@ -66,7 +66,7 @@ const AdminCourses = () => {
                 shadow: 'group-hover:shadow-blue-500/20', totalFee: '', discount: ''
             });
         } else {
-            alert('Failed to add course');
+            alert(response.message || 'Failed to add course');
         }
     };
 

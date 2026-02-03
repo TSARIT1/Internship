@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
 import { getPricing, getMyEnrollments } from '../../services/studentApi';
-import { internships } from '../../data/internships';
+import { getIcon } from '../../utils/IconMapper';
 import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
@@ -14,7 +14,8 @@ const StudentDashboardHome = () => {
     const navigate = useNavigate();
     const [upcomingWebinar, setUpcomingWebinar] = useState(null);
     const [enrollments, setEnrollments] = useState([]);
-    // State for certificate generation to ensure correct course details are rendered
+
+    // State for certificate generation
     const [certificateData, setCertificateData] = useState({
         studentName: student.name,
         courseName: student.webinar || student.course || "Course Completion",
@@ -27,6 +28,8 @@ const StudentDashboardHome = () => {
         availableCourses: 0
     });
 
+    const [availableCourses, setAvailableCourses] = useState([]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -38,25 +41,22 @@ const StudentDashboardHome = () => {
 
                 const allWebinars = webinarsRes.data || [];
                 const allCourses = coursesRes.data || [];
+                // Sort by ID normally, or random, or however preferred. Default is insertion order.
+                setAvailableCourses(allCourses.slice(0, 3));
+
                 const myEnrollments = enrollmentsRes.success ? enrollmentsRes.data : [];
                 setEnrollments(myEnrollments);
 
-                // Upcoming Webinars Count (Future Dates)
+                // Upcoming Webinars Count
                 const upcoming = allWebinars.filter(w => new Date(w.date) >= new Date());
 
                 // Registered Webinars Count
                 const registeredIds = student.registeredWebinars || [];
-                // Handle legacy string format if present and not in array
                 let registeredCount = registeredIds.length;
                 if (student.webinar && !registeredIds.some(r => (typeof r === 'object' ? r.id : r) === allWebinars.find(w => w.title === student.webinar)?.id)) {
-                    // Only increment if not already counted (simple check)
-                    // Actually, if student.webinar exists, they have at least 1. 
-                    // But registeredWebinars is the source of truth now.
-                    // If registeredWebinars is empty but student.webinar is set (legacy), count is 1.
                     if (registeredCount === 0) registeredCount = 1;
                 }
 
-                // Next Upcoming Webinar for card
                 const next = upcoming.sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
                 setUpcomingWebinar(next);
@@ -71,8 +71,9 @@ const StudentDashboardHome = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [student.id, student.registeredWebinars, student.webinar]); // Added dependencies
 
+    // Legacy fallback
     const enrolledCourse = student.webinar || student.course;
 
     const certificateRef = useRef(null);
@@ -83,26 +84,24 @@ const StudentDashboardHome = () => {
 
         setDownloading(true);
 
-        // Update certificate template data if specific enrollment is validated
         if (specificEnrollment) {
             setCertificateData({
                 studentName: student.name,
                 courseName: specificEnrollment.courseName,
                 date: specificEnrollment.certificateDate || new Date().toISOString().split('T')[0]
             });
-            // Short delay to allow React to re-render the hidden template
             await new Promise(resolve => setTimeout(resolve, 500));
         }
 
         try {
             const canvas = await html2canvas(certificateRef.current, {
-                scale: 2, // Higher quality
+                scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff'
             });
 
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape, mm, A4
+            const pdf = new jsPDF('l', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
@@ -115,7 +114,6 @@ const StudentDashboardHome = () => {
             console.error("Certificate download failed", error);
         } finally {
             setDownloading(false);
-            // Optionally reset certificate data if needed, but not strictly necessary
         }
     };
 
@@ -167,7 +165,6 @@ const StudentDashboardHome = () => {
 
             {/* Active Commitments Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Active Course Card */}
                 {/* Active Course Cards - List all enrollments */}
                 {enrollments.length > 0 ? (
                     <div className="space-y-4">
@@ -196,13 +193,7 @@ const StudentDashboardHome = () => {
                                     </button>
                                     {enrollment.certificateIssued && (
                                         <button
-                                            onClick={() => {
-                                                // Trigger certificate download for this specific enrollment
-                                                // Since logic is currently bound to 'student' object ref, 
-                                                // we might need to refactor certificate download to accept params.
-                                                // For now, let's just alert or reuse the general one if it matches.
-                                                handleDownloadCertificate(enrollment);
-                                            }}
+                                            onClick={() => handleDownloadCertificate(enrollment)}
                                             className="bg-yellow-400 text-slate-900 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-yellow-300 transition-colors shadow-sm flex items-center gap-2"
                                         >
                                             <Award size={16} /> Certificate
@@ -213,7 +204,7 @@ const StudentDashboardHome = () => {
                         ))}
                     </div>
                 ) : (
-                    // Fallback for no API enrollments but potentially local legacy
+                    // Fallback for local legacy
                     enrolledCourse ? (
                         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
                             <div>
@@ -246,38 +237,6 @@ const StudentDashboardHome = () => {
                         </div>
                     )
                 )}
-
-                {/* Certificate Section - Render Hidden Template & Button */}
-                {student.certificateIssued && (
-                    <div className="md:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-lg flex items-center justify-between">
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Award className="text-yellow-400" />
-                                <h3 className="text-xl font-bold">You've earned a Certificate!</h3>
-                            </div>
-                            <p className="text-slate-300 text-sm">Congratulations on completing your course. Download your official certificate now.</p>
-                        </div>
-                        <button
-                            onClick={handleDownloadCertificate}
-                            disabled={downloading}
-                            className="bg-yellow-400 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition-colors shadow-lg flex items-center gap-2"
-                        >
-                            {downloading ? 'Generating...' : 'Download Certificate'}
-                            {!downloading && <Award size={18} />}
-                        </button>
-                    </div>
-                )}
-
-                {/* Hidden Certificate Template for Capture */}
-                <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none" style={{ position: 'fixed', left: '-9999px' }}>
-                    <CertificateTemplate
-                        ref={certificateRef}
-                        studentName={certificateData.studentName}
-                        courseName={certificateData.courseName}
-                        date={certificateData.date}
-                        duration="8 Weeks"
-                    />
-                </div>
 
                 {/* Next Upcoming Webinar */}
                 <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col">
@@ -327,25 +286,31 @@ const StudentDashboardHome = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {internships.slice(0, 3).map((internship, index) => (
-                        <div key={index} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                            <div className={`w-12 h-12 rounded-lg ${internship.bg} ${internship.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                <internship.icon size={24} />
+                    {availableCourses.map((course, index) => {
+                        const Icon = getIcon(course.iconName);
+                        const bgColor = course.bgColor || 'bg-blue-50';
+                        const txtColor = course.color || 'text-blue-600';
+
+                        return (
+                            <div key={index} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                                <div className={`w-12 h-12 rounded-lg ${bgColor} ${txtColor} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                                    <Icon size={24} />
+                                </div>
+                                <h3 className="font-bold text-slate-900 mb-1">{course.title}</h3>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{course.duration}</span>
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{course.level}</span>
+                                </div>
+                                <p className="text-sm text-slate-500 mb-4 line-clamp-2">{course.description}</p>
+                                <button
+                                    onClick={() => navigate('/studentdashboard/courses')} // Consider linking to specific course details if page exists
+                                    className="w-full py-2 text-sm font-bold text-slate-700 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
+                                >
+                                    View Program
+                                </button>
                             </div>
-                            <h3 className="font-bold text-slate-900 mb-1">{internship.title}</h3>
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{internship.duration}</span>
-                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{internship.level}</span>
-                            </div>
-                            <p className="text-sm text-slate-500 mb-4 line-clamp-2">{internship.description}</p>
-                            <button
-                                onClick={() => navigate('/studentdashboard/courses')}
-                                className="w-full py-2 text-sm font-bold text-slate-700 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
-                            >
-                                View Program
-                            </button>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 <div className="mt-8 text-center">
@@ -356,6 +321,17 @@ const StudentDashboardHome = () => {
                         View All Internships <ArrowRight size={16} />
                     </button>
                 </div>
+            </div>
+
+            {/* Global Certificate Template - Hidden */}
+            <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none" style={{ position: 'fixed', left: '-9999px' }}>
+                <CertificateTemplate
+                    ref={certificateRef}
+                    studentName={certificateData.studentName}
+                    courseName={certificateData.courseName}
+                    date={certificateData.date}
+                    duration="8 Weeks"
+                />
             </div>
         </div>
     );

@@ -114,17 +114,25 @@ const setLocalPricingData = (data) => {
 export const getPricing = async () => {
     try {
         const response = await axios.get(`${API_URL.replace('/auth', '')}/courses`);
-        // Map backend list to the expected format for consumers of getPricing
-        // Expected: { data: [ { course: "Name", totalFee: 1000 ... } ] }
+        // Map backend list to the expected format
         const mappedData = response.data.map(c => ({
-            course: c.name,
+            course: c.name, // "course" is legacy name used in frontend
+            title: c.name, // "title" used in some components
+            id: c.id,
             totalFee: c.totalFee,
             discount: c.discount,
             description: c.description,
             duration: c.duration,
             level: c.level,
             domain: c.domain,
-            // ... other fields
+            slug: c.slug,
+            // Styling
+            iconName: c.iconName,
+            color: c.color,
+            bgColor: c.bgColor,
+            borderColor: c.borderColor,
+            gradient: c.gradient,
+            shadow: c.shadow
         }));
         return { data: mappedData };
     } catch (error) {
@@ -278,7 +286,10 @@ export const addCourse = async (courseData) => {
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Add course error:", error);
-        return { success: false, message: "Failed to add course" };
+        return { 
+            success: false, 
+            message: error.response?.data?.message || error.response?.data || error.message || "Failed to add course" 
+        };
     }
 };
 

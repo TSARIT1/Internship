@@ -39,8 +39,15 @@ const EnrollButton = ({ className, children, course }) => {
                     student = JSON.parse(localStorage.getItem('student') || '{}');
                 } catch (e) { console.error(e); }
 
+                const apiKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+                if (!apiKey) {
+                    alert("Razorpay Key ID is missing. Please check your .env file and restart the server.");
+                    setLoading(false);
+                    return;
+                }
+
                 const options = {
-                    key: "rzp_live_Rz8vO7gI0lkWTk", // Enter the Key ID generated from the Dashboard
+                    key: apiKey,  // Key from .env
                     amount: (finalFee || 5000) * 100, // Amount is in currency subunits. Default 5000 INR if loading fails
                     currency: "INR",
                     name: "TSAR IT Services",

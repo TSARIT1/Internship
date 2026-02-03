@@ -27,6 +27,7 @@ import AdminCourses from './pages/AdminCourses';
 import AdminWebinars from './pages/AdminWebinars';
 import AdminTestimonials from './pages/AdminTestimonials';
 import AdminStudents from './pages/AdminStudents';
+import AdminPayments from './pages/AdminPayments';
 import AdminPricing from './pages/AdminPricing';
 
 import AdminVideoTestimonials from './pages/AdminVideoTestimonials';
@@ -76,7 +77,7 @@ function App() {
           <Route path="video-testimonials" element={<AdminVideoTestimonials />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="students" element={<AdminStudents />} />
-
+          <Route path="payments" element={<AdminPayments />} />
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="course-content" element={<AdminCourseContent />} />
         </Route>

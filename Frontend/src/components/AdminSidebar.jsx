@@ -33,6 +33,7 @@ const AdminSidebar = () => {
         { path: '/admin/video-testimonials', name: 'Video Reviews', icon: Video }, // Using Video icon since it matches
         { path: '/admin/testimonials', name: 'Testimonials', icon: MessageSquareQuote },
         { path: '/admin/students', name: 'Registered Students', icon: Users },
+        { path: '/admin/payments', name: 'Payments', icon: CircleDollarSign },
         { path: '/admin/pricing', name: 'Pricing', icon: CircleDollarSign },
         { path: '/admin/course-content', name: 'Course Content', icon: Video },
     ];

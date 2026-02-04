@@ -2,21 +2,33 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
 
+import { loginStudent } from '../services/studentApi';
+
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Mock Authentication
-        if (email === 'admin@tsarit.com' && password === 'admin123') {
-            localStorage.setItem('adminToken', 'mock-jwt-token-123456');
-            localStorage.setItem('isAdmin', 'true');
-            navigate('/admin/dashboard');
-        } else {
-            setError('Invalid credentials');
+
+        try {
+            // Using loginStudent service which calls backend
+            const response = await loginStudent(email, password);
+
+            if (response.success) {
+                // Token is already saved by loginStudent in localStorage 'token'
+                // We also set 'adminToken' for any legacy admin components if they exist, but generally 'token' is key
+                localStorage.setItem('adminToken', localStorage.getItem('token'));
+                localStorage.setItem('isAdmin', 'true');
+                navigate('/admin/dashboard');
+            } else {
+                setError(response.message || 'Invalid credentials');
+            }
+        } catch (err) {
+            setError('Login failed. Please check backend.');
+            console.error(err);
         }
     };
 

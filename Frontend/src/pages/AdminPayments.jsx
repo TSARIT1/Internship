@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllEnrollments } from '../services/studentApi';
+import { getAllEnrollments, getStudents } from '../services/studentApi';
 import {
     Download,
     Search,
@@ -26,13 +26,56 @@ const AdminPayments = () => {
 
     const fetchData = async () => {
         try {
-            const response = await getAllEnrollments();
-            if (response.success) {
-                // Determine source of data: backend response might be array or { data: [] }
-                const data = Array.isArray(response.data) ? response.data : [];
-                // Sort by ID descending (newest first)
-                setEnrollments(data.sort((a, b) => b.id - a.id));
-            }
+            // Fetch both Enrollments and Users (for legacy support)
+            const [enrollmentRes, usersRes] = await Promise.all([
+                getAllEnrollments(),
+                getStudents()
+            ]);
+
+            const enrollments = enrollmentRes.success ? enrollmentRes.data : [];
+            const users = usersRes.data || [];
+
+            // 1. Process Real Enrollments
+            const mappedEnrollments = enrollments.map(e => ({
+                id: e.id,
+                transactionId: e.transactionId,
+                studentName: e.studentName || e.user.username,
+                email: e.user.email,
+                courseName: e.courseName,
+                // amountPaid logic: if stored, use it, else fee-discount
+                amountPaid: e.amountPaid !== undefined ? e.amountPaid : ((e.fee || 0) - (e.discount || 0)),
+                paymentTime: e.paymentTime || e.enrollmentDate,
+                status: e.status || "ACTIVE",
+                userId: e.user.id
+            }));
+
+            // 2. Process Legacy Users (who are NOT in enrollment list)
+            // We check if they have a 'course' and 'totalFee' set directly on User entity
+            const enrolledUserIds = new Set(enrollments.map(e => e.user.id));
+
+            const legacyPayments = users
+                .filter(u => !enrolledUserIds.has(u.id) && u.webinar && u.webinar !== "Not Selected") // u.webinar is mapped from u.course
+                .map(u => ({
+                    id: `legacy-${u.id}`,
+                    transactionId: "LEGACY", // Placeholder for old data
+                    studentName: u.name,
+                    email: u.email,
+                    courseName: u.webinar,
+                    amountPaid: (u.totalFee || 0) - (u.discount || 0),
+                    paymentTime: u.date, // User creation date or similar
+                    status: "ACTIVE", // Assumed active
+                    userId: u.id
+                }));
+
+            // Combine and Sort
+            const combinedData = [...mappedEnrollments, ...legacyPayments];
+            const sortedData = combinedData.sort((a, b) => {
+                // Sort by date/ID desc
+                return new Date(b.paymentTime || 0) - new Date(a.paymentTime || 0);
+            });
+
+            setEnrollments(sortedData);
+
         } catch (error) {
             console.error("Failed to fetch payments", error);
         } finally {
@@ -183,8 +226,8 @@ const AdminPayments = () => {
                                     key={p}
                                     onClick={() => setPeriod(p)}
                                     className={`px-3 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${period === p
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     {p}
@@ -244,8 +287,8 @@ const AdminPayments = () => {
                                         </td>
                                         <td className="p-4">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${enrollment.status === 'ACTIVE'
-                                                    ? 'bg-green-50 text-green-700 border-green-200'
-                                                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                                                ? 'bg-green-50 text-green-700 border-green-200'
+                                                : 'bg-slate-100 text-slate-600 border-slate-200'
                                                 }`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full ${enrollment.status === 'ACTIVE' ? 'bg-green-500' : 'bg-slate-400'
                                                     }`} />

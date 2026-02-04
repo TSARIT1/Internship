@@ -8,6 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,10 +20,13 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
+    private com.tsarit.backend.security.JwtUtils jwtUtils;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@jakarta.validation.Valid @RequestBody User user) {
         if (userService.findByUsername(user.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("Username already exists");
         }
@@ -57,7 +62,13 @@ public class AuthController {
                 // specific check to avoid NPEs if stored password is null
                 if (storedPassword != null && passwordEncoder.matches(rawPassword, storedPassword)) {
                     System.out.println("Login successful for user: " + user.getUsername());
-                    return ResponseEntity.ok(user);
+                    String token = jwtUtils.generateJwtToken(user);
+
+                    Map<String, Object> response = new HashMap<>(); // Change return type to Map or specific DTO
+                    response.put("token", token);
+                    response.put("user", user);
+
+                    return ResponseEntity.ok(response);
                 }
                 // 2. Fallback: Check if it matches as Plain Text (Legacy/Migration Case)
                 else if (storedPassword != null && storedPassword.equals(rawPassword)) {
@@ -68,10 +79,16 @@ public class AuthController {
                     String encodedPassword = passwordEncoder.encode(rawPassword);
                     userService.updatePasswordDirectly(user.getId(), encodedPassword);
 
-                    // Update the local user object to return correct info
+                    // Update the local user object
                     user.setPassword(encodedPassword);
 
-                    return ResponseEntity.ok(user);
+                    // GENERATE TOKEN
+                    String token = jwtUtils.generateJwtToken(user);
+                    Map<String, Object> response = new HashMap<>(); // Standard Map
+                    response.put("token", token);
+                    response.put("user", user);
+
+                    return ResponseEntity.ok(response);
                 } else {
                     System.out.println("Password mismatch for user: " + user.getUsername());
                 }

@@ -66,8 +66,8 @@ const Login = () => {
                 }
 
                 // 1. Set Auth State per requirements
-                localStorage.setItem('token', 'dummy-token'); // Mock token as requested
-                localStorage.setItem('role', 'STUDENT');
+                // Token is already set by loginStudent API call now
+                localStorage.setItem('student', JSON.stringify(response.data));
                 localStorage.setItem('student', JSON.stringify(response.data));
 
                 // Clear potential admin session

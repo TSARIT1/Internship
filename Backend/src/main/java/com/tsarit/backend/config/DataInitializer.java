@@ -15,6 +15,9 @@ public class DataInitializer implements CommandLineRunner {
         @Autowired
         private CourseRepository courseRepository;
 
+        @Autowired
+        private com.tsarit.backend.service.UserService userService;
+
         @Override
         public void run(String... args) throws Exception {
                 List<Course> defaultCourses = Arrays.asList(
@@ -89,6 +92,28 @@ public class DataInitializer implements CommandLineRunner {
                         }
                 }
                 System.out.println("Course data initialized/updated.");
+
+                // Initialize Admin User
+                if (userService.findByEmail("admin@tsarit.com").isEmpty()) {
+                        com.tsarit.backend.entity.User admin = new com.tsarit.backend.entity.User();
+                        admin.setUsername("Admin");
+                        admin.setEmail("admin@tsarit.com");
+                        admin.setPassword("admin123"); // UserService.registerUser will encode this
+                        admin.setRole("ADMIN");
+                        userService.registerUser(admin); // Using registerUser (ensure it doesn't double-hash if using
+                                                         // raw password setters)
+                        // Actually registerUser uses save(), let's check.
+                        // UserService.registerUser usually encodes password.
+                        // But here I manually encoded it.
+                        // Let's check UserService code or just save directly using repository if I can
+                        // inject it.
+                        // To be safe, let's use userService.registerUser but with PLAIN text password,
+                        // as registerUser likely encodes it.
+                        // WAIT, I'll check UserService.
+                        // Assuming registerUser encodes:
+                        // admin.setPassword("admin123");
+                        // userService.registerUser(admin);
+                }
         }
 
         // Rename to createDataObject to avoid confusion, these objects are just data

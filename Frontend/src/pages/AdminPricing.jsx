@@ -35,7 +35,10 @@ const AdminPricing = () => {
 
     const handleSaveEdit = async (courseName) => {
         try {
-            const response = await updatePricing(courseName, editForm.totalFee, editForm.discount);
+            // Find the full course object to pass back for validation requirement
+            const currentCourse = pricing.find(p => p.course === courseName);
+
+            const response = await updatePricing(courseName, editForm.totalFee, editForm.discount, currentCourse);
             if (response.success) {
                 setPricing(prev => prev.map(item =>
                     item.course === courseName ? { ...item, totalFee: Number(editForm.totalFee), discount: Number(editForm.discount) } : item

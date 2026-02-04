@@ -19,8 +19,14 @@ public class CourseController {
     private CourseService courseService;
 
     @PostMapping
-    public ResponseEntity<?> createCourse(@RequestBody Course course) {
-        return ResponseEntity.ok(courseService.saveCourse(course));
+    public ResponseEntity<?> createCourse(@jakarta.validation.Valid @RequestBody Course course) {
+        try {
+            System.out.println("Received course creation request: " + course.getName());
+            return ResponseEntity.ok(courseService.saveCourse(course));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error adding course: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { applyForInternship } from '../services/studentApi';
+import { applyForInternship, checkEnrollmentStatus } from '../services/studentApi';
 import useCoursePricing from '../hooks/usePricing';
 import { loadRazorpay } from '../utils/razorpay';
 
@@ -25,6 +25,25 @@ const EnrollButton = ({ className, children, course }) => {
             if (course) {
                 // Payment Flow
                 setLoading(true);
+
+                // 1. Check if already enrolled
+                try {
+                    // Need safe access to student ID
+                    const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
+                    if (currentStudent.id) { // Only check if we have a valid ID
+                        const checkRes = await checkEnrollmentStatus(currentStudent.id, course);
+                        if (checkRes.success && checkRes.enrolled) {
+                            alert("You are already enrolled in this course! Redirecting to your dashboard.");
+                            navigate('/dashboard'); // Or wherever appropriate
+                            setLoading(false);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.log("Pre-enrollment check warning:", e);
+                    // Continue to payment if check fails, let backend handle final validation
+                }
+
                 const res = await loadRazorpay();
 
                 if (!res) {
@@ -73,7 +92,9 @@ const EnrollButton = ({ className, children, course }) => {
                             navigate('/enroll-success');
                         } catch (err) {
                             console.error("Enrollment error", err);
-                            alert("Enrollment failed after payment. Please contact support.");
+                            // improved error message
+                            const msg = err.response?.data || err.message || "Enrollment failed after payment.";
+                            alert(`Error: ${msg}`);
                         } finally {
                             setLoading(false);
                         }

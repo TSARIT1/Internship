@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Mail, Edit2, Check, X } from 'lucide-react';
-import { getAllEnrollments, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
+import { getAllEnrollments, getStudents, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
 
 const AdminStudents = () => {
     const [allStudents, setAllStudents] = useState([]);
@@ -18,15 +18,20 @@ const AdminStudents = () => {
 
     const loadStudents = async () => {
         try {
-            const response = await getAllEnrollments();
-            // Map Enrollment entity to match table expectations
-            // Enrollment: { id, user: {username, email...}, courseName, fee, discount, enrollmentDate, certificateIssued }
-            // Mapped: { id (enrollmentId), name, email, webinar, totalFee, discount, date, certificateIssued... }
+            // Fetch both enrollments AND all users
+            const [enrollmentRes, usersRes] = await Promise.all([
+                getAllEnrollments(),
+                getStudents()
+            ]);
 
-            const mapped = response.data.map(enr => ({
-                id: enr.id, // Using Enrollment ID now, not Student ID, for editing specific enrollment
+            const enrollments = enrollmentRes.success ? enrollmentRes.data : [];
+            const users = usersRes.data || [];
+
+            // Map Enrollments first
+            const enrolledMap = enrollments.map(enr => ({
+                id: enr.id,
                 studentId: enr.user.id,
-                name: enr.user.username,
+                name: enr.studentName || enr.user.username, // Prefer historical name
                 email: enr.user.email,
                 webinar: enr.courseName,
                 totalFee: enr.fee,
@@ -35,10 +40,38 @@ const AdminStudents = () => {
                 certificateIssued: enr.certificateIssued,
                 certificateDate: enr.certificateDate,
                 transactionId: enr.transactionId,
-                amountPaid: enr.amountPaid
+                amountPaid: enr.amountPaid,
+                status: 'Enrolled'
             }));
 
-            setAllStudents(mapped);
+            // Identify users who are NOT in the enrollment list (by email or ID)
+            // Note: A user might have multiple enrollments, so we don't just dedupe by ID.
+            // We want to show:
+            // 1. All Enrollments (as they are distinct records)
+            // 2. Any User who has NO enrollments at all.
+
+            const enrolledUserIds = new Set(enrollments.map(e => e.user.id));
+
+            const nonEnrolledUsers = users
+                .filter(u => !enrolledUserIds.has(u.id))
+                .map(u => ({
+                    id: `user-${u.id}`, // specific ID for table key
+                    studentId: u.id,
+                    name: u.name || u.username,
+                    email: u.email,
+                    webinar: "Not Enrolled",
+                    totalFee: 0,
+                    discount: 0,
+                    date: "N/A", // or u.created_at if we had it
+                    certificateIssued: false,
+                    certificateDate: null,
+                    transactionId: "-",
+                    amountPaid: 0,
+                    status: 'Registered'
+                }));
+
+            setAllStudents([...enrolledMap, ...nonEnrolledUsers]);
+
         } catch (error) {
             console.error(error);
         } finally {

@@ -5,6 +5,10 @@ import lombok.Data;
 import java.util.List;
 import java.util.ArrayList;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 @Entity
 @Table(name = "courses")
 public class Course {
@@ -13,16 +17,26 @@ public class Course {
     private Long id;
 
     @Column(unique = true)
+    @NotBlank(message = "Course name is required")
     private String name;
 
     private String slug;
 
     private String liveLink;
 
+    @Min(value = 0, message = "Fee cannot be negative")
     private Double totalFee;
+
+    @Min(value = 0, message = "Discount cannot be negative")
     private Double discount;
+
+    @NotBlank(message = "Duration is required")
     private String duration;
+
+    @NotBlank(message = "Level is required")
     private String level;
+
+    @NotBlank(message = "Domain is required")
     private String domain;
 
     @Column(length = 2000)

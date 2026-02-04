@@ -141,12 +141,26 @@ export const getPricing = async () => {
     }
 };
 
-export const updatePricing = async (courseName, newFee, newDiscount) => {
+export const updatePricing = async (courseName, newFee, newDiscount, existingCourseData = {}) => {
     try {
+        // Backend validation requires all @NotBlank fields (duration, level, domain, etc.)
+        // We ensure they are present by merging existingCourseData.
+        
+        // Map frontend "course" key back to backend "name" if needed, though usually "name" is what backend expects
+        // The existingCourseData from AdminPricing likely has "course" instead of "name" property sometimes?
+        // Let's ensure proper mapping if the input object comes from getPricing mapper.
+        
         const payload = {
+            name: courseName, // Ensure name is set
+            ...existingCourseData, // Merge all other fields (duration, level, domain, description, etc.)
             totalFee: Number(newFee),
             discount: Number(newDiscount)
         };
+        
+        // Remove "course" key if it exists from frontend mapping to avoid confusion, though backend ignores unknown fields
+        // But let's be clean.
+        if (payload.course) delete payload.course;
+
         const response = await axios.put(`${API_URL.replace('/auth', '')}/courses/${courseName}`, payload);
         return { success: true, data: response.data };
     } catch (error) {
@@ -232,8 +246,11 @@ export const applyForInternship = async (studentId, courseName, paymentData = {}
              return { success: false, message: response.message };
         }
     } catch (error) {
-        console.error("Enrollment failed", error);
-        return { success: false, message: "Enrollment failed. Please try again." };
+        console.error("Enrollment logic failed in applyForInternship", error);
+        return { 
+            success: false, 
+            message: error.response?.data || error.message || "Enrollment process failed." 
+        };
     }
 };
 
@@ -241,6 +258,38 @@ import axios from 'axios';
 
 const API_URL = "http://localhost:8080/api/auth";
 const ENROLLMENT_URL = "http://localhost:8080/api/enrollments";
+
+// AXIOS INTERCEPTOR TO ADD TOKEN
+axios.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token');
+        if (token && token !== 'dummy-token') { // Don't send dummy token if we have real one
+            config.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
+// File Upload Function
+export const uploadFile = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post(`http://localhost:8080/api/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return { success: true, data: response.data }; // Returns { fileName, fileUrl }
+    } catch (error) {
+        console.error("File upload error:", error);
+        return { success: false, message: "File upload failed" };
+    }
+};
 
 // New Enrollment functions
 export const enrollInCourse = async (userId, courseName, fee, discount, transactionId, amountPaid) => {
@@ -267,6 +316,18 @@ export const getMyEnrollments = async (userId) => {
     } catch (error) {
         console.error("Fetch enrollment error:", error);
         return { success: false, data: [] };
+    }
+};
+
+export const checkEnrollmentStatus = async (userId, courseName) => {
+    try {
+        const response = await axios.get(`${ENROLLMENT_URL}/check`, {
+            params: { userId, courseName }
+        });
+        return { success: true, enrolled: response.data.enrolled };
+    } catch (error) {
+        console.error("Check enrollment error:", error);
+        return { success: false, enrolled: false };
     }
 };
 
@@ -337,8 +398,19 @@ export const loginStudent = async (email, password) => {
         });
         
         if (response.status === 200) {
-            // Backend returns the User object with ID
-            return { success: true, data: response.data };
+            // Backend returns: { token: "...", user: { ... } }
+            const { token, user } = response.data;
+            
+            // Save token
+            if(token) {
+                localStorage.setItem('token', token);
+                // Also save user role if present
+                if (user.role) {
+                    localStorage.setItem('role', user.role);
+                }
+            }
+            
+            return { success: true, data: user };
         }
     } catch (error) {
         return { success: false, message: error.response?.data || "Login failed" };

@@ -26,6 +26,9 @@ public class Enrollment {
     private String transactionId;
     private Double amountPaid;
 
+    private String studentName; // Stored explicitly for history
+    private java.time.LocalDateTime paymentTime;
+
     // Getters and setters manually if Lombok not working perfectly in all envs
     // (safe bet)
     public Long getId() {
@@ -114,5 +117,21 @@ public class Enrollment {
 
     public void setAmountPaid(Double amountPaid) {
         this.amountPaid = amountPaid;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public java.time.LocalDateTime getPaymentTime() {
+        return paymentTime;
+    }
+
+    public void setPaymentTime(java.time.LocalDateTime paymentTime) {
+        this.paymentTime = paymentTime;
     }
 }

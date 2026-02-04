@@ -5,7 +5,8 @@ import {
     addCourseVideo,
     deleteCourseVideo,
     updateLiveClassLink,
-    deleteCourseSection
+    deleteCourseSection,
+    uploadFile
 } from '../services/studentApi';
 import {
     Video,
@@ -107,13 +108,25 @@ const AdminCourseContent = () => {
         }
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Mock file upload - create a fake local URL
-            // In a real app we'd upload to server/S3 here
-            const fakeUrl = URL.createObjectURL(file);
-            setNewVideo({ ...newVideo, url: fakeUrl, type: 'local' });
+            // Real Upload
+            setLoading(true); // Reusing loading state or add a specific one
+            try {
+                const response = await uploadFile(file);
+                if (response.success) {
+                    setNewVideo({ ...newVideo, url: response.data.fileUrl, type: 'local' });
+                    alert("File uploaded successfully!");
+                } else {
+                    alert("Failed to upload file");
+                }
+            } catch (error) {
+                console.error("Upload error", error);
+                alert("Error submitting file");
+            } finally {
+                setLoading(false);
+            }
         }
     };
 

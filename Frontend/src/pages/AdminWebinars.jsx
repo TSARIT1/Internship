@@ -59,8 +59,18 @@ const AdminWebinars = () => {
     };
 
     const handleEdit = (webinar) => {
+        console.log("Editing webinar:", webinar); // Debug log
         setEditingId(webinar.id);
-        setFormData(webinar);
+        // Explicitly map fields to ensure no undefined/null values break controlled inputs
+        setFormData({
+            title: webinar.title || '',
+            speaker: webinar.speaker || '',
+            date: webinar.date || '',
+            time: webinar.time || '',
+            description: webinar.description || '',
+            meetingLink: webinar.meetingLink || '',
+            image: webinar.image || ''
+        });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -218,6 +228,7 @@ const AdminWebinars = () => {
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <button
+                                        type="button"
                                         onClick={() => handleEdit(webinar)}
                                         className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                                         title="Edit Webinar"
@@ -225,6 +236,7 @@ const AdminWebinars = () => {
                                         <Pencil size={20} />
                                     </button>
                                     <button
+                                        type="button"
                                         onClick={() => handleDelete(webinar.id)}
                                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                         title="Delete Webinar"

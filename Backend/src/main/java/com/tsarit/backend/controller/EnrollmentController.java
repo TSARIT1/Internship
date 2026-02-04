@@ -24,6 +24,9 @@ public class EnrollmentController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.tsarit.backend.service.EmailService emailService;
+
     @PostMapping("/enroll")
     public ResponseEntity<?> enrollUser(@RequestBody Map<String, Object> payload) {
         try {
@@ -60,8 +63,21 @@ public class EnrollmentController {
             enrollment.setDiscount(discount);
             enrollment.setTransactionId(transactionId);
             enrollment.setAmountPaid(amountPaid);
+            enrollment.setStudentName(user.getUsername()); // Or user.getName() if available, using username for now as
+                                                           // per entity
+            enrollment.setPaymentTime(java.time.LocalDateTime.now());
 
             enrollmentRepository.save(enrollment);
+
+            // Send Email (Async or Sync - Sync for now is fine since traffic is low)
+            if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                emailService.sendEnrollmentEmail(
+                        user.getEmail(),
+                        user.getUsername(),
+                        courseName,
+                        amountPaid,
+                        transactionId);
+            }
 
             // Also update the legacy 'course' field on User for backward compatibility if
             // needed,
@@ -90,6 +106,16 @@ public class EnrollmentController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllEnrollments() {
         return ResponseEntity.ok(enrollmentRepository.findAll());
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<?> checkEnrollment(@RequestParam Long userId, @RequestParam String courseName) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+        boolean isEnrolled = enrollmentRepository.findByUserAndCourseName(userOpt.get(), courseName).isPresent();
+        return ResponseEntity.ok(java.util.Collections.singletonMap("enrolled", isEnrolled));
     }
 
     @PutMapping("/{id}/certificate")

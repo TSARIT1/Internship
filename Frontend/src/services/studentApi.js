@@ -417,6 +417,25 @@ export const loginStudent = async (email, password) => {
     }
 };
 
+// --- AUTHENTICATION ---
+export const forgotPassword = async (email) => {
+    try {
+        const response = await axios.post(`${API_URL}/forgot-password`, { email });
+        return { success: true, message: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || error.response?.data || "Failed to send reset link" };
+    }
+};
+
+export const resetPassword = async (token, newPassword) => {
+    try {
+        const response = await axios.post(`${API_URL}/reset-password`, { token, newPassword });
+        return { success: true, message: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || error.response?.data || "Failed to reset password" };
+    }
+};
+
 export const registerStudent = async (studentData) => {
     try {
         // studentData contains { name, email, password, ... }
@@ -640,3 +659,13 @@ export const deleteCourseSection = async (courseName, sectionId) => {
 };
 
 
+
+export const sendContactMessage = async (contactData) => {
+    try {
+        const response = await axios.post(`${API_URL.replace('/auth', '')}/contact`, contactData);
+        return { success: true, message: response.data };
+    } catch (error) {
+        console.error("Contact form error:", error);
+        return { success: false, message: error.response?.data || "Failed to send message" };
+    }
+};

@@ -76,6 +76,9 @@ const AdminLogin = () => {
                             />
                         </div>
                     </div>
+                    <div className="flex justify-end mt-2">
+                        <a href="/forgot-password" className="text-xs font-bold text-blue-600 hover:underline">Forgot Password?</a>
+                    </div>
 
                     {error && (
                         <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg text-center font-medium border border-red-100">

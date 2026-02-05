@@ -43,6 +43,9 @@ import StudentCourses from './pages/student/StudentCourses';
 import StudentCourseView from './pages/student/StudentCourseView';
 import StudentProfile from './pages/student/StudentProfile';
 
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
@@ -66,6 +69,10 @@ function App() {
         <Route path="/enroll" element={<Enroll />} />
         <Route path="/enroll-success" element={<ProtectedRoute><EnrollSuccess /></ProtectedRoute>} />
         <Route path="/webinars" element={<Webinars />} />
+
+        {/* Auth Routes */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />

@@ -280,9 +280,9 @@ const Login = () => {
 
                         {isLogin && (
                             <div className="flex items-center justify-end">
-                                <a href="#" className="text-sm font-medium text-primary hover:text-teal-600 transition-colors">
+                                <Link to="/forgot-password" className="text-sm font-medium text-primary hover:text-teal-600 transition-colors">
                                     Forgot Password?
-                                </a>
+                                </Link>
                             </div>
                         )}
 

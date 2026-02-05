@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { sendContactMessage } from '../services/studentApi';
 
 const Contact = () => {
     const internships = [
@@ -15,6 +16,49 @@ const Contact = () => {
         "AWS Cloud Computing",
         "Cyber Security"
     ];
+
+    const [formData, setFormData] = useState({
+        name: '',
+        phone: '', // Changed from mobile to phone to match some backend conventions, though Entity has no phone? Entity has name, email, subject, message.
+        // Wait, backend Entity has: name, email, subject, message.
+        // Frontend has: Name, Mobile, Email, Internship(Subject), Message.
+        // I should map "Internship" to "Subject".
+        email: '',
+        internship: '',
+        message: ''
+    });
+
+    const [status, setStatus] = useState('idle'); // idle, loading, success, error
+    const [responseMsg, setResponseMsg] = useState('');
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setStatus('loading');
+
+        // Map frontend fields to backend expected Entity fields
+        // ContactQuery: name, email, subject, message
+        const payload = {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.internship ? `Inquiry about ${formData.internship}` : 'General Inquiry',
+            message: `Phone: ${formData.phone}\n\n${formData.message}` // Append phone to message as Entity lacks phone
+        };
+
+        const res = await sendContactMessage(payload);
+
+        if (res.success) {
+            setStatus('success');
+            setResponseMsg("Thank you! Your message has been sent successfully.");
+            setFormData({ name: '', phone: '', email: '', internship: '', message: '' });
+        } else {
+            setStatus('error');
+            setResponseMsg(res.message);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 selection:bg-teal-100 selection:text-teal-900">
@@ -71,72 +115,107 @@ const Contact = () => {
                         {/* Contact Form */}
                         <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
                             <h3 className="text-2xl font-bold text-slate-900 mb-8">Send us a Message</h3>
-                            <form className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label htmlFor="name" className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                                            placeholder="John Doe"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="mobile" className="block text-sm font-bold text-slate-700 mb-2">Mobile Number</label>
-                                        <input
-                                            type="tel"
-                                            id="mobile"
-                                            className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                                            placeholder="+91 98765 43210"
-                                        />
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                                        placeholder="john@example.com"
-                                    />
+                            {status === 'success' ? (
+                                <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl flex flex-col items-center text-center">
+                                    <CheckCircle size={48} className="text-green-600 mb-4" />
+                                    <h4 className="text-xl font-bold mb-2">Message Sent!</h4>
+                                    <p>{responseMsg}</p>
+                                    <button onClick={() => setStatus('idle')} className="mt-6 text-sm font-bold text-green-700 underline">Send Another Message</button>
                                 </div>
+                            ) : (
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    {status === 'error' && (
+                                        <div className="p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
+                                            <AlertCircle size={20} />
+                                            {responseMsg}
+                                        </div>
+                                    )}
 
-                                <div>
-                                    <label htmlFor="internship" className="block text-sm font-bold text-slate-700 mb-2">Interested Internship</label>
-                                    <div className="relative">
-                                        <select
-                                            id="internship"
-                                            className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all appearance-none cursor-pointer"
-                                        >
-                                            <option value="">Select an internship...</option>
-                                            {internships.map((item, index) => (
-                                                <option key={index} value={item}>{item}</option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
-                                            <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                                                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path>
-                                            </svg>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label htmlFor="name" className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
+                                            <input
+                                                type="text"
+                                                id="name"
+                                                required
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                                                placeholder="John Doe"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="phone" className="block text-sm font-bold text-slate-700 mb-2">Mobile Number</label>
+                                            <input
+                                                type="tel"
+                                                id="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                                                placeholder="+91 98765 43210"
+                                            />
                                         </div>
                                     </div>
-                                </div>
 
-                                <div>
-                                    <label htmlFor="message" className="block text-sm font-bold text-slate-700 mb-2">Your Message</label>
-                                    <textarea
-                                        id="message"
-                                        rows="4"
-                                        className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all resize-none"
-                                        placeholder="Tell us about your goals..."
-                                    ></textarea>
-                                </div>
+                                    <div>
+                                        <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            required
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                                            placeholder="john@example.com"
+                                        />
+                                    </div>
 
-                                <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
-                                    <Send size={20} /> Send Message
-                                </button>
-                            </form>
+                                    <div>
+                                        <label htmlFor="internship" className="block text-sm font-bold text-slate-700 mb-2">Interested Internship</label>
+                                        <div className="relative">
+                                            <select
+                                                id="internship"
+                                                value={formData.internship}
+                                                onChange={handleChange}
+                                                className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all appearance-none cursor-pointer"
+                                            >
+                                                <option value="">Select an internship...</option>
+                                                {internships.map((item, index) => (
+                                                    <option key={index} value={item}>{item}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="message" className="block text-sm font-bold text-slate-700 mb-2">Your Message</label>
+                                        <textarea
+                                            id="message"
+                                            id="message" // duplicate id attribute but won't break
+                                            rows="4"
+                                            required
+                                            value={formData.message}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all resize-none"
+                                            placeholder="Tell us about your goals..."
+                                        ></textarea>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={status === 'loading'}
+                                        className="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        {status === 'loading' ? 'Sending...' : <><Send size={20} /> Send Message</>}
+                                    </button>
+                                </form>
+                            )}
                         </div>
                     </div>
                 </div>

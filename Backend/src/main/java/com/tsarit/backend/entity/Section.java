@@ -2,6 +2,9 @@ package com.tsarit.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import com.tsarit.backend.entity.Quiz;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -14,9 +17,14 @@ public class Section {
 
     private String title;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "section_id")
     private List<Video> videos = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @JoinColumn(name = "section_id")
+    private List<Quiz> quizzes = new ArrayList<>();
 
     // Getters and Setters
     public Long getId() {
@@ -41,5 +49,13 @@ public class Section {
 
     public void setVideos(List<Video> videos) {
         this.videos = videos;
+    }
+
+    public List<Quiz> getQuizzes() {
+        return quizzes;
+    }
+
+    public void setQuizzes(List<Quiz> quizzes) {
+        this.quizzes = quizzes;
     }
 }

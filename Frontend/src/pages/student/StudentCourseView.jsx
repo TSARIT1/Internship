@@ -1,33 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCourseContent } from '../../services/studentApi';
-import { PlayCircle, CheckCircle, ArrowLeft, Menu, X, Video } from 'lucide-react';
+import { PlayCircle, CheckCircle, ArrowLeft, Menu, X, Video, FileQuestion } from 'lucide-react';
+import QuizPlayer from '../../components/QuizPlayer';
 
 const StudentCourseView = () => {
     const { courseName } = useParams();
     const [courseContent, setCourseContent] = useState({ sections: [], liveLink: '' });
-    const [currentVideo, setCurrentVideo] = useState(null);
+    const [activeItem, setActiveItem] = useState(null); // Replaces currentVideo
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [loading, setLoading] = useState(true);
+    const student = JSON.parse(localStorage.getItem('student') || '{}');
 
     useEffect(() => {
         const fetchContent = async () => {
             setLoading(true);
             try {
-                // Decode course name if necessary, though react-router usually handles it
                 const decodedName = decodeURIComponent(courseName);
                 const response = await getCourseContent(decodedName);
                 if (response.success) {
                     let data = response.data;
-                    // Normalize data structure
                     if (Array.isArray(data)) {
                         data = { liveLink: '', sections: data };
                     }
                     setCourseContent(data);
 
-                    // Set first video as default if none selected
-                    if (!currentVideo && data.sections.length > 0 && data.sections[0].videos.length > 0) {
-                        setCurrentVideo(data.sections[0].videos[0]);
+                    // Set first item as default
+                    if (!activeItem && data.sections.length > 0) {
+                        const firstSection = data.sections[0];
+                        if (firstSection.videos.length > 0) {
+                            setActiveItem({ type: 'video', ...firstSection.videos[0] });
+                        } else if (firstSection.quizzes && firstSection.quizzes.length > 0) {
+                            setActiveItem({ type: 'quiz', ...firstSection.quizzes[0] });
+                        }
                     }
                 }
             } catch (error) {
@@ -99,20 +104,39 @@ const StudentCourseView = () => {
                                     Section {index + 1}: {section.title}
                                 </h3>
                                 <div className="space-y-1">
+                                    {/* Videos */}
                                     {section.videos.map((video) => (
                                         <button
-                                            key={video.id}
-                                            onClick={() => setCurrentVideo(video)}
+                                            key={`vid-${video.id}`}
+                                            onClick={() => setActiveItem({ type: 'video', ...video })}
                                             className={`w-full flex items-center gap-3 p-2 rounded-lg text-sm transition-colors text-left
-                                                ${currentVideo?.id === video.id
+                                                ${activeItem?.id === video.id && activeItem?.type === 'video'
                                                     ? 'bg-blue-50 text-blue-700 font-medium'
                                                     : 'text-slate-600 hover:bg-slate-50'
                                                 }
                                             `}
                                         >
-                                            <PlayCircle size={16} className={currentVideo?.id === video.id ? 'text-blue-600' : 'text-slate-400'} />
+                                            <PlayCircle size={16} className={activeItem?.id === video.id && activeItem?.type === 'video' ? 'text-blue-600' : 'text-slate-400'} />
                                             <span className="flex-1 truncate">{video.title}</span>
                                             <span className="text-xs text-slate-400">{video.duration}</span>
+                                        </button>
+                                    ))}
+
+                                    {/* Quizzes */}
+                                    {section.quizzes && section.quizzes.map((quiz) => (
+                                        <button
+                                            key={`quiz-${quiz.id}`}
+                                            onClick={() => setActiveItem({ type: 'quiz', ...quiz })}
+                                            className={`w-full flex items-center gap-3 p-2 rounded-lg text-sm transition-colors text-left
+                                                ${activeItem?.id === quiz.id && activeItem?.type === 'quiz'
+                                                    ? 'bg-purple-50 text-purple-700 font-medium'
+                                                    : 'text-slate-600 hover:bg-slate-50'
+                                                }
+                                            `}
+                                        >
+                                            <FileQuestion size={16} className={activeItem?.id === quiz.id && activeItem?.type === 'quiz' ? 'text-purple-600' : 'text-slate-400'} />
+                                            <span className="flex-1 truncate">{quiz.title}</span>
+                                            <span className="text-xs text-slate-400">Quiz</span>
                                         </button>
                                     ))}
                                 </div>
@@ -140,47 +164,58 @@ const StudentCourseView = () => {
                             <Menu size={20} />
                         </button>
                         <h1 className="font-semibold text-slate-800 line-clamp-1">
-                            {currentVideo?.title || "Select a video"}
+                            {activeItem?.title || "Select a lesson"}
                         </h1>
                     </div>
                 </header>
 
                 <main className="flex-1 overflow-y-auto p-4 lg:p-8">
                     <div className="max-w-4xl mx-auto">
-                        <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-xl mb-6 flex items-center justify-center">
-                            {currentVideo ? (
-                                currentVideo.type === 'local' ? (
-                                    <video
-                                        controls
-                                        autoPlay
-                                        src={currentVideo.url}
-                                        className="w-full h-full"
-                                    >
-                                        Your browser does not support the video tag.
-                                    </video>
-                                ) : (
-                                    <iframe
-                                        src={currentVideo.url}
-                                        title={currentVideo.title}
-                                        className="w-full h-full"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    />
-                                )
-                            ) : (
-                                <div className="text-white/50 text-center">
-                                    <PlayCircle size={48} className="mx-auto mb-2 opacity-50" />
-                                    <p>Select a lesson to start learning</p>
+                        {activeItem?.type === 'quiz' ? (
+                            <QuizPlayer quiz={activeItem} studentId={student.id} />
+                        ) : activeItem?.type === 'video' ? (
+                            <>
+                                <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-xl mb-6 flex items-center justify-center">
+                                    {activeItem.type === 'local' || activeItem.url.startsWith('http') ? (
+                                        activeItem.type === 'local' ? (
+                                            <video
+                                                controls
+                                                autoPlay
+                                                src={activeItem.url}
+                                                className="w-full h-full"
+                                            >
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        ) : (
+                                            <iframe
+                                                src={activeItem.url}
+                                                title={activeItem.title}
+                                                className="w-full h-full"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        )
+                                    ) : (
+                                        <iframe
+                                            src={activeItem.url}
+                                            title={activeItem.title}
+                                            className="w-full h-full"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        />
+                                    )}
                                 </div>
-                            )}
-                        </div>
-
-                        {currentVideo && (
-                            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
-                                <h2 className="text-2xl font-bold text-slate-900 mb-2">{currentVideo.title}</h2>
-                                <p className="text-slate-500">
-                                    Duration: {currentVideo.duration} • Section: {courseContent.sections.find(s => s.videos.some(v => v.id === currentVideo.id))?.title}
-                                </p>
+                                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+                                    <h2 className="text-2xl font-bold text-slate-900 mb-2">{activeItem.title}</h2>
+                                    <p className="text-slate-500">
+                                        Duration: {activeItem.duration} • Section: {courseContent.sections.find(s => s.videos.some(v => v.id === activeItem.id))?.title}
+                                    </p>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="text-slate-400 text-center py-20">
+                                <PlayCircle size={48} className="mx-auto mb-4 opacity-50" />
+                                <p>Select a video or quiz to start learning</p>
                             </div>
                         )}
                     </div>

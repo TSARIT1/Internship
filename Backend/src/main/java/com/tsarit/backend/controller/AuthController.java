@@ -110,8 +110,11 @@ public class AuthController {
     @PutMapping("/update-user/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         try {
-            userService.updateUser(id, user);
-            return ResponseEntity.ok("User updated successfully");
+            // We can add specific logic here if we want to ensure only certain fields are
+            // updated
+            // For now, using the service method which likely saves the whole entity
+            User existingUser = userService.updateUser(id, user);
+            return ResponseEntity.ok(existingUser); // Return updated user
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
@@ -150,6 +153,36 @@ public class AuthController {
 
         public void setNewPassword(String newPassword) {
             this.newPassword = newPassword;
+        }
+    }
+
+    @Autowired
+    private com.tsarit.backend.service.PasswordResetService passwordResetService;
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body("Email is required");
+        }
+        passwordResetService.initiateReset(email);
+        return ResponseEntity.ok("If an account exists with this email, a reset link has been sent.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> payload) {
+        String token = payload.get("token");
+        String newPassword = payload.get("newPassword");
+
+        if (token == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Token and new password are required");
+        }
+
+        boolean success = passwordResetService.resetPassword(token, newPassword);
+        if (success) {
+            return ResponseEntity.ok("Password reset successfully. You can now login.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired token.");
         }
     }
 

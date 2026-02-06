@@ -46,7 +46,10 @@ public class CourseService {
         if (updatedData.getDuration() != null)
             course.setDuration(updatedData.getDuration());
         if (updatedData.getLevel() != null)
-            course.setLevel(updatedData.getLevel());
+            if (updatedData.getLevel() != null)
+                course.setLevel(updatedData.getLevel());
+        if (updatedData.getDomain() != null)
+            course.setDomain(updatedData.getDomain());
 
         return courseRepository.save(course);
     }

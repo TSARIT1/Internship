@@ -44,4 +44,34 @@ public class EmailService {
             // just because email failed. It's a non-critical side effect.
         }
     }
+
+    public void sendContactQueryEmail(com.tsarit.backend.entity.ContactQuery query) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("noreply@tsarit.com");
+            message.setTo("nnikhiln2002@gmail.com"); // Admin email
+            message.setSubject("New Contact Query: " + query.getSubject());
+
+            String text = String.format("""
+                    New Contact Query Received!
+
+                    Name: %s
+                    Email: %s
+                    Subject: %s
+
+                    Message:
+                    %s
+
+                    Date: %s
+                    """, query.getName(), query.getEmail(), query.getSubject(), query.getMessage(),
+                    query.getCreatedAt());
+
+            message.setText(text);
+
+            mailSender.send(message);
+            System.out.println("Contact email sent to admin.");
+        } catch (Exception e) {
+            System.err.println("Failed to send contact email: " + e.getMessage());
+        }
+    }
 }

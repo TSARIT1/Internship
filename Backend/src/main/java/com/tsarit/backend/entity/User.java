@@ -130,4 +130,14 @@ public class User {
     public void setCertificateDate(String certificateDate) {
         this.certificateDate = certificateDate;
     }
+
+    private String profilePicture;
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 }

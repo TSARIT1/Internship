@@ -8,6 +8,7 @@ import Technologies from '../components/Technologies';
 import Footer from '../components/Footer';
 
 import VideoTestimonials from '../components/VideoTestimonials';
+import Hackathon from '../components/Hackathon';
 
 const Home = () => {
     return (
@@ -17,6 +18,7 @@ const Home = () => {
                 <Hero />
                 <Advantage />
                 <InternshipCards />
+                <Hackathon />
                 <VideoTestimonials />
                 <Testimonials />
                 <Technologies />

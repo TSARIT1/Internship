@@ -33,20 +33,28 @@ const AdminPricing = () => {
         setEditForm({ totalFee: 0, discount: 0 });
     };
 
+    const [message, setMessage] = useState(null);
+
+    // ... handleEditClick ...
+
     const handleSaveEdit = async (courseName) => {
         try {
-            // Find the full course object to pass back for validation requirement
             const currentCourse = pricing.find(p => p.course === courseName);
-
             const response = await updatePricing(courseName, editForm.totalFee, editForm.discount, currentCourse);
+
             if (response.success) {
                 setPricing(prev => prev.map(item =>
                     item.course === courseName ? { ...item, totalFee: Number(editForm.totalFee), discount: Number(editForm.discount) } : item
                 ));
                 setEditingCourse(null);
+                setMessage({ type: 'success', text: 'Pricing updated successfully' });
+                setTimeout(() => setMessage(null), 3000);
+            } else {
+                setMessage({ type: 'error', text: response.message || 'Failed to update pricing' });
             }
         } catch (error) {
             console.error("Failed to update pricing", error);
+            setMessage({ type: 'error', text: 'An unexpected error occurred' });
         }
     };
 
@@ -56,6 +64,14 @@ const AdminPricing = () => {
                 <h1 className="text-3xl font-bold text-slate-900 font-display">Manage Pricing</h1>
                 <p className="text-slate-500">Update course fees and standard offers</p>
             </header>
+
+            {message && (
+                <div className={`mb-6 p-4 rounded-xl flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                    }`}>
+                    {message.type === 'success' ? <Check size={20} /> : <X size={20} />}
+                    <span className="font-medium">{message.text}</span>
+                </div>
+            )}
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">

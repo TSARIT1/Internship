@@ -37,7 +37,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void updateUser(Long id, User updatedUser) {
+    public User updateUser(Long id, User updatedUser) {
         User existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (updatedUser.getUsername() != null)
@@ -59,7 +59,12 @@ public class UserService {
             existingUser.setCertificateDate(updatedUser.getCertificateDate());
         }
 
-        userRepository.save(existingUser);
+        // Profile Picture Update
+        if (updatedUser.getProfilePicture() != null) {
+            existingUser.setProfilePicture(updatedUser.getProfilePicture());
+        }
+
+        return userRepository.save(existingUser);
     }
 
     public boolean changePassword(Long id, String currentPassword, String newPassword) {

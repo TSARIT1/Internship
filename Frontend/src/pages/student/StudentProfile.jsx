@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import ShinyButton from '../../components/ui/ShinyButton';
 import { User, Mail, Phone, Lock, Save, AlertCircle, CheckCircle } from 'lucide-react';
-import { updateStudentProfile, changePassword } from '../../services/studentApi';
+import { updateStudentProfile, changePassword, uploadFile } from '../../services/studentApi';
 
 const StudentProfile = () => {
     const [student, setStudent] = useState({});
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null); // { type: 'success' | 'error', text: '' }
 
@@ -114,8 +115,20 @@ const StudentProfile = () => {
                 {/* Left Column: Profile Card */}
                 <div className="md:col-span-1">
                     <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm text-center">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold mb-4 shadow-lg shadow-blue-200">
-                            {student.name ? student.name.charAt(0).toUpperCase() : <User />}
+                        <div className="relative w-24 h-24 mx-auto mb-4 group cursor-pointer">
+                            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-blue-200 overflow-hidden">
+                                {student.profilePicture ? (
+                                    <img src={student.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    student.name ? student.name.charAt(0).toUpperCase() : <User />
+                                )}
+                            </div>
+
+                            {/* Overlay for upload */}
+                            <label className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-xs font-bold">
+                                Change
+                                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                            </label>
                         </div>
                         <h2 className="text-xl font-bold text-slate-900 mb-1">{student.name}</h2>
                         <p className="text-slate-500 text-sm mb-4">{student.email}</p>

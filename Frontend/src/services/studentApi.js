@@ -669,3 +669,33 @@ export const sendContactMessage = async (contactData) => {
         return { success: false, message: error.response?.data || "Failed to send message" };
     }
 };
+
+export const getAdminStats = async () => {
+    try {
+        const response = await axios.get(`${API_URL.replace('/auth', '')}/admin/stats`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Fetch admin stats error:", error);
+        return { success: false, message: "Failed to fetch stats" };
+    }
+};
+
+export const createQuiz = async (quizData) => {
+    try {
+        const payload = {
+            title: quizData.title,
+            description: quizData.description,
+            questions: quizData.questions
+        };
+        const response = await axios.post(`${API_URL.replace('/auth', '')}/quizzes/create?courseName=${encodeURIComponent(quizData.courseName)}&sectionId=${quizData.sectionId}`, payload, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Create Quiz Error:", error);
+        return { 
+            success: false, 
+            message: error.response?.data || "Failed to create quiz" 
+        };
+    }
+};

@@ -197,7 +197,6 @@ const Contact = () => {
                                         <label htmlFor="message" className="block text-sm font-bold text-slate-700 mb-2">Your Message</label>
                                         <textarea
                                             id="message"
-                                            id="message" // duplicate id attribute but won't break
                                             rows="4"
                                             required
                                             value={formData.message}

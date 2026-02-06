@@ -1,0 +1,57 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------------< com.tsarit:backend >-------------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 34 source files with javac [debug release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[57,19] cannot find symbol
+  symbol:   method setUser(com.tsarit.backend.entity.User)
+  location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[58,19] cannot find symbol
+  symbol:   method setToken(java.lang.String)
+  location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[59,19] cannot find symbol
+  symbol:   method setExpiryDate(java.time.LocalDateTime)
+  location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[97,31] cannot find symbol
+  symbol:   method getUser()
+  location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[INFO] 4 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.678 s
+[INFO] Finished at: 2026-02-04T12:02:57+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project backend: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[57,19] cannot find symbol
+[ERROR]   symbol:   method setUser(com.tsarit.backend.entity.User)
+[ERROR]   location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[58,19] cannot find symbol
+[ERROR]   symbol:   method setToken(java.lang.String)
+[ERROR]   location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[59,19] cannot find symbol
+[ERROR]   symbol:   method setExpiryDate(java.time.LocalDateTime)
+[ERROR]   location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] /C:/Users/Nikhil Nawale/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/PasswordResetService.java:[97,31] cannot find symbol
+[ERROR]   symbol:   method getUser()
+[ERROR]   location: variable resetToken of type com.tsarit.backend.entity.PasswordResetToken
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

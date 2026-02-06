@@ -2,6 +2,8 @@ import React from 'react';
 import { Users, Video, MessageSquareQuote, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { getAdminStats } from '../services/studentApi';
+
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow">
         <div className={`w-16 h-16 rounded-xl flex items-center justify-center text-white ${color}`}>
@@ -16,13 +18,31 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const [statsData, setStatsData] = React.useState({
+        totalStudents: 0,
+        totalWebinars: 0,
+        totalTestimonials: 0,
+        totalRevenue: 0,
+        totalCourses: 0
+    });
 
-    // Mock Data
+    React.useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        const res = await getAdminStats();
+        if (res.success) {
+            setStatsData(res.data);
+        }
+    };
+
+    // Formatted Data for Display
     const stats = [
-        { title: 'Total Webinars', value: '12', icon: Video, color: 'bg-blue-600' },
-        { title: 'Registered Students', value: '1,240', icon: Users, color: 'bg-purple-600' },
-        { title: 'Testimonials', value: '45', icon: MessageSquareQuote, color: 'bg-emerald-500' },
-        { title: 'Active Workshops', value: '3', icon: TrendingUp, color: 'bg-orange-500' },
+        { title: 'Total Revenue', value: `₹${statsData.totalRevenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-green-600' }, // Replaced Active Workshops with Revenue
+        { title: 'Registered Students', value: statsData.totalStudents, icon: Users, color: 'bg-purple-600' },
+        { title: 'Webinars', value: statsData.totalWebinars, icon: Video, color: 'bg-blue-600' },
+        { title: 'Testimonials', value: statsData.totalTestimonials, icon: MessageSquareQuote, color: 'bg-emerald-500' },
     ];
 
     return (

@@ -68,7 +68,7 @@ const Header = () => {
                     {localStorage.getItem('token') && localStorage.getItem('student') ? (
                         <div className="flex items-center gap-4">
                             <span className="text-slate-700 font-semibold hidden lg:block">
-                                Hi, {JSON.parse(localStorage.getItem('student') || '{}').name?.split(' ')[0]}
+                                Welcome, {JSON.parse(localStorage.getItem('student') || '{}').name?.split(' ')[0]}
                             </span>
                             <button
                                 onClick={() => {

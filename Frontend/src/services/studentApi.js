@@ -466,7 +466,8 @@ export const updateStudentProfile = async (id, profileData) => {
         
         const payload = {
             username: profileData.name,
-            phone: profileData.phone
+            phone: profileData.phone,
+            profilePicture: profileData.profilePicture
         };
         
         const response = await axios.put(`${API_URL}/update-user/${id}`, payload);

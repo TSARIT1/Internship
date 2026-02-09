@@ -19,6 +19,7 @@ const StudentHackathons = () => {
             }
         } catch (error) {
             console.error("Failed to load hackathons", error);
+            // alert("Failed to load hackathons. Check console for details."); // Optional debugging
         } finally {
             setLoading(false);
         }

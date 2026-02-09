@@ -711,3 +711,15 @@ export const getHackathons = async () => {
     }
 };
 
+export const updateEnrollmentStatus = async (enrollmentId, status) => {
+    try {
+        const response = await axios.put(`${ENROLLMENT_URL}/${enrollmentId}/status`, {
+            status
+        });
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Status update error:", error);
+         return { success: false, message: "Status update failed" };
+    }
+};
+

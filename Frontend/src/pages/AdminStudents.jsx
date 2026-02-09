@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Mail, Edit2, Check, X } from 'lucide-react';
-import { getAllEnrollments, getStudents, updateStudentFee, updateStudentCertificate } from '../services/studentApi';
+import { getAllEnrollments, getStudents, updateStudentFee, updateStudentCertificate, updateEnrollmentStatus } from '../services/studentApi';
 
 const AdminStudents = () => {
     const [allStudents, setAllStudents] = useState([]);
@@ -41,7 +41,7 @@ const AdminStudents = () => {
                 certificateDate: enr.certificateDate,
                 transactionId: enr.transactionId,
                 amountPaid: enr.amountPaid,
-                status: 'Enrolled'
+                status: enr.status || 'Enrolled'
             }));
 
             // Identify users who are NOT in the enrollment list (by email or ID)
@@ -116,6 +116,23 @@ const AdminStudents = () => {
             }
         } catch (error) {
             console.error("Failed to issue certificate", error);
+        }
+    };
+
+    const handleRefund = async (enrollmentId) => {
+        if (window.confirm("Are you sure you want to mark this enrollment as REFUNDED? This action cannot be undone.")) {
+            try {
+                const response = await updateEnrollmentStatus(enrollmentId, "REFUNDED");
+                if (response.success) {
+                    setAllStudents(prev => prev.map(s =>
+                        s.id === enrollmentId ? { ...s, status: "REFUNDED", webinar: "Refunded" } : s
+                    ));
+                    alert("Status updated to REFUNDED");
+                }
+            } catch (error) {
+                console.error("Refund update failed", error);
+                alert("Failed to update status");
+            }
         }
     };
 
@@ -264,16 +281,28 @@ const AdminStudents = () => {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button
-                                                            onClick={() => handleEditClick(student)}
-                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            title="Edit Fee"
-                                                        >
-                                                            <Edit2 size={18} />
-                                                        </button>
-                                                        <button className="text-slate-400 hover:text-blue-600 p-2 hover:bg-slate-50 rounded-lg transition-colors" title="Send Email">
-                                                            <Mail size={18} />
-                                                        </button>
+                                                        {student.status === 'REFUNDED' || student.status === 'CANCELLED' ? (
+                                                            <span className="text-red-500 font-bold text-xs uppercase px-2 py-1 bg-red-50 rounded">Refunded</span>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleEditClick(student)}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                    title="Edit Fee"
+                                                                >
+                                                                    <Edit2 size={18} />
+                                                                </button>
+
+
+                                                                <button
+                                                                    onClick={() => handleRefund(student.id)}
+                                                                    className="flex items-center gap-1 text-red-600 bg-red-50 hover:bg-red-100 py-1 px-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors"
+                                                                    title="Mark as Refunded"
+                                                                >
+                                                                    <X size={14} /> Refund
+                                                                </button>
+                                                            </>
+                                                        )}
                                                     </>
                                                 )}
                                             </div>

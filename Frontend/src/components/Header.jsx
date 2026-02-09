@@ -61,6 +61,14 @@ const Header = () => {
                             {link.hasDropdown && <ChevronDown size={14} />}
                         </a>
                     ))}
+                    {localStorage.getItem('token') && (
+                        <a
+                            href="/studentdashboard"
+                            className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
+                        >
+                            Dashboard
+                        </a>
+                    )}
                 </nav>
 
                 {/* Desktop Buttons */}

@@ -9,6 +9,30 @@ const EnrollButton = ({ className, children, course }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const { finalFee, loading: pricingLoading } = useCoursePricing(course);
+    const [isEnrolled, setIsEnrolled] = useState(false);
+    const [checkingEnrollment, setCheckingEnrollment] = useState(true);
+
+    React.useEffect(() => {
+        const checkStatus = async () => {
+            if (!course) {
+                setCheckingEnrollment(false);
+                return;
+            }
+            const student = JSON.parse(localStorage.getItem('student') || '{}');
+            if (student.id) {
+                try {
+                    const res = await checkEnrollmentStatus(student.id, course);
+                    if (res.success && res.enrolled) {
+                        setIsEnrolled(true);
+                    }
+                } catch (e) {
+                    console.error("Failed to check enrollment status", e);
+                }
+            }
+            setCheckingEnrollment(false);
+        };
+        checkStatus();
+    }, [course]);
 
     const handleEnroll = async () => {
         const token = localStorage.getItem('token');
@@ -22,27 +46,29 @@ const EnrollButton = ({ className, children, course }) => {
             localStorage.setItem('redirectAfterLogin', '/enroll-success');
             navigate('/login');
         } else {
+            // Profile Validation
+            if (!student.phone || !/^\d{10}$/.test(student.phone)) {
+                alert("Please complete your profile with a valid 10-digit phone number before enrolling.");
+                navigate('/studentdashboard/profile');
+                return;
+            }
+            if (!student.name && !student.username) {
+                alert("Please complete your profile with your name.");
+                navigate('/studentdashboard/profile');
+                return;
+            }
+
             if (course) {
                 // Payment Flow
                 setLoading(true);
 
-                // 1. Check if already enrolled
-                try {
-                    // Need safe access to student ID
-                    const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
-                    if (currentStudent.id) { // Only check if we have a valid ID
-                        const checkRes = await checkEnrollmentStatus(currentStudent.id, course);
-                        if (checkRes.success && checkRes.enrolled) {
-                            alert("You are already enrolled in this course! Redirecting to your dashboard.");
-                            navigate('/dashboard'); // Or wherever appropriate
-                            setLoading(false);
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.log("Pre-enrollment check warning:", e);
-                    // Continue to payment if check fails, let backend handle final validation
+                // Double check enrollment just in case
+                if (isEnrolled) {
+                    alert("You are already enrolled!");
+                    setLoading(false);
+                    return;
                 }
+
 
                 const res = await loadRazorpay();
 
@@ -125,15 +151,26 @@ const EnrollButton = ({ className, children, course }) => {
                 });
 
             } else {
-                navigate('/enroll-success');
+                navigate('/studentdashboard');
             }
         }
     };
 
+    if (isEnrolled && !loading) {
+        return (
+            <button
+                disabled
+                className={className?.replace("bg-blue-600", "bg-green-600").replace("bg-orange-600", "bg-green-600").replace("hover:bg-blue-700", "").replace("hover:bg-orange-700", "") + " opacity-80 cursor-not-allowed"}
+            >
+                Already Enrolled
+            </button>
+        );
+    }
+
     return (
         <button
             onClick={handleEnroll}
-            disabled={loading}
+            disabled={loading || checkingEnrollment}
             className={className || "bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg shadow-orange-600/30 flex items-center gap-2"}
         >
             {loading ? "Processing..." : (children || <>Enroll Now <ArrowRight size={20} /></>)}

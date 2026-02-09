@@ -112,9 +112,12 @@ const StudentDashboardHome = () => {
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const sName = student?.name || "Student";
+            const cName = specificEnrollment?.courseName || "Course";
+
             const fileName = specificEnrollment
-                ? `${student.name.replace(/\s+/g, '_')}_${specificEnrollment.courseName.replace(/\s+/g, '_')}_Certificate.pdf`
-                : `${student.name.replace(/\s+/g, '_')}_Certificate.pdf`;
+                ? `${sName.replace(/\s+/g, '_')}_${cName.replace(/\s+/g, '_')}_Certificate.pdf`
+                : `${sName.replace(/\s+/g, '_')}_Certificate.pdf`;
             pdf.save(fileName);
         } catch (error) {
             console.error("Certificate download failed", error);

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
-import { getPricing, getMyEnrollments } from '../../services/studentApi';
+import { getPricing, getMyEnrollments, getHackathons } from '../../services/studentApi';
 import { getIcon } from '../../utils/IconMapper';
-import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -13,6 +13,7 @@ const StudentDashboardHome = () => {
     const student = JSON.parse(localStorage.getItem('student') || '{}');
     const navigate = useNavigate();
     const [upcomingWebinar, setUpcomingWebinar] = useState(null);
+    const [hackathons, setHackathons] = useState([]);
     const [enrollments, setEnrollments] = useState([]);
 
     // State for certificate generation
@@ -25,6 +26,7 @@ const StudentDashboardHome = () => {
     const [stats, setStats] = useState({
         upcomingWebinars: 0,
         registeredWebinars: 0,
+        activeHackathons: 0,
         availableCourses: 0
     });
 
@@ -33,14 +35,17 @@ const StudentDashboardHome = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [webinarsRes, coursesRes, enrollmentsRes] = await Promise.all([
+                const [webinarsRes, coursesRes, enrollmentsRes, hackathonsRes] = await Promise.all([
                     getWebinars(),
                     getPricing(),
-                    getMyEnrollments(student.id)
+                    getMyEnrollments(student.id),
+                    getHackathons()
                 ]);
 
                 const allWebinars = webinarsRes.data || [];
                 const allCourses = coursesRes.data || [];
+                const allHackathons = hackathonsRes.success ? hackathonsRes.data : [];
+                setHackathons(allHackathons);
                 // Sort by ID normally, or random, or however preferred. Default is insertion order.
                 setAvailableCourses(allCourses.slice(0, 3));
 
@@ -63,6 +68,7 @@ const StudentDashboardHome = () => {
                 setStats({
                     upcomingWebinars: upcoming.length,
                     registeredWebinars: registeredCount,
+                    activeHackathons: allHackathons.length,
                     availableCourses: allCourses.length
                 });
 
@@ -131,7 +137,7 @@ const StudentDashboardHome = () => {
             </header>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
                     <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
                         <Calendar size={24} />
@@ -149,6 +155,16 @@ const StudentDashboardHome = () => {
                     <div>
                         <p className="text-slate-500 text-sm font-medium">Registered Webinars</p>
                         <h3 className="text-2xl font-bold text-slate-900">{stats.registeredWebinars}</h3>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                        <Trophy size={24} />
+                    </div>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium">Active Hackathons</p>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.activeHackathons}</h3>
                     </div>
                 </div>
 
@@ -278,6 +294,59 @@ const StudentDashboardHome = () => {
                 </div>
             </div>
 
+            {/* Hackathons Section */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <Trophy size={20} className="text-emerald-600" />
+                        Upcoming Hackathons
+                    </h2>
+                    <span className="text-sm text-slate-500">Compete and Win</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {hackathons.length > 0 ? (
+                        hackathons.map((hackathon) => (
+                            <div key={hackathon.id} className="border border-slate-100 rounded-xl p-5 hover:border-emerald-200 hover:shadow-md transition-all group bg-slate-50/50">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h4 className="font-bold text-slate-900 text-lg group-hover:text-emerald-700 transition-colors">{hackathon.title}</h4>
+                                    <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+                                        {hackathon.status}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-600 mb-4 line-clamp-2">{hackathon.description}</p>
+
+                                <div className="flex flex-wrap gap-4 text-sm text-slate-500 mb-4">
+                                    <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-slate-200">
+                                        <Calendar size={14} className="text-blue-500" />
+                                        <span className="font-medium">{hackathon.date}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-slate-200">
+                                        <Award size={14} className="text-amber-500" />
+                                        <span className="font-medium">{hackathon.prizePool}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-slate-200">
+                                        <Clock size={14} className="text-purple-500" />
+                                        <span className="font-medium">{hackathon.time}</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    className="w-full py-2.5 text-sm font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors shadow-emerald-200 shadow-sm flex items-center justify-center gap-2"
+                                    onClick={() => alert(`Registering for ${hackathon.title}`)}
+                                >
+                                    Register Now <ArrowRight size={16} />
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center text-slate-400 py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            No active hackathons at the moment.
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Explore Internships Section */}
             <div>
                 <div className="flex items-center justify-between mb-6">
@@ -333,7 +402,7 @@ const StudentDashboardHome = () => {
                     duration="8 Weeks"
                 />
             </div>
-        </div>
+        </div >
     );
 };
 

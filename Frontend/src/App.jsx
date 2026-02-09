@@ -42,6 +42,7 @@ import StudentTestimonials from './pages/student/StudentTestimonials';
 import StudentCourses from './pages/student/StudentCourses';
 import StudentCourseView from './pages/student/StudentCourseView';
 import StudentProfile from './pages/student/StudentProfile';
+import StudentHackathons from './pages/student/StudentHackathons';
 
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -97,6 +98,7 @@ function App() {
           <Route path="my-registrations" element={<StudentRegistrations />} />
           <Route path="testimonials" element={<StudentTestimonials />} />
           <Route path="profile" element={<StudentProfile />} />
+          <Route path="hackathons" element={<StudentHackathons />} />
         </Route>
 
       </Routes>

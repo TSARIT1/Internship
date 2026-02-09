@@ -700,3 +700,36 @@ export const createQuiz = async (quizData) => {
         };
     }
 };
+
+export const getHackathons = async () => {
+    // Mock Data for Hackathons
+    const MOCK_HACKATHONS = [
+        {
+            id: 1,
+            title: "Code the Future 2024",
+            date: "March 15-16, 2024",
+            time: "10:00 AM - 10:00 AM (24 Hours)",
+            description: "Join 500+ developers in the ultimate coding showdown. Build, innovate, and network.",
+            prizePool: "₹1,00,000",
+            status: "Upcoming",
+            mode: "Online"
+        },
+        {
+            id: 2,
+            title: "AI Innovation Challenge",
+            date: "April 20, 2024",
+            time: "9:00 AM - 6:00 PM",
+            description: "Solve real-world problems using Artificial Intelligence and Machine Learning.",
+            prizePool: "₹50,000",
+            status: "Registration Open",
+            mode: "Hybrid"
+        }
+    ];
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ success: true, data: MOCK_HACKATHONS });
+        }, 300);
+    });
+};
+

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Video, CalendarCheck, MessageSquare, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Video, CalendarCheck, MessageSquare, BookOpen, Trophy } from 'lucide-react';
 
 const StudentSidebar = () => {
     const navItems = [
@@ -9,6 +9,7 @@ const StudentSidebar = () => {
         { path: '/studentdashboard/webinars', icon: <Video size={20} />, label: 'Webinars' },
         { path: '/studentdashboard/courses', icon: <BookOpen size={20} />, label: 'Courses / Internships' },
         { path: '/studentdashboard/my-registrations', icon: <CalendarCheck size={20} />, label: 'My Registrations' },
+        { path: '/studentdashboard/hackathons', icon: <Trophy size={20} />, label: 'Hackathons' },
         { path: '/studentdashboard/testimonials', icon: <MessageSquare size={20} />, label: 'Testimonials' },
     ];
 

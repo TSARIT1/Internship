@@ -66,6 +66,7 @@ public class EnrollmentController {
             enrollment.setStudentName(user.getUsername()); // Or user.getName() if available, using username for now as
                                                            // per entity
             enrollment.setPaymentTime(java.time.LocalDateTime.now());
+            enrollment.setProgress(0); // Initialize progress to 0%
 
             enrollmentRepository.save(enrollment);
 
@@ -120,18 +121,72 @@ public class EnrollmentController {
 
     @PutMapping("/{id}/certificate")
     public ResponseEntity<?> updateCertificateStatus(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        if (id == null)
+            return ResponseEntity.badRequest().body("ID cannot be null");
         Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
         if (enrollmentOpt.isEmpty()) {
             return ResponseEntity.status(404).body("Enrollment not found");
         }
         Enrollment enrollment = enrollmentOpt.get();
         Boolean status = (Boolean) payload.get("status");
-        enrollment.setCertificateIssued(status);
-        if (status) {
+        enrollment.setCertificateIssued(Boolean.TRUE.equals(status));
+        if (Boolean.TRUE.equals(status)) {
             enrollment.setCertificateDate(LocalDate.now());
         } else {
             enrollment.setCertificateDate(null);
         }
+        enrollmentRepository.save(enrollment);
+        return ResponseEntity.ok(enrollment);
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateEnrollmentStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        if (id == null)
+            return ResponseEntity.badRequest().body("ID cannot be null");
+        Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
+        if (enrollmentOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Enrollment not found");
+        }
+        Enrollment enrollment = enrollmentOpt.get();
+        String newStatus = payload.get("status");
+
+        // Simple validation
+        if (newStatus == null
+                || (!newStatus.equals("REFUNDED") && !newStatus.equals("CANCELLED") && !newStatus.equals("ACTIVE"))) {
+            return ResponseEntity.badRequest().body("Invalid status");
+        }
+
+        enrollment.setStatus(newStatus);
+        enrollmentRepository.save(enrollment);
+        return ResponseEntity.ok(enrollment);
+    }
+
+    @PutMapping("/{id}/progress")
+    public ResponseEntity<?> updateEnrollmentProgress(@PathVariable Long id,
+            @RequestBody Map<String, Integer> payload) {
+        if (id == null)
+            return ResponseEntity.badRequest().body("ID cannot be null");
+        Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
+        if (enrollmentOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Enrollment not found");
+        }
+        Enrollment enrollment = enrollmentOpt.get();
+        Integer progress = payload.get("progress");
+
+        if (progress == null || progress < 0 || progress > 100) {
+            return ResponseEntity.badRequest().body("Invalid progress value (must be 0-100)");
+        }
+
+        enrollment.setProgress(progress);
+
+        // Check for completion and generate certificate
+        if (progress == 100 && enrollment.getCertificateId() == null) {
+            String certId = "CERT-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            enrollment.setCertificateId(certId);
+            enrollment.setCertificateIssued(true);
+            enrollment.setCertificateDate(LocalDate.now());
+        }
+
         enrollmentRepository.save(enrollment);
         return ResponseEntity.ok(enrollment);
     }

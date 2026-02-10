@@ -32,6 +32,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @jakarta.validation.constraints.Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
     private String course;
     private String role; // ADMIN or STUDENT

@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 
 
-const CertificateTemplate = forwardRef(({ studentName, courseName, date, duration }, ref) => {
+const CertificateTemplate = forwardRef(({ studentName, courseName, date, duration, certificateId }, ref) => {
     return (
         <div ref={ref} className="w-[800px] h-[600px] relative bg-white overflow-hidden shadow-2xl flex flex-col text-slate-900 border-[10px] border-slate-900">
 
@@ -62,6 +62,12 @@ const CertificateTemplate = forwardRef(({ studentName, courseName, date, duratio
                         <p className="text-xs text-slate-500 font-bold flex items-center gap-1">
                             Co-founder <span className="text-blue-600">TSAR IT PVT LTD</span>
                         </p>
+                        {/* Certificate ID Display */}
+                        {certificateId && (
+                            <p className="text-[10px] text-slate-400 mt-2 font-mono">
+                                ID: {certificateId}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col items-end">

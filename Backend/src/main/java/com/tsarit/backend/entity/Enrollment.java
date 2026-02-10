@@ -134,4 +134,24 @@ public class Enrollment {
     public void setPaymentTime(java.time.LocalDateTime paymentTime) {
         this.paymentTime = paymentTime;
     }
+
+    private Integer progress = 0; // Default to 0
+
+    public Integer getProgress() {
+        return progress;
+    }
+
+    public void setProgress(Integer progress) {
+        this.progress = progress;
+    }
+
+    private String certificateId;
+
+    public String getCertificateId() {
+        return certificateId;
+    }
+
+    public void setCertificateId(String certificateId) {
+        this.certificateId = certificateId;
+    }
 }

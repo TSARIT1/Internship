@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { getWebinars } from '../../services/webinarApi';
 import { getPricing, getMyEnrollments, getHackathons } from '../../services/studentApi';
 import { getIcon } from '../../utils/IconMapper';
-import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award, Trophy } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, BookOpen, CheckCircle, Video, Award, Trophy, User, Bell, Download, LifeBuoy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import CertificateTemplate from '../../components/CertificateTemplate';
 import { useRef } from 'react';
+import ShinyButton from '../../components/ui/ShinyButton';
 
 const StudentDashboardHome = () => {
     const student = JSON.parse(localStorage.getItem('student') || '{}');
@@ -31,8 +32,14 @@ const StudentDashboardHome = () => {
     });
 
     const [availableCourses, setAvailableCourses] = useState([]);
+    const [greeting, setGreeting] = useState('');
 
     useEffect(() => {
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting('Good Morning');
+        else if (hour < 18) setGreeting('Good Afternoon');
+        else setGreeting('Good Evening');
+
         const fetchData = async () => {
             try {
                 const [webinarsRes, coursesRes, enrollmentsRes, hackathonsRes] = await Promise.all([
@@ -46,16 +53,19 @@ const StudentDashboardHome = () => {
                 const allCourses = coursesRes.data || [];
                 const allHackathons = hackathonsRes.success ? hackathonsRes.data : [];
                 setHackathons(allHackathons);
-                // Sort by ID normally, or random, or however preferred. Default is insertion order.
                 setAvailableCourses(allCourses.slice(0, 3));
 
                 const myEnrollments = enrollmentsRes.success ? enrollmentsRes.data : [];
-                setEnrollments(myEnrollments);
+                // Use real progress data from backend, default to 0 if null
+                const enrichedEnrollments = myEnrollments.map(e => ({
+                    ...e,
+                    progress: e.progress || 0,
+                    lastAccessed: 'Recently' // Still mock for now as we don't track access time yet
+                }));
+                setEnrollments(enrichedEnrollments);
 
                 // Upcoming Webinars Count
                 const upcoming = allWebinars.filter(w => new Date(w.date) >= new Date());
-
-                // Registered Webinars Count
                 const registeredIds = student.registeredWebinars || [];
                 let registeredCount = registeredIds.length;
                 if (student.webinar && !registeredIds.some(r => (typeof r === 'object' ? r.id : r) === allWebinars.find(w => w.title === student.webinar)?.id)) {
@@ -63,7 +73,6 @@ const StudentDashboardHome = () => {
                 }
 
                 const next = upcoming.sort((a, b) => new Date(a.date) - new Date(b.date))[0];
-
                 setUpcomingWebinar(next);
                 setStats({
                     upcomingWebinars: upcoming.length,
@@ -77,24 +86,23 @@ const StudentDashboardHome = () => {
             }
         };
         fetchData();
-    }, [student.id, student.registeredWebinars, student.webinar]); // Added dependencies
+    }, [student.id, student.registeredWebinars, student.webinar]);
 
     // Legacy fallback
     const enrolledCourse = student.webinar || student.course;
-
     const certificateRef = useRef(null);
     const [downloading, setDownloading] = useState(false);
 
     const handleDownloadCertificate = async (specificEnrollment = null) => {
         if (!certificateRef.current) return;
-
         setDownloading(true);
 
         if (specificEnrollment) {
             setCertificateData({
                 studentName: student.name,
                 courseName: specificEnrollment.courseName,
-                date: specificEnrollment.certificateDate || new Date().toISOString().split('T')[0]
+                date: specificEnrollment.certificateDate || new Date().toISOString().split('T')[0],
+                certificateId: specificEnrollment.certificateId // Get ID from enrollment
             });
             await new Promise(resolve => setTimeout(resolve, 500));
         }
@@ -126,272 +134,284 @@ const StudentDashboardHome = () => {
         }
     };
 
+    const isProfileComplete = student.name && student.phone && /^\d{10}$/.test(student.phone);
+
     return (
-        <div className="space-y-8 max-w-7xl mx-auto">
+        <div className="space-y-8 max-w-7xl mx-auto pb-12">
             {/* Header Section */}
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Welcome back, {student.name}!</h1>
-                    <p className="text-slate-500 mt-1">Track your progress and upcoming events.</p>
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
+                <div className="relative">
+                    <h1 className="text-3xl font-bold font-display text-slate-900 tracking-tight">
+                        {greeting}, <span className="text-blue-600">{student.name?.split(' ')[0]}</span>! 👋
+                    </h1>
+                    <p className="text-slate-500 mt-2 text-lg">You're making great progress. Keep it up!</p>
                 </div>
-                <div className="text-right hidden md:block">
-                    <p className="text-sm font-medium text-slate-500">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <div className="flex items-center gap-3 relative">
+                    <div className="text-right hidden md:block mr-4">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Today</p>
+                        <p className="text-sm font-semibold text-slate-700">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
                 </div>
             </header>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                        <Calendar size={24} />
+            {/* Profile Alert */}
+            {!isProfileComplete && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 animate-fade-in">
+                    <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
+                        <User size={20} />
                     </div>
-                    <div>
-                        <p className="text-slate-500 text-sm font-medium">Upcoming Webinars</p>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.upcomingWebinars}</h3>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-amber-800">Complete Your Profile</h3>
+                        <p className="text-sm text-amber-700 mt-1">
+                            Your profile is missing important details (Phone Number). Please update it to ensure smooth certification and enrollment.
+                        </p>
                     </div>
+                    <button
+                        onClick={() => navigate('/studentdashboard/profile')}
+                        className="px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-lg hover:bg-amber-700 transition-colors"
+                    >
+                        Update Now
+                    </button>
                 </div>
+            )}
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-                        <Video size={24} />
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content Area (Left 2/3) */}
+                <div className="lg:col-span-2 space-y-8">
+
+                    {/* Active Courses with Progress */}
                     <div>
-                        <p className="text-slate-500 text-sm font-medium">Registered Webinars</p>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.registeredWebinars}</h3>
-                    </div>
-                </div>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <BookOpen size={20} className="text-blue-600" />
+                                Active Courses
+                            </h2>
+                        </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                        <Trophy size={24} />
-                    </div>
-                    <div>
-                        <p className="text-slate-500 text-sm font-medium">Active Hackathons</p>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.activeHackathons}</h3>
-                    </div>
-                </div>
+                        {enrollments.length > 0 ? (
+                            <div className="space-y-4">
+                                {enrollments.map((enrollment) => (
+                                    <div key={enrollment.id} className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600"></div>
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                                                        {enrollment.status || "In Progress"}
+                                                    </span>
+                                                    {enrollment.certificateIssued && (
+                                                        <span className="bg-yellow-100 text-yellow-700 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                                            <Award size={10} /> Certified
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <h3 className="text-lg font-bold text-slate-900 mb-1">{enrollment.courseName}</h3>
+                                                <p className="text-slate-500 text-sm">Last accessed: {enrollment.lastAccessed || 'Recently'}</p>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-                        <Award size={24} />
-                    </div>
-                    <div>
-                        <p className="text-slate-500 text-sm font-medium">Available Courses</p>
-                        <h3 className="text-2xl font-bold text-slate-900">{stats.availableCourses}</h3>
-                    </div>
-                </div>
-            </div>
+                                                {/* Progress Bar */}
+                                                <div className="mt-4 max-w-md">
+                                                    <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-1.5">
+                                                        <span>Progress</span>
+                                                        <span>{enrollment.progress || 15}%</span>
+                                                    </div>
+                                                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out"
+                                                            style={{ width: `${enrollment.progress || 15}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-            {/* Active Commitments Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Active Course Cards - List all enrollments */}
-                {enrollments.length > 0 ? (
-                    <div className="space-y-4">
-                        {enrollments.map((enrollment) => (
-                            <div key={enrollment.id} className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                            <CheckCircle size={12} /> {enrollment.status || "Active Mode"}
-                                        </span>
-                                        {enrollment.certificateIssued && (
-                                            <span className="bg-yellow-400/20 text-yellow-200 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                                <Award size={12} /> Certified
-                                            </span>
-                                        )}
+                                            <div className="flex flex-col gap-2 min-w-[140px]">
+                                                <button
+                                                    onClick={() => navigate(`/student/course/${encodeURIComponent(enrollment.courseName)}`)}
+                                                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors shadow-blue-200 shadow-sm"
+                                                >
+                                                    Continue Learning
+                                                </button>
+                                                {enrollment.certificateIssued && (
+                                                    <button
+                                                        onClick={() => handleDownloadCertificate(enrollment)}
+                                                        className="w-full bg-white text-slate-700 border border-slate-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+                                                    >
+                                                        <Award size={14} /> Certificate
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <h2 className="text-2xl font-bold mb-2">{enrollment.courseName}</h2>
-                                    <p className="text-blue-100 text-sm">Enrolled on: {enrollment.enrollmentDate}</p>
-                                </div>
-                                <div className="mt-8 flex gap-3">
-                                    <button
-                                        onClick={() => navigate(`/student/course/${encodeURIComponent(enrollment.courseName)}`)}
-                                        className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm"
-                                    >
-                                        Go to Classroom
-                                    </button>
-                                    {enrollment.certificateIssued && (
+                                ))}
+                            </div>
+                        ) : (
+                            // Fallback for legacy local state if no API enrollments
+                            enrolledCourse ? (
+                                <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600"></div>
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                        <div className="flex-1">
+                                            <span className="bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider mb-2 inline-block">
+                                                Active
+                                            </span>
+                                            <h3 className="text-lg font-bold text-slate-900 mb-1">{enrolledCourse}</h3>
+                                            <p className="text-slate-500 text-sm">Continue where you left off</p>
+                                        </div>
                                         <button
-                                            onClick={() => handleDownloadCertificate(enrollment)}
-                                            className="bg-yellow-400 text-slate-900 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-yellow-300 transition-colors shadow-sm flex items-center gap-2"
+                                            onClick={() => navigate(`/student/course/${encodeURIComponent(enrolledCourse)}`)}
+                                            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors shadow-blue-200 shadow-sm"
                                         >
-                                            <Award size={16} /> Certificate
+                                            Go to Classroom
                                         </button>
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    // Fallback for local legacy
-                    enrolledCourse ? (
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 flex flex-col justify-between">
-                            <div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                        <CheckCircle size={12} /> Legacy Active
-                                    </span>
+                            ) : (
+                                <div className="bg-slate-50 rounded-xl p-8 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
+                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm text-slate-300">
+                                        <BookOpen size={32} />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-1">No Active Courses</h3>
+                                    <p className="text-slate-500 text-sm mb-4 max-w-xs">Start your learning journey today by enrolling in one of our premium internships.</p>
+                                    <button
+                                        onClick={() => navigate('/studentdashboard/courses')}
+                                        className="text-blue-600 font-bold text-sm hover:underline"
+                                    >
+                                        Browse Catalog
+                                    </button>
                                 </div>
-                                <h2 className="text-2xl font-bold mb-2">{enrolledCourse}</h2>
-                                <p className="text-blue-100 text-sm">Continue learning where you left off.</p>
-                            </div>
-                            <div className="mt-8">
-                                <button
-                                    onClick={() => navigate(`/student/course/${encodeURIComponent(enrolledCourse)}`)}
-                                    className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm"
-                                >
-                                    Go to Classroom
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center space-y-4">
-                            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
-                                <BookOpen size={24} />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900">No Active Course</h3>
-                                <p className="text-slate-500 text-sm">Enroll in an internship to get started.</p>
-                            </div>
-                        </div>
-                    )
-                )}
-
-                {/* Next Upcoming Webinar */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                            <Calendar size={18} className="text-blue-600" />
-                            Upcoming Webinar
-                        </h3>
-                        {upcomingWebinar && (
-                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                                {upcomingWebinar.date}
-                            </span>
+                            )
                         )}
                     </div>
 
-                    {upcomingWebinar ? (
-                        <div className="flex-1 flex flex-col">
-                            <h4 className="text-lg font-bold text-slate-900 mb-2">{upcomingWebinar.title}</h4>
-                            <p className="text-slate-500 text-sm mb-4 line-clamp-2">{upcomingWebinar.description}</p>
-
-                            <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
-                                <div className="flex items-center gap-2 text-slate-500 text-sm">
-                                    <Clock size={16} />
-                                    <span>{upcomingWebinar.time}</span>
-                                </div>
-                                <button
-                                    onClick={() => navigate('/studentdashboard/webinars')}
-                                    className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1"
-                                >
-                                    View Details <ArrowRight size={14} />
-                                </button>
-                            </div>
+                    {/* Hackathons Section Overhaul */}
+                    <div>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <Trophy size={20} className="text-emerald-600" />
+                                Upcoming Hackathons
+                            </h2>
+                            <button onClick={() => navigate('/studentdashboard/hackathons')} className="text-sm font-bold text-emerald-600 hover:text-emerald-700">View All</button>
                         </div>
-                    ) : (
-                        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
-                            No upcoming webinars scheduled.
-                        </div>
-                    )}
-                </div>
-            </div>
 
-            {/* Hackathons Section */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <Trophy size={20} className="text-emerald-600" />
-                        Upcoming Hackathons
-                    </h2>
-                    <span className="text-sm text-slate-500">Compete and Win</span>
-                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {hackathons.slice(0, 2).map((hackathon) => (
+                                <div key={hackathon.id} className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                                    {/* Decorative Background Element */}
+                                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {hackathons.length > 0 ? (
-                        hackathons.map((hackathon) => (
-                            <div key={hackathon.id} className="border border-slate-100 rounded-xl p-5 hover:border-emerald-200 hover:shadow-md transition-all group bg-slate-50/50">
-                                <div className="flex justify-between items-start mb-3">
-                                    <h4 className="font-bold text-slate-900 text-lg group-hover:text-emerald-700 transition-colors">{hackathon.title}</h4>
-                                    <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
-                                        {hackathon.status}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-600 mb-4 line-clamp-2">{hackathon.description}</p>
+                                    <div className="relative z-10">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-100 transform group-hover:rotate-6 transition-transform">
+                                                <Trophy size={22} strokeWidth={2} />
+                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${hackathon.status === 'Open' || hackathon.status === 'Registering'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                                    : 'bg-slate-50 text-slate-600 border-slate-100'
+                                                }`}>
+                                                {hackathon.status || 'Upcoming'}
+                                            </span>
+                                        </div>
 
-                                <div className="flex flex-wrap gap-4 text-sm text-slate-500 mb-4">
-                                    <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-slate-200">
-                                        <Calendar size={14} className="text-blue-500" />
-                                        <span className="font-medium">{hackathon.date}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-slate-200">
-                                        <Award size={14} className="text-amber-500" />
-                                        <span className="font-medium">{hackathon.prizePool}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-slate-200">
-                                        <Clock size={14} className="text-purple-500" />
-                                        <span className="font-medium">{hackathon.time}</span>
+                                        <h3 className="font-bold text-slate-900 text-xl mb-2 line-clamp-1 group-hover:text-emerald-700 transition-colors">
+                                            {hackathon.title}
+                                        </h3>
+
+                                        <p className="text-slate-500 text-sm mb-5 line-clamp-2">
+                                            Join active developers to build innovative solutions.
+                                        </p>
+
+                                        <div className="flex flex-col gap-2 mb-6 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                            <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                                                <Calendar size={14} className="text-emerald-500" />
+                                                <span>{hackathon.date}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                                                <Award size={14} className="text-amber-500" />
+                                                <span>Prize Pool: <span className="font-bold text-slate-900">{hackathon.prizePool}</span></span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => navigate('/studentdashboard/hackathons')}
+                                            className="w-full py-3 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 group-hover:gap-3"
+                                        >
+                                            View Details <ArrowRight size={16} />
+                                        </button>
                                     </div>
                                 </div>
-
-                                <button
-                                    className="w-full py-2.5 text-sm font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors shadow-emerald-200 shadow-sm flex items-center justify-center gap-2"
-                                    onClick={() => alert(`Registering for ${hackathon.title}`)}
-                                >
-                                    Register Now <ArrowRight size={16} />
-                                </button>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-full text-center text-slate-400 py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                            No active hackathons at the moment.
+                            ))}
+                            {hackathons.length === 0 && (
+                                <div className="col-span-full py-12 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center">
+                                    <Trophy size={48} className="text-slate-200 mb-3" />
+                                    <p>No hackathons scheduled at the moment.</p>
+                                    <p className="text-xs mt-1">Check back later for exciting events!</p>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Explore Internships Section */}
-            <div>
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-slate-900">Explore Internships</h2>
-                    <span className="text-sm text-slate-500">Based on popular demand</span>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {availableCourses.map((course, index) => {
-                        const Icon = getIcon(course.iconName);
-                        const bgColor = course.bgColor || 'bg-blue-50';
-                        const txtColor = course.color || 'text-blue-600';
+                {/* Sidebar/Right Column (Right 1/3) */}
+                <div className="space-y-6">
 
-                        return (
-                            <div key={index} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                                <div className={`w-12 h-12 rounded-lg ${bgColor} ${txtColor} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                    <Icon size={24} />
-                                </div>
-                                <h3 className="font-bold text-slate-900 mb-1">{course.title}</h3>
-                                <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{course.duration}</span>
-                                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{course.level}</span>
-                                </div>
-                                <p className="text-sm text-slate-500 mb-4 line-clamp-2">{course.description}</p>
-                                <button
-                                    onClick={() => navigate('/studentdashboard/courses')} // Consider linking to specific course details if page exists
-                                    className="w-full py-2 text-sm font-bold text-slate-700 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
-                                >
-                                    View Program
-                                </button>
+                    {/* Recent Activity Feed */}
+                    <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+                        <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <Clock size={18} className="text-slate-400" /> Recent Activity
+                        </h3>
+                        <div className="space-y-6 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                            {/* Mock Activity Data */}
+                            <div className="relative pl-8">
+                                <div className="absolute left-0 top-0.5 w-4 h-4 rounded-full bg-blue-100 border-2 border-blue-500"></div>
+                                <p className="text-sm font-medium text-slate-800">Logged in successfully</p>
+                                <p className="text-xs text-slate-400 mt-0.5">Just now</p>
                             </div>
-                        );
-                    })}
-                </div>
+                            <div className="relative pl-8">
+                                <div className="absolute left-0 top-0.5 w-4 h-4 rounded-full bg-emerald-100 border-2 border-emerald-500"></div>
+                                <p className="text-sm font-medium text-slate-800">Checked {enrolledCourse || "Courses"}</p>
+                                <p className="text-xs text-slate-400 mt-0.5">2 hours ago</p>
+                            </div>
+                            <div className="relative pl-8">
+                                <div className="absolute left-0 top-0.5 w-4 h-4 rounded-full bg-purple-100 border-2 border-purple-500"></div>
+                                <p className="text-sm font-medium text-slate-800">Updated Profile</p>
+                                <p className="text-xs text-slate-400 mt-0.5">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="mt-8 text-center">
-                    <button
-                        onClick={() => navigate('/studentdashboard/courses')}
-                        className="inline-flex items-center gap-2 text-slate-600 font-semibold hover:text-blue-600 transition-colors"
-                    >
-                        View All Internships <ArrowRight size={16} />
-                    </button>
+                    {/* Quick Actions */}
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white shadow-lg">
+                        <h3 className="font-bold mb-4 flex items-center gap-2">
+                            Quick Actions
+                        </h3>
+                        <div className="space-y-3">
+                            <button
+                                onClick={() => navigate('/studentdashboard/profile')}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-sm font-medium"
+                            >
+                                <User size={16} /> Edit Profile
+                            </button>
+                            <button
+                                onClick={() => navigate('/contact')}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-sm font-medium"
+                            >
+                                <LifeBuoy size={16} /> Contact Support
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Stats Summary */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm text-center">
+                            <div className="text-2xl font-bold text-blue-600 mb-1">{stats.upcomingWebinars}</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase">Webinars</div>
+                        </div>
+                        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm text-center">
+                            <div className="text-2xl font-bold text-purple-600 mb-1">{stats.registeredWebinars}</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase">Registered</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -402,6 +422,7 @@ const StudentDashboardHome = () => {
                     studentName={certificateData.studentName}
                     courseName={certificateData.courseName}
                     date={certificateData.date}
+                    certificateId={certificateData.certificateId} // Pass unique ID
                     duration="8 Weeks"
                 />
             </div>

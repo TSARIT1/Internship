@@ -47,6 +47,31 @@ const StudentCourseView = () => {
         }
     }, [courseName]);
 
+    const handleMarkAsViewed = async (contentId) => {
+        try {
+            // 1. Get Enrollment ID (Need to fetch if not stored)
+            // Ideally we should have enrollment ID from dashboard, but for now let's fetch it or assume we passed it.
+            // Simplified: Fetch "my enrollments" and find this course.
+            const enrollmentsRes = await getMyEnrollments(student.id);
+            if (enrollmentsRes.success) {
+                const enrollment = enrollmentsRes.data.find(e => e.courseName === decodeURIComponent(courseName));
+
+                if (enrollment) {
+                    // 2. Calculate new progress (Mock logic: Increment by 5%, max 100)
+                    let currentProgress = enrollment.progress || 0;
+                    let newProgress = Math.min(currentProgress + 5, 100);
+
+                    // 3. Update Backend
+                    await updateEnrollmentProgress(enrollment.id, newProgress);
+                    alert(`Progress updated to ${newProgress}%!`);
+                    // Optional: Refresh data or state
+                }
+            }
+        } catch (error) {
+            console.error("Failed to update progress", error);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -207,9 +232,17 @@ const StudentCourseView = () => {
                                 </div>
                                 <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
                                     <h2 className="text-2xl font-bold text-slate-900 mb-2">{activeItem.title}</h2>
-                                    <p className="text-slate-500">
-                                        Duration: {activeItem.duration} • Section: {courseContent.sections.find(s => s.videos.some(v => v.id === activeItem.id))?.title}
-                                    </p>
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-slate-500">
+                                            Duration: {activeItem.duration} • Section: {courseContent.sections.find(s => s.videos.some(v => v.id === activeItem.id))?.title}
+                                        </p>
+                                        <button
+                                            onClick={() => handleMarkAsViewed(activeItem.id)} // Function to be defined
+                                            className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 font-medium text-sm transition-colors"
+                                        >
+                                            <CheckCircle size={16} /> Mark as Viewed
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         ) : (

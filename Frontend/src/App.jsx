@@ -49,10 +49,13 @@ import ResetPassword from './pages/ResetPassword';
 
 import ScrollToTop from './components/ScrollToTop';
 
+import AiTutor from './components/AiTutor';
+
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <AiTutor />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

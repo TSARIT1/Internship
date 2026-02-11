@@ -1,0 +1,190 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.2)
+
+2026-02-10T10:42:32.601+05:30  INFO 30684 --- [backend] [           main] com.tsarit.backend.BackendApplication    : Starting BackendApplication v0.0.1-SNAPSHOT using Java 23.0.2 with PID 30684 (D:\Desktop\NewWebsite\New Web\Backend\target\backend-0.0.1-SNAPSHOT.jar started by Nikhil Nawale in D:\Desktop\NewWebsite\New Web\Backend)
+2026-02-10T10:42:32.604+05:30  INFO 30684 --- [backend] [           main] com.tsarit.backend.BackendApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-02-10T10:42:37.198+05:30  INFO 30684 --- [backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-10T10:42:37.439+05:30  INFO 30684 --- [backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 218 ms. Found 10 JPA repository interfaces.
+2026-02-10T10:42:40.404+05:30  INFO 30684 --- [backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-02-10T10:42:40.459+05:30  INFO 30684 --- [backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-10T10:42:40.459+05:30  INFO 30684 --- [backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-02-10T10:42:40.648+05:30  INFO 30684 --- [backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-10T10:42:40.652+05:30  INFO 30684 --- [backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 7851 ms
+2026-02-10T10:42:41.251+05:30  INFO 30684 --- [backend] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-10T10:42:41.498+05:30  INFO 30684 --- [backend] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2026-02-10T10:42:41.640+05:30  INFO 30684 --- [backend] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-10T10:42:42.456+05:30  INFO 30684 --- [backend] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-10T10:42:42.554+05:30  INFO 30684 --- [backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-10T10:42:44.434+05:30  INFO 30684 --- [backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@37e55819
+2026-02-10T10:42:44.440+05:30  INFO 30684 --- [backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-10T10:42:47.241+05:30  INFO 30684 --- [backend] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-10T10:42:47.456+05:30  INFO 30684 --- [backend] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+Hibernate: select count(*) from courses c1_0
+2026-02-10T10:42:49.804+05:30  INFO 30684 --- [backend] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-10T10:42:50.448+05:30  WARN 30684 --- [backend] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-10T10:42:51.078+05:30  INFO 30684 --- [backend] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4eaf08f4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@78405f00, org.springframework.security.web.context.SecurityContextHolderFilter@73c25e8, org.springframework.security.web.header.HeaderWriterFilter@46e2a773, org.springframework.web.filter.CorsFilter@295f115d, org.springframework.security.web.authentication.logout.LogoutFilter@35ca0dac, com.tsarit.backend.security.AuthTokenFilter@9e092b5, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@55a8f92d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@78b3f926, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@a6cb2c9, org.springframework.security.web.session.SessionManagementFilter@2542e124, org.springframework.security.web.access.ExceptionTranslationFilter@4f1150f5, org.springframework.security.web.access.intercept.AuthorizationFilter@73344f4a]
+2026-02-10T10:42:51.705+05:30  INFO 30684 --- [backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-02-10T10:42:51.742+05:30  INFO 30684 --- [backend] [           main] com.tsarit.backend.BackendApplication    : Started BackendApplication in 19.755 seconds (process running for 20.454)
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select q1_0.section_id,q1_0.id,q1_0.description,q1_0.title from quizzes q1_0 where q1_0.section_id in (select s1_0.id from sections s1_0 where s1_0.course_id=?)
+Hibernate: select q1_0.quiz_id,q1_0.id,q1_0.correct_option_index,q1_0.question_text from questions q1_0 where q1_0.quiz_id=?
+Hibernate: select o1_0.question_id,o1_0.option_text from question_options o1_0 where o1_0.question_id=?
+Hibernate: select o1_0.question_id,o1_0.option_text from question_options o1_0 where o1_0.question_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select v1_0.section_id,v1_0.id,v1_0.duration,v1_0.title,v1_0.type,v1_0.url from videos v1_0 where v1_0.section_id=?
+Hibernate: select q1_0.section_id,q1_0.id,q1_0.description,q1_0.title from quizzes q1_0 where q1_0.section_id=?
+Hibernate: select v1_0.section_id,v1_0.id,v1_0.duration,v1_0.title,v1_0.type,v1_0.url from videos v1_0 where v1_0.section_id=?
+Hibernate: select q1_0.section_id,q1_0.id,q1_0.description,q1_0.title from quizzes q1_0 where q1_0.section_id=?
+Hibernate: select q1_0.quiz_id,q1_0.id,q1_0.correct_option_index,q1_0.question_text from questions q1_0 where q1_0.quiz_id=?
+Hibernate: select o1_0.question_id,o1_0.option_text from question_options o1_0 where o1_0.question_id=?
+Hibernate: select o1_0.question_id,o1_0.option_text from question_options o1_0 where o1_0.question_id=?
+Hibernate: select v1_0.section_id,v1_0.id,v1_0.duration,v1_0.title,v1_0.type,v1_0.url from videos v1_0 where v1_0.section_id=?
+Hibernate: select q1_0.section_id,q1_0.id,q1_0.description,q1_0.title from quizzes q1_0 where q1_0.section_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee from courses c1_0 where c1_0.name=?
+Hibernate: select s1_0.course_id,s1_0.id,s1_0.title from sections s1_0 where s1_0.course_id=?
+Hibernate: select c1_0.id,c1_0.bg_color,c1_0.border_color,c1_0.color,c1_0.description,c1_0.discount,c1_0.domain,c1_0.duration,c1_0.gradient,c1_0.icon_name,c1_0.level,c1_0.live_link,c1_0.name,c1_0.shadow,c1_0.slug,c1_0.total_fee,s1_0.course_id,s1_0.id,s1_0.title from courses c1_0 left join sections s1_0 on c1_0.id=s1_0.course_id where c1_0.id=?
+Course data initialized/updated.
+Hibernate: select u1_0.id,u1_0.certificate_date,u1_0.certificate_issued,u1_0.course,u1_0.discount,u1_0.email,u1_0.password,u1_0.phone,u1_0.profile_picture,u1_0.role,u1_0.total_fee,u1_0.username from users u1_0 where u1_0.email=? limit ?
+2026-02-10T10:43:38.443+05:30  INFO 30684 --- [backend] [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-10T10:43:38.443+05:30  INFO 30684 --- [backend] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-10T10:43:38.445+05:30  INFO 30684 --- [backend] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+org.springframework.web.client.HttpClientErrorException$NotFound: 404 Not Found: "{<EOL>  "error": {<EOL>    "code": 404,<EOL>    "message": "models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",<EOL>    "status": "NOT_FOUND"<EOL>  }<EOL>}<EOL>"
+	at org.springframework.web.client.HttpClientErrorException.create(HttpClientErrorException.java:112)
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:183)
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:137)
+	at org.springframework.web.client.ResponseErrorHandler.handleError(ResponseErrorHandler.java:63)
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:932)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:881)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:781)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:692)
+	at com.tsarit.backend.service.GeminiService.getAnswer(GeminiService.java:49)
+	at com.tsarit.backend.controller.AiController.chat(AiController.java:26)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:261)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:189)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:917)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:829)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at com.tsarit.backend.security.AuthTokenFilter.doFilterInternal(AuthTokenFilter.java:56)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:225)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1575)

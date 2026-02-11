@@ -18,7 +18,7 @@ const EnrollButton = ({ className, children, course }) => {
                 setCheckingEnrollment(false);
                 return;
             }
-            const student = JSON.parse(localStorage.getItem('student') || '{}');
+            const student = JSON.parse(sessionStorage.getItem('student') || '{}');
             if (student.id) {
                 try {
                     const res = await checkEnrollmentStatus(student.id, course);
@@ -35,15 +35,15 @@ const EnrollButton = ({ className, children, course }) => {
     }, [course]);
 
     const handleEnroll = async () => {
-        const token = localStorage.getItem('token');
-        const student = JSON.parse(localStorage.getItem('student') || 'null');
+        const token = sessionStorage.getItem('token');
+        const student = JSON.parse(sessionStorage.getItem('student') || 'null');
 
         // Check for token, student existence, and ensure student is not an empty object
         if (!token || !student || !student.id) {
             if (course) {
-                localStorage.setItem('pendingEnrollment', course);
+                sessionStorage.setItem('pendingEnrollment', course);
             }
-            localStorage.setItem('redirectAfterLogin', '/enroll-success');
+            sessionStorage.setItem('redirectAfterLogin', '/enroll-success');
             navigate('/login');
         } else {
             // Profile Validation
@@ -81,7 +81,7 @@ const EnrollButton = ({ className, children, course }) => {
                 // Get student info for prefill
                 let student = {};
                 try {
-                    student = JSON.parse(localStorage.getItem('student') || '{}');
+                    student = JSON.parse(sessionStorage.getItem('student') || '{}');
                 } catch (e) { console.error(e); }
 
                 const apiKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
@@ -107,7 +107,7 @@ const EnrollButton = ({ className, children, course }) => {
                             if (student.id) {
                                 const updateRes = await applyForInternship(student.id, course, response);
                                 if (updateRes.success) {
-                                    localStorage.setItem('student', JSON.stringify(updateRes.data));
+                                    sessionStorage.setItem('student', JSON.stringify(updateRes.data));
                                     // Optional: Save transaction ID to student record
                                 } else {
                                     alert(updateRes.message || "Enrollment failed. You might already be enrolled.");

@@ -20,8 +20,8 @@ const AdminLogin = () => {
             if (response.success) {
                 // Token is already saved by loginStudent in localStorage 'token'
                 // We also set 'adminToken' for any legacy admin components if they exist, but generally 'token' is key
-                localStorage.setItem('adminToken', localStorage.getItem('token'));
-                localStorage.setItem('isAdmin', 'true');
+                sessionStorage.setItem('adminToken', localStorage.getItem('token'));
+                sessionStorage.setItem('isAdmin', 'true');
                 navigate('/admin/dashboard');
             } else {
                 setError(response.message || 'Invalid credentials');

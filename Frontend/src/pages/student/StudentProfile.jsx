@@ -24,7 +24,7 @@ const StudentProfile = () => {
     });
 
     useEffect(() => {
-        const storedStudent = JSON.parse(localStorage.getItem('student') || '{}');
+        const storedStudent = JSON.parse(sessionStorage.getItem('student') || '{}');
         setStudent(storedStudent);
         setFormData({
             name: storedStudent.name || storedStudent.username || '',
@@ -107,20 +107,20 @@ const StudentProfile = () => {
             if (res.success) {
                 // Determine the URL. ensure backend returns full URL or path
                 // If backend returns { fileName: "...", fileUrl: "..." }
-                const imageUrl = res.data.fileUrl || res.data; 
-                
+                const imageUrl = res.data.fileUrl || res.data;
+
                 // Update profile with new image URL
                 // Note: We need to ensure backend User entity has profilePicture field 
                 // and updateStudentProfile supports it. 
                 // For now, we update local state and try to save it.
-                
+
                 const updatedStudent = { ...student, profilePicture: imageUrl };
                 setStudent(updatedStudent);
-                localStorage.setItem('student', JSON.stringify(updatedStudent));
+                sessionStorage.setItem('student', JSON.stringify(updatedStudent));
 
                 // Attempt to save to backend (might need backend update)
                 await updateStudentProfile(student.id, { ...formData, profilePicture: imageUrl });
-                
+
                 setMessage({ type: 'success', text: 'Profile picture updated!' });
             } else {
                 setMessage({ type: 'error', text: 'Failed to upload image.' });

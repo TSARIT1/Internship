@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './AiTutor.css'; // We will create this css file
+import './AiTutor.css';
 
 const AiTutor = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -35,8 +35,6 @@ const AiTutor = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add Authorization header if needed, but for now assuming public for enrolled students or handled by session/cookie if applicable
-                    // 'Authorization': `Bearer ${token}` 
                 },
                 body: JSON.stringify({ message: userMessage.text }),
             });

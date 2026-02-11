@@ -22,7 +22,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
 
     // React.useEffect(() => {
-    //     const pending = localStorage.getItem('pendingEnrollment');
+    //     const pending = sessionStorage.getItem('pendingEnrollment');
     //     if (pending) {
     //         setCourse(pending);
     //     }
@@ -67,29 +67,29 @@ const Login = () => {
 
                 // 1. Set Auth State per requirements
                 // Token is already set by loginStudent API call now
-                localStorage.setItem('student', JSON.stringify(response.data));
-                localStorage.setItem('student', JSON.stringify(response.data));
+                sessionStorage.setItem('student', JSON.stringify(response.data));
+                sessionStorage.setItem('student', JSON.stringify(response.data));
 
                 // Clear potential admin session
-                localStorage.removeItem('adminToken');
-                localStorage.removeItem('isAdmin');
+                sessionStorage.removeItem('adminToken');
+                sessionStorage.removeItem('isAdmin');
 
                 // 2. Process Pending Enrollment & Redirect
-                const pendingCourse = localStorage.getItem('pendingEnrollment');
+                const pendingCourse = sessionStorage.getItem('pendingEnrollment');
                 if (pendingCourse && isLogin) {
                     const updateRes = await applyForInternship(response.data.id, pendingCourse);
                     if (updateRes.success) {
-                        localStorage.setItem('student', JSON.stringify(updateRes.data));
+                        sessionStorage.setItem('student', JSON.stringify(updateRes.data));
                     }
-                    localStorage.removeItem('pendingEnrollment');
+                    sessionStorage.removeItem('pendingEnrollment');
                     navigate('/enroll-success');
                     return;
                 }
-                localStorage.removeItem('pendingEnrollment');
+                sessionStorage.removeItem('pendingEnrollment');
 
-                const redirectPath = localStorage.getItem('redirectAfterLogin');
+                const redirectPath = sessionStorage.getItem('redirectAfterLogin');
                 if (redirectPath) {
-                    localStorage.removeItem('redirectAfterLogin');
+                    sessionStorage.removeItem('redirectAfterLogin');
                     navigate(redirectPath);
                 } else {
                     navigate('/studentdashboard');

@@ -27,8 +27,8 @@ const Header = () => {
     ];
 
     const handleEnrollClick = () => {
-        const token = localStorage.getItem('token');
-        const student = JSON.parse(localStorage.getItem('student') || 'null');
+        const token = sessionStorage.getItem('token');
+        const student = JSON.parse(sessionStorage.getItem('student') || 'null');
 
         if (!token || !student) {
             navigate('/login');
@@ -61,7 +61,7 @@ const Header = () => {
                             {link.hasDropdown && <ChevronDown size={14} />}
                         </a>
                     ))}
-                    {localStorage.getItem('token') && (
+                    {sessionStorage.getItem('token') && (
                         <a
                             href="/studentdashboard"
                             className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
@@ -73,14 +73,14 @@ const Header = () => {
 
                 {/* Desktop Buttons */}
                 <div className="hidden md:flex items-center gap-4">
-                    {localStorage.getItem('token') && localStorage.getItem('student') ? (
+                    {sessionStorage.getItem('token') && sessionStorage.getItem('student') ? (
                         <div className="flex items-center gap-4">
                             <span className="text-slate-700 font-semibold hidden lg:block">
-                                Welcome, {JSON.parse(localStorage.getItem('student') || '{}').name?.split(' ')[0]}
+                                Welcome, {JSON.parse(sessionStorage.getItem('student') || '{}').name?.split(' ')[0]}
                             </span>
                             <button
                                 onClick={() => {
-                                    localStorage.clear();
+                                    sessionStorage.clear();
                                     navigate('/login');
                                 }}
                                 className="text-slate-700 font-semibold hover:text-red-600 transition-colors px-4 py-2"
@@ -133,10 +133,10 @@ const Header = () => {
                                     {link.name}
                                 </a>
                             ))}
-                            {localStorage.getItem('token') ? (
+                            {sessionStorage.getItem('token') ? (
                                 <button
                                     onClick={() => {
-                                        localStorage.clear();
+                                        sessionStorage.clear();
                                         setMobileMenuOpen(false);
                                         navigate('/login');
                                     }}

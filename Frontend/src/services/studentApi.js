@@ -11,14 +11,14 @@ const INITIAL_STUDENTS = [
 ];
 
 const getLocalStudents = () => {
-    const data = localStorage.getItem('students');
+    const data = sessionStorage.getItem('students');
     if (data) return JSON.parse(data);
-    localStorage.setItem('students', JSON.stringify(INITIAL_STUDENTS));
+    sessionStorage.setItem('students', JSON.stringify(INITIAL_STUDENTS));
     return INITIAL_STUDENTS;
 };
 
 const setLocalStudents = (data) => {
-    localStorage.setItem('students', JSON.stringify(data));
+    sessionStorage.setItem('students', JSON.stringify(data));
 };
 
 // getStudents removed from here, defined later
@@ -101,14 +101,14 @@ const INITIAL_INTERNSHIP_COURSES = {
 };
 
 const getLocalPricingData = () => {
-    const data = localStorage.getItem('pricing');
+    const data = sessionStorage.getItem('pricing');
     if (data) return JSON.parse(data);
-    localStorage.setItem('pricing', JSON.stringify(INITIAL_INTERNSHIP_COURSES));
+    sessionStorage.setItem('pricing', JSON.stringify(INITIAL_INTERNSHIP_COURSES));
     return INITIAL_INTERNSHIP_COURSES;
 };
 
 const setLocalPricingData = (data) => {
-    localStorage.setItem('pricing', JSON.stringify(data));
+    sessionStorage.setItem('pricing', JSON.stringify(data));
 };
 
 export const getPricing = async () => {
@@ -232,14 +232,14 @@ export const applyForInternship = async (studentId, courseName, paymentData = {}
             // 3. Update Local Storage for session consistency
             // We still update the "student" object in local storage to have the *latest* course 
             // even though strictly they have multiple.
-            const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
+            const currentStudent = JSON.parse(sessionStorage.getItem('student') || '{}');
             if (currentStudent.id === studentId) {
                 // We add a 'enrollments' array to local storage student for UI convenience
                 const enrollments = currentStudent.enrollments || [];
                 enrollments.push({ course: courseName, ...courseData });
                 currentStudent.enrollments = enrollments;
                 currentStudent.course = courseName; // Legacy field
-                localStorage.setItem('student', JSON.stringify(currentStudent));
+                sessionStorage.setItem('student', JSON.stringify(currentStudent));
             }
             return { success: true, data: currentStudent };
         } else {
@@ -262,7 +262,7 @@ const ENROLLMENT_URL = "http://localhost:8080/api/enrollments";
 // AXIOS INTERCEPTOR TO ADD TOKEN
 axios.interceptors.request.use(
     config => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (token && token !== 'dummy-token') { // Don't send dummy token if we have real one
             config.headers['Authorization'] = 'Bearer ' + token;
         }
@@ -403,10 +403,10 @@ export const loginStudent = async (email, password) => {
             
             // Save token
             if(token) {
-                localStorage.setItem('token', token);
+                sessionStorage.setItem('token', token);
                 // Also save user role if present
                 if (user.role) {
-                    localStorage.setItem('role', user.role);
+                    sessionStorage.setItem('role', user.role);
                 }
             }
             
@@ -474,11 +474,11 @@ export const updateStudentProfile = async (id, profileData) => {
         
         if (response.status === 200) {
             // Update local storage to reflect changes immediately
-            const currentStudent = JSON.parse(localStorage.getItem('student') || '{}');
+            const currentStudent = JSON.parse(sessionStorage.getItem('student') || '{}');
             const updatedStudent = { ...currentStudent, ...profileData };
             // Ensure we update the name/username correctly
             updatedStudent.name = profileData.name; 
-            localStorage.setItem('student', JSON.stringify(updatedStudent));
+            sessionStorage.setItem('student', JSON.stringify(updatedStudent));
             
             return { success: true, message: "Profile updated successfully" };
         }
@@ -586,14 +586,14 @@ const INITIAL_COURSE_CONTENT = {
 };
 
 const getLocalCourseContent = () => {
-    const data = localStorage.getItem('courseContent');
+    const data = sessionStorage.getItem('courseContent');
     if (data) return JSON.parse(data);
-    localStorage.setItem('courseContent', JSON.stringify(INITIAL_COURSE_CONTENT));
+    sessionStorage.setItem('courseContent', JSON.stringify(INITIAL_COURSE_CONTENT));
     return INITIAL_COURSE_CONTENT;
 };
 
 const setLocalCourseContent = (data) => {
-    localStorage.setItem('courseContent', JSON.stringify(data));
+    sessionStorage.setItem('courseContent', JSON.stringify(data));
 };
 
 export const getCourseContent = async (courseName) => {

@@ -1,0 +1,18 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------------< com.tsarit:backend >-------------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-cli) @ backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 50 source files with javac [debug release 17] to target\classes
+[INFO] /D:/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/GeminiService.java: Some input files use unchecked or unsafe operations.
+[INFO] /D:/Desktop/NewWebsite/New Web/Backend/src/main/java/com/tsarit/backend/service/GeminiService.java: Recompile with -Xlint:unchecked for details.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.976 s
+[INFO] Finished at: 2026-02-10T10:47:21+05:30
+[INFO] ------------------------------------------------------------------------

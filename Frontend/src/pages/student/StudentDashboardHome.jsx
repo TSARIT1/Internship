@@ -305,8 +305,8 @@ const StudentDashboardHome = () => {
                                                 <Trophy size={22} strokeWidth={2} />
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${hackathon.status === 'Open' || hackathon.status === 'Registering'
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                    : 'bg-slate-50 text-slate-600 border-slate-100'
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                                : 'bg-slate-50 text-slate-600 border-slate-100'
                                                 }`}>
                                                 {hackathon.status || 'Upcoming'}
                                             </span>

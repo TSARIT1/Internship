@@ -26,14 +26,21 @@ const AdminVideoTestimonials = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const dataToSubmit = {
-            ...form,
-            thumbnail: form.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600" // Default generic tech image
-        };
-        const response = await addVideoTestimonial(dataToSubmit);
-        setTestimonials([...testimonials, response.data]);
-        setForm({ name: '', course: '', message: '', videoUrl: '', thumbnail: '' });
-        alert('Video Testimonial Added!');
+        try {
+            console.log("Submitting video testimonial:", form);
+            const dataToSubmit = {
+                ...form,
+                thumbnail: form.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600" // Default generic tech image
+            };
+            const response = await addVideoTestimonial(dataToSubmit);
+            console.log("Response:", response);
+            setTestimonials([...testimonials, response.data]);
+            setForm({ name: '', course: '', message: '', videoUrl: '', thumbnail: '' });
+            alert('Video Testimonial Added Successfully!');
+        } catch (error) {
+            console.error("Failed to add video testimonial:", error);
+            alert(`Failed to add video testimonial: ${error.message}`);
+        }
     };
 
     return (

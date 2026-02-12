@@ -32,6 +32,9 @@ import AdminPricing from './pages/AdminPricing';
 
 import AdminVideoTestimonials from './pages/AdminVideoTestimonials';
 import AdminCourseContent from './pages/AdminCourseContent';
+import AdminHackathons from './pages/AdminHackathons';
+
+
 
 import StudentLayout from './layouts/StudentLayout';
 import StudentProtectedRoute from './components/StudentProtectedRoute';
@@ -87,6 +90,7 @@ function App() {
         <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="courses" element={<AdminCourses />} />
+          <Route path="hackathons" element={<AdminHackathons />} />
           <Route path="webinars" element={<AdminWebinars />} />
           <Route path="video-testimonials" element={<AdminVideoTestimonials />} />
           <Route path="testimonials" element={<AdminTestimonials />} />

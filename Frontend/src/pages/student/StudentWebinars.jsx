@@ -5,7 +5,7 @@ import { Calendar, User, Clock, CheckCircle } from 'lucide-react';
 
 const StudentWebinars = () => {
     const [webinars, setWebinars] = useState([]);
-    const [student, setStudent] = useState(JSON.parse(localStorage.getItem('student') || '{}'));
+    const [student, setStudent] = useState(JSON.parse(sessionStorage.getItem('student') || '{}'));
     const [registeredIds, setRegisteredIds] = useState([]);
 
     useEffect(() => {
@@ -47,7 +47,7 @@ const StudentWebinars = () => {
             registeredWebinars: updatedRegistered
         };
         setStudent(updatedStudent);
-        localStorage.setItem('student', JSON.stringify(updatedStudent));
+        sessionStorage.setItem('student', JSON.stringify(updatedStudent));
 
         alert("Successfully registered for " + webinar.title);
     };

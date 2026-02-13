@@ -4,7 +4,7 @@ import CourseCard from '../../components/CourseCard';
 
 const StudentCourses = () => {
     const [courses, setCourses] = useState([]);
-    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    const student = JSON.parse(sessionStorage.getItem('student') || '{}');
     const enrolledCourseName = student.webinar || student.course;
 
     useEffect(() => {

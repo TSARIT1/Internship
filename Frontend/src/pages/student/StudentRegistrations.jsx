@@ -7,7 +7,7 @@ import { Calendar, Video, PlayCircle } from 'lucide-react';
 
 const StudentRegistrations = () => {
     const [registrations, setRegistrations] = useState([]);
-    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    const student = JSON.parse(sessionStorage.getItem('student') || '{}');
 
     useEffect(() => {
         const fetchRegistrations = async () => {

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const StudentNavbar = () => {
     const navigate = useNavigate();
-    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    const student = JSON.parse(sessionStorage.getItem('student') || '{}');
 
     const handleLogout = () => {
         localStorage.removeItem('student');

@@ -11,7 +11,7 @@ import { useRef } from 'react';
 import ShinyButton from '../../components/ui/ShinyButton';
 
 const StudentDashboardHome = () => {
-    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    const student = JSON.parse(sessionStorage.getItem('student') || '{}');
     const navigate = useNavigate();
     const [upcomingWebinar, setUpcomingWebinar] = useState(null);
     const [hackathons, setHackathons] = useState([]);

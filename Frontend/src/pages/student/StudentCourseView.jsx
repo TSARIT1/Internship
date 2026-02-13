@@ -10,7 +10,7 @@ const StudentCourseView = () => {
     const [activeItem, setActiveItem] = useState(null); // Replaces currentVideo
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [loading, setLoading] = useState(true);
-    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    const student = JSON.parse(sessionStorage.getItem('student') || '{}');
 
     useEffect(() => {
         const fetchContent = async () => {

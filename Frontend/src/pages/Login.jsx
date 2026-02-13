@@ -68,7 +68,7 @@ const Login = () => {
                 // 1. Set Auth State per requirements
                 // Token is already set by loginStudent API call now
                 sessionStorage.setItem('student', JSON.stringify(response.data));
-                sessionStorage.setItem('student', JSON.stringify(response.data));
+
 
                 // Clear potential admin session
                 sessionStorage.removeItem('adminToken');

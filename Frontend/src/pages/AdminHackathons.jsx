@@ -48,7 +48,8 @@ const AdminHackathons = () => {
                     setEditingId(null);
                     alert("Hackathon updated successfully!");
                 } else {
-                    alert("Failed to update hackathon.");
+                    console.error("Update Hackathon Error:", response.error);
+                    alert(`Failed to update hackathon: ${response.error?.message || "Unknown error"}`);
                 }
 
             } else {
@@ -57,15 +58,25 @@ const AdminHackathons = () => {
                     setHackathons([...hackathons, response.data]);
                     alert("Hackathon added successfully!");
                 } else {
-                    alert("Failed to add hackathon.");
+                    console.error("Add Hackathon Error:", response.error);
+                    alert(`Failed to add hackathon: ${response.error?.message || "Unknown error"}`);
                 }
             }
-            setFormData({
-                title: '', description: '', date: '', time: '', prizePool: '', status: 'Upcoming', mode: 'Online'
-            });
+            // Clear form only on success or intended flow? 
+            // Better to keep data if it failed, but adhering to original logic for now, or improving it?
+            // Let's only clear if success.
+            if (editingId ? (await updateHackathon(editingId, formData)).success : (await addHackathon(formData)).success) {
+                setFormData({
+                    title: '', description: '', date: '', time: '', prizePool: '', status: 'Upcoming', mode: 'Online'
+                });
+            }
         } catch (error) {
-            console.error("Error saving hackathon:", error);
-            alert("Failed to save hackathon.");
+            console.error("Error saving hackathon (Exception):", error);
+            let errorMessage = error.response?.data || error.message || "Unknown error";
+            if (typeof errorMessage === 'object') {
+                errorMessage = JSON.stringify(errorMessage);
+            }
+            alert(`Failed to save hackathon: ${errorMessage}`);
         }
     };
 
@@ -245,8 +256,8 @@ const AdminHackathons = () => {
                                     <div className="flex justify-between items-start mb-1">
                                         <h3 className="text-lg font-bold text-slate-900">{hackathon.title}</h3>
                                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${hackathon.status === 'Upcoming' ? 'bg-emerald-100 text-emerald-700' :
-                                                hackathon.status === 'Ongoing' ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-slate-100 text-slate-700'
+                                            hackathon.status === 'Ongoing' ? 'bg-amber-100 text-amber-700' :
+                                                'bg-slate-100 text-slate-700'
                                             }`}>
                                             {hackathon.status}
                                         </span>

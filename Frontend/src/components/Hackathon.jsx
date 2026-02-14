@@ -1,13 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Trophy, MapPin, ArrowRight, Code, Zap, Target, Users } from 'lucide-react';
+import { Calendar, Clock, Trophy, MapPin, ArrowRight, Target, Users, Zap } from 'lucide-react';
 import ShinyButton from './ui/ShinyButton';
+import { getHackathons } from '../services/hackathonApi';
 
 const Hackathon = () => {
+    const [upcomingHackathon, setUpcomingHackathon] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchHackathon = async () => {
+            try {
+                const response = await getHackathons();
+                if (response.success && response.data.length > 0) {
+                    // Get the latest upcoming hackathon
+                    const upcoming = response.data.filter(h => h.status === 'Upcoming' || h.status === 'Open').sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+                    if (upcoming) {
+                        setUpcomingHackathon(upcoming);
+                    } else if (response.data.length > 0) {
+                        // Fallback to the latest one if no upcoming
+                        setUpcomingHackathon(response.data[response.data.length - 1]);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch hackathon data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchHackathon();
+    }, []);
+
     const features = [
         {
             icon: Trophy,
-            title: "₹1,00,000 Prize Pool",
+            title: `Prize Pool: ${upcomingHackathon?.prizePool || "Exciting Prizes"}`,
             desc: "Cash prizes, internships, and exclusive swag for top performers.",
             color: "text-amber-400",
             bg: "bg-amber-400/10",
@@ -31,13 +58,16 @@ const Hackathon = () => {
         },
         {
             icon: Zap,
-            title: "24-Hour Sprint",
-            desc: "An intense, adrenaline-fueled coding marathon to test your limits.",
+            title: "Evaluation Mode",
+            desc: `${upcomingHackathon?.mode || "Online"} event with live mentoring and judging.`,
             color: "text-emerald-400",
             bg: "bg-emerald-400/10",
             border: "border-emerald-400/20"
         }
     ];
+
+    if (loading) return null; // Or a skeleton loader
+    if (!upcomingHackathon) return null; // Don't show section if no hackathon
 
     return (
         <section id="hackathon" className="relative py-24 bg-slate-900 overflow-hidden">
@@ -63,20 +93,24 @@ const Hackathon = () => {
                                 🚀 Upcoming Event
                             </span>
                             <h2 className="text-4xl md:text-5xl font-bold font-display text-white mb-6 leading-tight">
-                                Code the <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Future</span> Hackathon 2024
+                                {upcomingHackathon.title}
                             </h2>
                             <p className="text-lg text-slate-400 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                                Join 500+ developers in the ultimate coding showdown. Build, innovate, and network with industry leaders.
+                                {upcomingHackathon.description}
                             </p>
 
                             <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-10">
                                 <div className="flex items-center gap-2 text-slate-300 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
                                     <Calendar size={18} className="text-blue-400" />
-                                    <span className="font-semibold">March 15-16, 2024</span>
+                                    <span className="font-semibold">{upcomingHackathon.date}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-slate-300 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
                                     <Clock size={18} className="text-amber-400" />
-                                    <span className="font-semibold">24 Hours Online</span>
+                                    <span className="font-semibold">{upcomingHackathon.time}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-slate-300 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
+                                    <MapPin size={18} className="text-emerald-400" />
+                                    <span className="font-semibold">{upcomingHackathon.mode}</span>
                                 </div>
                             </div>
 
@@ -118,12 +152,10 @@ const Hackathon = () => {
                             className="hidden md:flex absolute -right-4 -bottom-4 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-xl items-center gap-3 z-20"
                         >
                             <div className="flex -space-x-3">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-800" />
-                                ))}
+                                <div className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-xs text-white font-bold">+</div>
                             </div>
                             <div className="text-xs font-bold text-white">
-                                <span className="text-green-400">●</span> 120+ Registered
+                                <span className="text-green-400">●</span> {upcomingHackathon.status}
                             </div>
                         </motion.div>
                     </div>

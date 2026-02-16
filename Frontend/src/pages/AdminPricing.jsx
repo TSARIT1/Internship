@@ -35,8 +35,6 @@ const AdminPricing = () => {
 
     const [message, setMessage] = useState(null);
 
-    // ... handleEditClick ...
-
     const handleSaveEdit = async (courseName) => {
         try {
             const currentCourse = pricing.find(p => p.course === courseName);

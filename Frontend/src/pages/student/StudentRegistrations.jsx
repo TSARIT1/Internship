@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getWebinars } from '../../services/webinarApi';
-import { getPricing } from '../../services/studentApi';
-import { Calendar, Video, PlayCircle } from 'lucide-react';
+import { getPricing, getMyHackathonRegistrations } from '../../services/studentApi';
+import { Calendar, Video, PlayCircle, Trophy } from 'lucide-react';
 
 const StudentRegistrations = () => {
     const [registrations, setRegistrations] = useState([]);
@@ -11,13 +11,17 @@ const StudentRegistrations = () => {
 
     useEffect(() => {
         const fetchRegistrations = async () => {
-            const [allWebinarsResponse, allCoursesResponse] = await Promise.all([
+            if (!student.id) return;
+
+            const [allWebinarsResponse, allCoursesResponse, myHackathonsResponse] = await Promise.all([
                 getWebinars(),
-                getPricing()
+                getPricing(),
+                getMyHackathonRegistrations(student.id)
             ]);
 
             const allWebinars = allWebinarsResponse.data || [];
             const allCourses = allCoursesResponse.data || [];
+            const myHackathons = myHackathonsResponse.data || [];
 
             let myRegistrations = [];
 
@@ -72,6 +76,21 @@ const StudentRegistrations = () => {
                 }
             }
 
+            // 3. Handle Hackathons
+            const hackathonRegistrations = myHackathons.map(h => ({
+                id: `hackathon-${h.id}`,
+                title: h.title,
+                type: 'hackathon',
+                date: h.date,
+                time: h.time,
+                image: 'https://images.unsplash.com/photo-1504384308090-c54be3855833?q=80&w=2070&auto=format&fit=crop', // Placeholder or real image if added to entity
+                description: h.description,
+                registrationDate: '-', // Not stored in current simple ID set
+                meetingLink: null // Hackathons might not have a direct link yet
+            }));
+
+            myRegistrations = [...myRegistrations, ...hackathonRegistrations];
+
             setRegistrations(myRegistrations);
         };
 
@@ -113,8 +132,11 @@ const StudentRegistrations = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${reg.type === 'course' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                {reg.type === 'course' ? 'Course' : 'Webinar'}
+                                            <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${reg.type === 'course' ? 'bg-purple-100 text-purple-700' :
+                                                reg.type === 'hackathon' ? 'bg-emerald-100 text-emerald-700' :
+                                                    'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                {reg.type === 'course' ? 'Course' : reg.type === 'hackathon' ? 'Hackathon' : 'Webinar'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-600">
@@ -133,6 +155,10 @@ const StudentRegistrations = () => {
                                                 >
                                                     <PlayCircle size={16} /> Go To Section
                                                 </Link>
+                                            ) : reg.type === 'hackathon' ? (
+                                                <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg">
+                                                    <Trophy size={16} /> Registered
+                                                </span>
                                             ) : (
                                                 new Date(reg.date) >= new Date() ? (
                                                     <a

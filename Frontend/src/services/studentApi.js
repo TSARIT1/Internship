@@ -160,12 +160,14 @@ export const updatePricing = async (courseName, newFee, newDiscount, existingCou
         // Remove "course" key if it exists from frontend mapping to avoid confusion, though backend ignores unknown fields
         // But let's be clean.
         if (payload.course) delete payload.course;
+        if (payload.title) delete payload.title;
 
         const response = await axios.put(`${API_URL.replace('/auth', '')}/courses/${courseName}`, payload);
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Update Pricing Error:", error);
-        return { success: false, message: "Failed to update pricing" };
+        const errorMessage = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : JSON.stringify(error.response?.data)) || error.message || "Failed to update pricing";
+        return { success: false, message: errorMessage };
     }
 };
 
@@ -725,3 +727,22 @@ export const updateEnrollmentStatus = async (enrollmentId, status) => {
 
 
 
+
+export const registerForHackathon = async (hackathonId, userId) => {
+    try {
+        const response = await axios.post(`${API_URL.replace('/auth', '')}/hackathons/${hackathonId}/register`, { userId });
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Error registering for hackathon:", error);
+        return { success: false, error };
+    }
+};
+export const getMyHackathonRegistrations = async (userId) => {
+    try {
+        const response = await axios.get(`${API_URL.replace('/auth', '')}/hackathons/my-registrations/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Fetch my hackathons error:", error);
+        return { success: false, data: [] };
+    }
+};

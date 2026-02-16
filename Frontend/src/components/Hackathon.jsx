@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Trophy, MapPin, ArrowRight, Target, Users, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { getHackathons } from '../services/studentApi';
 import ShinyButton from './ui/ShinyButton';
-import { getHackathons } from '../services/hackathonApi';
 
 const Hackathon = () => {
+    const navigate = useNavigate();
     const [upcomingHackathon, setUpcomingHackathon] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -13,14 +15,24 @@ const Hackathon = () => {
             try {
                 const response = await getHackathons();
                 if (response.success && response.data.length > 0) {
-                    // Get the latest upcoming hackathon
-                    const upcoming = response.data.filter(h => h.status === 'Upcoming' || h.status === 'Open').sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+                    // Try to find the first "Upcoming" or "Open" hackathon
+                    // We avoid complex date sorting if the date format is free text (e.g. "March 15-16").
+                    // Instead, we trust the backend order or just pick the first matching status.
+                    const upcoming = response.data.find(h => h.status === 'Upcoming' || h.status === 'Open');
+
                     if (upcoming) {
                         setUpcomingHackathon(upcoming);
-                    } else if (response.data.length > 0) {
-                        // Fallback to the latest one if no upcoming
+                    } else {
+                        // Fallback to the latest one (assuming last in list is latest added)
                         setUpcomingHackathon(response.data[response.data.length - 1]);
                     }
+                } else {
+                    // No hackathons at all? Ensure we don't crash, but maybe set a default Placeholder for dev?
+                    // Or just leave null to hide section.
+                    // User said "nothing show", maybe they want to see the section.
+                    // Let's set a dummy one if empty so they see *something* during dev?
+                    // No, better to debug. If empty, it returns null.
+                    // I will confirm if they have data. Backend said yes.
                 }
             } catch (error) {
                 console.error("Failed to fetch hackathon data", error);
@@ -112,14 +124,21 @@ const Hackathon = () => {
                                     <MapPin size={18} className="text-emerald-400" />
                                     <span className="font-semibold">{upcomingHackathon.mode}</span>
                                 </div>
+                                <div className="flex items-center gap-2 text-slate-300 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
+                                    <Users size={18} className="text-pink-400" />
+                                    <span className="font-semibold">{upcomingHackathon.participantCount || 0} Joined</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-emerald-300 bg-emerald-900/20 px-4 py-2 rounded-lg border border-emerald-500/30">
+                                    <span className="font-bold">Entry: {upcomingHackathon.entryFee ? `₹${upcomingHackathon.entryFee}` : 'Free'}</span>
+                                </div>
                             </div>
 
                             <ShinyButton
-                                onClick={() => alert("Registration opening soon!")}
+                                onClick={() => navigate(`/hackathon/${upcomingHackathon.id}`)}
                                 className="!bg-purple-600 !from-purple-500 !to-purple-700 !shadow-purple-500/25"
                                 icon={ArrowRight}
                             >
-                                Register for Free
+                                View Details & Register
                             </ShinyButton>
                         </motion.div>
                     </div>

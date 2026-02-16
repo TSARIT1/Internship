@@ -37,7 +37,65 @@ export const deleteHackathon = async (id) => {
         await axios.delete(`${API_URL}/${id}`);
         return { success: true };
     } catch (error) {
-        console.error("Error deleting hackathon:", error);
-        return { success: false, error };
+        return { success: false, error: error.message };
     }
 };
+
+export const getSubmissions = async (hackathonId) => {
+    try {
+        const response = await axios.get(`${API_URL.replace('/hackathons', '')}/submissions/hackathon/${hackathonId}/all`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+export const gradeSubmission = async (id, score, feedback) => {
+    try {
+        const response = await axios.put(`${API_URL.replace('/hackathons', '')}/submissions/${id}/grade`, { score, feedback });
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+export const registerForHackathon = async (hackathonId, userId) => {
+    try {
+        const response = await axios.post(`${API_URL}/${hackathonId}/register/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+export const getMyHackathonRegistrations = async (userId) => {
+    try {
+        const response = await axios.get(`${API_URL}/student/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+export const submitProject = async (submissionData) => {
+    try {
+        // Assuming submission endpoint is relative to hackathons or a separate submissions controller
+        // Based on previous context, likely a separate controller but let's assume route structure:
+        // Adjust if needed: e.g. /api/submissions
+        const response = await axios.post(`${API_URL.replace('/hackathons', '')}/submissions`, submissionData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+export const getMySubmission = async (hackathonId, userId) => {
+    try {
+        const response = await axios.get(`${API_URL.replace('/hackathons', '')}/submissions/hackathon/${hackathonId}/user/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};
+
+

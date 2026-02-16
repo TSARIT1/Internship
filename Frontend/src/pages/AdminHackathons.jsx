@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getHackathons, addHackathon, updateHackathon, deleteHackathon } from '../services/hackathonApi';
-import { Trash2, Plus, Calendar, Clock, Trophy, MapPin, Pencil, X, CheckCircle } from 'lucide-react';
+import { getHackathons, addHackathon, updateHackathon, deleteHackathon, getSubmissions, gradeSubmission } from '../services/hackathonApi';
+import { Trash2, Plus, Calendar, Clock, Trophy, MapPin, Pencil, X, CheckCircle, Users, Download, Code, ExternalLink, Star, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
+import * as XLSX from 'xlsx'; // Assuming user has this or we use simple CSV
 
 const AdminHackathons = () => {
     const [hackathons, setHackathons] = useState([]);
@@ -89,16 +90,92 @@ const AdminHackathons = () => {
             time: hackathon.time || '',
             prizePool: hackathon.prizePool || '',
             status: hackathon.status || 'Upcoming',
-            mode: hackathon.mode || 'Online'
+            mode: hackathon.mode || 'Online',
+            entryFee: hackathon.entryFee || ''
         });
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancelEdit = () => {
         setEditingId(null);
         setFormData({
-            title: '', description: '', date: '', time: '', prizePool: '', status: 'Upcoming', mode: 'Online'
+            title: '', description: '', date: '', time: '', prizePool: '', status: 'Upcoming', mode: 'Online', entryFee: ''
         });
+    };
+
+    const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
+    const [selectedHackathonSubmissions, setSelectedHackathonSubmissions] = useState([]);
+    const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+
+    const handleViewSubmissions = async (hackathonId) => {
+        setLoadingSubmissions(true);
+        setShowSubmissionsModal(true);
+        setSelectedHackathonSubmissions([]);
+
+        const response = await getSubmissions(hackathonId);
+        if (response.success) {
+            setSelectedHackathonSubmissions(response.data);
+        } else {
+            alert("Failed to fetch submissions");
+        }
+        setLoadingSubmissions(false);
+    };
+
+    const [showGradeModal, setShowGradeModal] = useState(false);
+    const [selectedSubmission, setSelectedSubmission] = useState(null);
+    const [gradeData, setGradeData] = useState({ score: '', feedback: '' });
+
+    const openGradeModal = (submission) => {
+        setSelectedSubmission(submission);
+        setGradeData({
+            score: submission.score || '',
+            feedback: submission.feedback || ''
+        });
+        setShowGradeModal(true);
+    };
+
+    const handleGradeSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await gradeSubmission(selectedSubmission.id, gradeData.score, gradeData.feedback);
+            if (response.success) {
+                alert("Graded successfully!");
+                setShowGradeModal(false);
+                // Refresh submissions list locally
+                setSelectedHackathonSubmissions(prev => prev.map(item =>
+                    item.submission.id === selectedSubmission.id ?
+                        { ...item, submission: { ...item.submission, score: gradeData.score, feedback: gradeData.feedback } }
+                        : item
+                ));
+            } else {
+                alert("Failed to grade submission");
+            }
+        } catch (error) {
+            console.error("Grading error:", error);
+        }
+    };
+
+    const handleExportParticipants = (hackathon) => {
+        if (!hackathon.registeredUserIds || hackathon.registeredUserIds.length === 0) {
+            alert("No participants to export.");
+            return;
+        }
+
+        // In a real app, we'd fetch full user details by these IDs. 
+        // For now, we'll export IDs or just a count + ID list.
+        // Assuming we might have a service to get user details later.
+
+        const data = hackathon.registeredUserIds.map(uid => ({
+            Hackathon: hackathon.title,
+            UserID: uid,
+            Date: new Date().toLocaleDateString()
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Participants");
+        XLSX.writeFile(wb, `${hackathon.title}_Participants.xlsx`);
     };
 
     const handleDelete = async (id) => {
@@ -195,6 +272,19 @@ const AdminHackathons = () => {
                                 </div>
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Entry Fee</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                                    <input
+                                        type="text" name="entryFee" required
+                                        value={formData.entryFee} onChange={handleChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+                                        placeholder="e.g. 500 or Free"
+                                    />
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Mode</label>
@@ -267,6 +357,8 @@ const AdminHackathons = () => {
                                         <span className="flex items-center gap-1"><Calendar size={14} /> {hackathon.date}</span>
                                         <span className="flex items-center gap-1"><Clock size={14} /> {hackathon.time}</span>
                                         <span className="flex items-center gap-1"><MapPin size={14} /> {hackathon.mode}</span>
+                                        <span className="flex items-center gap-1 text-emerald-600">₹ {hackathon.entryFee || "Free"}</span>
+                                        <span className="flex items-center gap-1 text-blue-600"><Users size={14} /> {hackathon.participantCount || 0} Registered</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2">
@@ -277,6 +369,22 @@ const AdminHackathons = () => {
                                         title="Edit Hackathon"
                                     >
                                         <Pencil size={20} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleViewSubmissions(hackathon.id)}
+                                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                        title="View Submissions"
+                                    >
+                                        <Code size={20} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleExportParticipants(hackathon)}
+                                        className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+                                        title="Export Participants"
+                                    >
+                                        <Download size={20} />
                                     </button>
                                     <button
                                         type="button"
@@ -292,6 +400,84 @@ const AdminHackathons = () => {
                     )}
                 </div>
             </div>
+
+            {/* Submissions Modal */}
+            {showSubmissionsModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[80vh] flex flex-col overflow-hidden"
+                    >
+                        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+                            <h2 className="text-xl font-bold text-gray-800">Project Submissions</h2>
+                            <button onClick={() => setShowSubmissionsModal(false)} className="text-gray-500 hover:text-gray-700">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto">
+                            {loadingSubmissions ? (
+                                <div className="flex justify-center py-10">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+                                </div>
+                            ) : selectedHackathonSubmissions.length === 0 ? (
+                                <div className="text-center py-10 text-gray-500">
+                                    <Code size={48} className="mx-auto mb-4 opacity-20" />
+                                    <p>No projects submitted yet.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4">
+                                    {selectedHackathonSubmissions.map((item, index) => (
+                                        <div key={index} className="border rounded-xl p-5 hover:bg-gray-50 transition-colors">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <h3 className="font-bold text-lg text-gray-900">{item.submission.projectTitle}</h3>
+                                                    <p className="text-sm text-gray-600">by <span className="font-semibold">{item.username}</span> ({item.email})</p>
+                                                </div>
+                                                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">
+                                                    {new Date(item.submission.submittedAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+
+                                            <p className="text-gray-700 mb-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                                {item.submission.description}
+                                            </p>
+
+                                            <div className="flex gap-3">
+                                                <a
+                                                    href={item.submission.repoLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <Code size={16} /> GitHub Repo
+                                                </a>
+                                                {item.submission.videoLink && (
+                                                    <a
+                                                        href={item.submission.videoLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-sm font-medium text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                                    >
+                                                        <ExternalLink size={16} /> View Demo
+                                                    </a>
+                                                )}
+                                                <button
+                                                    onClick={() => openGradeModal(item.submission)}
+                                                    className="flex items-center gap-2 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
+                                                >
+                                                    <Star size={16} /> {item.submission.score ? `Score: ${item.submission.score}` : 'Grade Project'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };

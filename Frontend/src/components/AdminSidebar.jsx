@@ -11,7 +11,9 @@ import {
     ChevronRight,
     CircleDollarSign,
     BookOpen,
+
     Server,
+    UserCog,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -38,6 +40,7 @@ const AdminSidebar = () => {
         { path: '/admin/payments', name: 'Payments', icon: CircleDollarSign },
         { path: '/admin/pricing', name: 'Pricing', icon: CircleDollarSign },
         { path: '/admin/course-content', name: 'Course Content', icon: Video },
+        { path: '/admin/profile', name: 'Profile Settings', icon: UserCog },
     ];
 
     const toggleSidebar = () => setIsOpen(!isOpen);

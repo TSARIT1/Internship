@@ -32,7 +32,9 @@ import AdminPricing from './pages/AdminPricing';
 
 import AdminVideoTestimonials from './pages/AdminVideoTestimonials';
 import AdminCourseContent from './pages/AdminCourseContent';
+
 import AdminHackathons from './pages/AdminHackathons';
+import AdminProfile from './pages/AdminProfile';
 
 
 
@@ -46,6 +48,7 @@ import StudentCourses from './pages/student/StudentCourses';
 import StudentCourseView from './pages/student/StudentCourseView';
 import StudentProfile from './pages/student/StudentProfile';
 import StudentHackathons from './pages/student/StudentHackathons';
+import HackathonDetails from './pages/HackathonDetails';
 
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -77,6 +80,7 @@ function App() {
         <Route path="/enroll" element={<Enroll />} />
         <Route path="/enroll-success" element={<ProtectedRoute><EnrollSuccess /></ProtectedRoute>} />
         <Route path="/webinars" element={<Webinars />} />
+        <Route path="/hackathon/:id" element={<HackathonDetails />} />
 
         {/* Auth Routes */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -95,7 +99,9 @@ function App() {
           <Route path="students" element={<AdminStudents />} />
           <Route path="payments" element={<AdminPayments />} />
           <Route path="pricing" element={<AdminPricing />} />
+
           <Route path="course-content" element={<AdminCourseContent />} />
+          <Route path="profile" element={<AdminProfile />} />
         </Route>
         {/* Student Routes */}
         <Route path="/student/course/:courseName" element={<StudentProtectedRoute><StudentCourseView /></StudentProtectedRoute>} />

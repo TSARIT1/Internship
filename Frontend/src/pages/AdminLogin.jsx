@@ -18,9 +18,10 @@ const AdminLogin = () => {
             const response = await loginStudent(email, password);
 
             if (response.success) {
-                // Token is already saved by loginStudent in localStorage 'token'
-                // We also set 'adminToken' for any legacy admin components if they exist, but generally 'token' is key
-                sessionStorage.setItem('adminToken', localStorage.getItem('token'));
+                // Store token and user details in sessionStorage
+                sessionStorage.setItem('token', response.data.token || localStorage.getItem('token'));
+                // Ensure we store the user logic for Profile access
+                sessionStorage.setItem('adminUser', JSON.stringify(response.data));
                 sessionStorage.setItem('isAdmin', 'true');
                 navigate('/admin/dashboard');
             } else {
@@ -92,10 +93,6 @@ const AdminLogin = () => {
                     >
                         Sign In <ArrowRight size={20} />
                     </button>
-
-                    <div className="text-center">
-                        <p className="text-xs text-slate-400 mt-4">Demo credentials: admin@tsarit.com / admin123</p>
-                    </div>
                 </form>
             </div>
         </div>

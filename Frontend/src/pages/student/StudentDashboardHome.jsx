@@ -34,6 +34,7 @@ const StudentDashboardHome = () => {
     const [availableCourses, setAvailableCourses] = useState([]);
     const [greeting, setGreeting] = useState('');
 
+
     useEffect(() => {
         const hour = new Date().getHours();
         if (hour < 12) setGreeting('Good Morning');
@@ -56,6 +57,7 @@ const StudentDashboardHome = () => {
                 setAvailableCourses(allCourses.slice(0, 3));
 
                 const myEnrollments = enrollmentsRes.success ? enrollmentsRes.data : [];
+
                 // Use real progress data from backend, default to 0 if null
                 const enrichedEnrollments = myEnrollments.map(e => ({
                     ...e,

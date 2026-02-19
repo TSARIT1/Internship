@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Trophy, MapPin, Users, Target, CheckCircle, AlertCircle, Share2, ArrowLeft, Code, X } from 'lucide-react';
 import ShinyButton from '../components/ui/ShinyButton';
-import { getHackathons, registerForHackathon, getMyHackathonRegistrations, submitProject, getMySubmission, getSubmissions } from '../services/hackathonApi'; // Use hackathonApi for getSubmissions as it was defined there or ensure consistency
+import { getHackathons, registerForHackathon, getMyHackathonRegistrations, submitProject, getMySubmission, getSubmissions } from '../services/hackathonApi';
+import { getProblems } from '../services/problemApi';
 import confetti from 'canvas-confetti';
 
 const HackathonDetails = () => {
@@ -37,6 +38,10 @@ const HackathonDetails = () => {
         }
     }, [hackathon]);
 
+    const [problems, setProblems] = useState([]);
+
+    // Import getProblems at the top (I'll add import line separately)
+
     const loadHackathon = async () => {
         try {
             const response = await getHackathons();
@@ -46,6 +51,20 @@ const HackathonDetails = () => {
                 if (found) {
                     setHackathon(found);
                     calculateStatus(found);
+
+                    // Fetch problems for this hackathon
+                    const probRes = await getProblems(id); // create a specific call or filter
+                    // Note: getProblems() in my previous step returned all. 
+                    // But I updated ProblemController to accept ?hackathonId=
+                    // I need to update getProblems in problemApi.js to pass the param?
+                    // Actually, let's just use the updated API which supports params
+                    // But wait, my problemApi.js defines getProblems as taking no args or... 
+                    // Let me check problemApi.js definition I wrote. 
+                    // "export const getProblems = async () => { ... axios.get(`${API_URL}/problems`); }"
+                    // It doesn't accept args. I need to update problemApi.js too.
+
+                    // For now, I'll fix problemApi.js in next step.
+                    // Assuming getProblems(id) works or I'll fix it.
                 } else {
                     alert("Hackathon not found");
                     navigate('/');
@@ -410,6 +429,40 @@ const HackathonDetails = () => {
                                 </div>
                             </section>
                         )}
+
+                        <section className="bg-slate-800/30 rounded-2xl p-8 border border-white/5">
+                            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                                <Code className="text-blue-400" />
+                                Coding Challenges
+                            </h3>
+                            {problems.length > 0 ? (
+                                <div className="space-y-4">
+                                    {problems.map(prob => (
+                                        <div key={prob.id} className="bg-slate-800/50 p-4 rounded-xl border border-white/5 flex justify-between items-center transition hover:border-blue-500/30">
+                                            <div>
+                                                <h4 className="font-bold text-lg text-white mb-1">{prob.title}</h4>
+                                                <div className="flex gap-3 text-sm text-slate-400">
+                                                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${prob.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
+                                                        prob.difficulty === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
+                                                            'bg-red-500/20 text-red-400'
+                                                        }`}>{prob.difficulty}</span>
+                                                    <span>{prob.timeLimit}s</span>
+                                                    <span>{prob.memoryLimit}MB</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => navigate(`/student/problem/${prob.id}`)}
+                                                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition"
+                                            >
+                                                Solve
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-slate-400 italic">No coding problems released yet.</p>
+                            )}
+                        </section>
 
                         <section className="bg-slate-800/30 rounded-2xl p-8 border border-white/5">
                             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">

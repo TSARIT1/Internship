@@ -12,6 +12,7 @@ const AdminLogin = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setError('');
 
         try {
             // Using loginStudent service which calls backend
@@ -19,17 +20,20 @@ const AdminLogin = () => {
 
             if (response.success) {
                 // Store token and user details in sessionStorage
-                sessionStorage.setItem('token', response.data.token || localStorage.getItem('token'));
+                const token = response.data.token || localStorage.getItem('token');
+                sessionStorage.setItem('token', token); // For API requests
+                sessionStorage.setItem('adminToken', token); // For AdminProtectedRoute
+
                 // Ensure we store the user logic for Profile access
-                sessionStorage.setItem('adminUser', JSON.stringify(response.data));
+                sessionStorage.setItem('adminUser', JSON.stringify(response.data.user || response.data));
                 sessionStorage.setItem('isAdmin', 'true');
                 navigate('/admin/dashboard');
             } else {
                 setError(response.message || 'Invalid credentials');
             }
         } catch (err) {
+            console.error("Login exception:", err);
             setError('Login failed. Please check backend.');
-            console.error(err);
         }
     };
 

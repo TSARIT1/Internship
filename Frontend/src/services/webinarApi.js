@@ -3,7 +3,7 @@ import axios from 'axios';
 // Toggle this to false when backend is ready
 const MOCK_MODE = false;
 
-const API_URL = 'http://localhost:8080/api/webinars'; // Replace with actual backend URL
+const API_URL = "http://localhost:8081/api/webinars"; // Replace with actual backend URL
 
 // Initial Mock Data (Fallback)
 const INITIAL_DATA = [

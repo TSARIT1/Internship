@@ -7,7 +7,7 @@ const AdminProtectedRoute = ({ children }) => {
 
     if (!adminToken) {
         // Redirect to admin login but save the attempted location
-        return <Navigate to="/admin" state={{ from: location }} replace />;
+        return <Navigate to="/admin/login" state={{ from: location }} replace />;
     }
 
     return children;

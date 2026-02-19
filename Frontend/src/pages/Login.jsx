@@ -67,7 +67,10 @@ const Login = () => {
 
                 // 1. Set Auth State per requirements
                 // Token is already set by loginStudent API call now
-                sessionStorage.setItem('student', JSON.stringify(response.data));
+
+                // DATA STRUCTURE FIX: Login returns { user, token }, Register returns User object directly
+                const userData = response.data.user || response.data;
+                sessionStorage.setItem('student', JSON.stringify(userData));
 
 
                 // Clear potential admin session
@@ -77,7 +80,8 @@ const Login = () => {
                 // 2. Process Pending Enrollment & Redirect
                 const pendingCourse = sessionStorage.getItem('pendingEnrollment');
                 if (pendingCourse && isLogin) {
-                    const updateRes = await applyForInternship(response.data.id, pendingCourse);
+                    // Use userData.id instead of response.data.id
+                    const updateRes = await applyForInternship(userData.id, pendingCourse);
                     if (updateRes.success) {
                         sessionStorage.setItem('student', JSON.stringify(updateRes.data));
                     }

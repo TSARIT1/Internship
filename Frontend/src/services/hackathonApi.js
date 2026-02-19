@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8080/api/hackathons";
+const API_URL = "http://localhost:8081/api/hackathons";
 
 export const getHackathons = async () => {
     try {

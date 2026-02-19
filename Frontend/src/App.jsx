@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Contact from './pages/Contact';
@@ -49,6 +49,8 @@ import StudentCourseView from './pages/student/StudentCourseView';
 import StudentProfile from './pages/student/StudentProfile';
 import StudentHackathons from './pages/student/StudentHackathons';
 import HackathonDetails from './pages/HackathonDetails';
+import ProblemDetail from './pages/student/ProblemDetail';
+import AdminProblemManagement from './pages/AdminProblemManagement';
 
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -87,9 +89,10 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="courses" element={<AdminCourses />} />
           <Route path="hackathons" element={<AdminHackathons />} />
@@ -99,12 +102,14 @@ function App() {
           <Route path="students" element={<AdminStudents />} />
           <Route path="payments" element={<AdminPayments />} />
           <Route path="pricing" element={<AdminPricing />} />
+          <Route path="problems" element={<AdminProblemManagement />} />
 
           <Route path="course-content" element={<AdminCourseContent />} />
           <Route path="profile" element={<AdminProfile />} />
         </Route>
         {/* Student Routes */}
         <Route path="/student/course/:courseName" element={<StudentProtectedRoute><StudentCourseView /></StudentProtectedRoute>} />
+        <Route path="/student/problem/:id" element={<StudentProtectedRoute><ProblemDetail /></StudentProtectedRoute>} />
         <Route path="/studentdashboard" element={<StudentProtectedRoute><StudentLayout /></StudentProtectedRoute>}>
           <Route index element={<StudentDashboardHome />} />
           <Route path="courses" element={<StudentCourses />} />

@@ -13,6 +13,7 @@ import {
     BookOpen,
 
     Server,
+    Code, // Import
     UserCog,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,9 +24,10 @@ const AdminSidebar = () => {
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('isAdmin');
-            navigate('/admin');
+            sessionStorage.removeItem('adminToken');
+            sessionStorage.removeItem('isAdmin');
+            sessionStorage.removeItem('token'); // Clear generic token too
+            navigate('/admin/login');
         }
     };
 
@@ -33,6 +35,7 @@ const AdminSidebar = () => {
         { path: '/admin/dashboard', name: 'Dashboard', icon: LayoutDashboard },
         { path: '/admin/courses', name: 'Courses', icon: BookOpen },
         { path: '/admin/hackathons', name: 'Hackathons', icon: Server },
+        { path: '/admin/problems', name: 'Coding Problems', icon: Code }, // Added
         { path: '/admin/webinars', name: 'Webinars', icon: Video },
         { path: '/admin/video-testimonials', name: 'Video Reviews', icon: Video }, // Using Video icon since it matches
         { path: '/admin/testimonials', name: 'Testimonials', icon: MessageSquareQuote },

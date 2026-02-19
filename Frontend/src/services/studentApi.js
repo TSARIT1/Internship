@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8080/api/auth";
-const ENROLLMENT_URL = "http://localhost:8080/api/enrollments";
+const API_URL = "http://localhost:8081/api/auth";
+const ENROLLMENT_URL = "http://localhost:8081/api/enrollments";
 
 // AXIOS INTERCEPTOR TO ADD TOKEN
 axios.interceptors.request.use(
@@ -253,10 +253,10 @@ export const loginStudent = async (email, password) => {
                 sessionStorage.setItem('token', token);
                 if (user.role) sessionStorage.setItem('role', user.role);
             }
-            return { success: true, data: user };
+            return { success: true, data: { user, token } };
         }
     } catch (error) {
-        return { success: false, message: error.response?.data || "Login failed" };
+        return { success: false, message: error.response?.data?.message || "Login failed" };
     }
 };
 
@@ -405,7 +405,7 @@ export const getAdminStats = async () => {
         const response = await axios.get(`${API_URL.replace('/auth', '')}/admin/stats`);
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, message: "Failed to fetch stats" };
+        return { success: false, message: error.response?.data?.message || "Failed to fetch stats" };
     }
 };
 

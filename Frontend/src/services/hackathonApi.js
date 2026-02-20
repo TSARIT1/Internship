@@ -61,7 +61,7 @@ export const gradeSubmission = async (id, score, feedback) => {
 
 export const registerForHackathon = async (hackathonId, userId) => {
     try {
-        const response = await axios.post(`${API_URL}/${hackathonId}/register/${userId}`);
+        const response = await axios.post(`${API_URL}/${hackathonId}/register`, { userId }); // Corrected to body
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, error: error.message };
@@ -70,7 +70,7 @@ export const registerForHackathon = async (hackathonId, userId) => {
 
 export const getMyHackathonRegistrations = async (userId) => {
     try {
-        const response = await axios.get(`${API_URL}/student/${userId}`);
+        const response = await axios.get(`${API_URL}/my-registrations/${userId}`); // Corrected path
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, error: error.message };
@@ -79,10 +79,9 @@ export const getMyHackathonRegistrations = async (userId) => {
 
 export const submitProject = async (submissionData) => {
     try {
-        // Assuming submission endpoint is relative to hackathons or a separate submissions controller
-        // Based on previous context, likely a separate controller but let's assume route structure:
-        // Adjust if needed: e.g. /api/submissions
-        const response = await axios.post(`${API_URL.replace('/hackathons', '')}/submissions`, submissionData);
+        // Backend: @PostMapping("/submit") in SubmissionController (mapped to /api/submissions)
+        // Check SubmissionController.java to confirm if it is /api/submissions/submit or /api/submissions
+        const response = await axios.post(`${API_URL.replace('/hackathons', '')}/submissions/submit`, submissionData);
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, error: error.message };
@@ -91,7 +90,8 @@ export const submitProject = async (submissionData) => {
 
 export const getMySubmission = async (hackathonId, userId) => {
     try {
-        const response = await axios.get(`${API_URL.replace('/hackathons', '')}/submissions/hackathon/${hackathonId}/user/${userId}`);
+        // Backend: @GetMapping("/hackathon/{hackathonId}/my-submission/{userId}")
+        const response = await axios.get(`${API_URL.replace('/hackathons', '')}/submissions/hackathon/${hackathonId}/my-submission/${userId}`);
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, error: error.message };

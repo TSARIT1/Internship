@@ -432,27 +432,48 @@ const AdminHackathons = () => {
                                         <div key={index} className="border rounded-xl p-5 hover:bg-gray-50 transition-colors">
                                             <div className="flex justify-between items-start mb-3">
                                                 <div>
-                                                    <h3 className="font-bold text-lg text-gray-900">{item.submission.projectTitle}</h3>
+                                                    <h3 className="font-bold text-lg text-gray-900">
+                                                        {item.submission.projectTitle || "Coding Challenge Entry"}
+                                                    </h3>
                                                     <p className="text-sm text-gray-600">by <span className="font-semibold">{item.username}</span> ({item.email})</p>
                                                 </div>
-                                                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">
-                                                    {new Date(item.submission.submittedAt).toLocaleDateString()}
-                                                </span>
+                                                <div className="text-right">
+                                                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded block mb-1">
+                                                        {new Date(item.submission.submittedAt).toLocaleDateString()}
+                                                    </span>
+                                                    {item.submission.status && (
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${item.submission.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                                                item.submission.status === 'WRONG_ANSWER' ? 'bg-red-100 text-red-700' :
+                                                                    'bg-slate-100 text-slate-700'
+                                                            }`}>
+                                                            {item.submission.status}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            <p className="text-gray-700 mb-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                                {item.submission.description}
-                                            </p>
+                                            {item.submission.description ? (
+                                                <p className="text-gray-700 mb-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                                    {item.submission.description}
+                                                </p>
+                                            ) : (
+                                                <div className="mb-4 text-sm text-slate-500 bg-slate-50 p-3 rounded-lg flex items-center gap-4">
+                                                    <span>Language: <strong>{item.submission.language || 'N/A'}</strong></span>
+                                                    <span>Passed Cases: <strong>{item.submission.passedTestCases}/{item.submission.totalTestCases}</strong></span>
+                                                </div>
+                                            )}
 
                                             <div className="flex gap-3">
-                                                <a
-                                                    href={item.submission.repoLink}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <Code size={16} /> GitHub Repo
-                                                </a>
+                                                {item.submission.repoLink && (
+                                                    <a
+                                                        href={item.submission.repoLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        <Code size={16} /> GitHub Repo
+                                                    </a>
+                                                )}
                                                 {item.submission.videoLink && (
                                                     <a
                                                         href={item.submission.videoLink}
@@ -467,7 +488,7 @@ const AdminHackathons = () => {
                                                     onClick={() => openGradeModal(item.submission)}
                                                     className="flex items-center gap-2 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
                                                 >
-                                                    <Star size={16} /> {item.submission.score ? `Score: ${item.submission.score}` : 'Grade Project'}
+                                                    <Star size={16} /> {item.submission.score !== null ? `Score: ${item.submission.score}` : 'Grade Project'}
                                                 </button>
                                             </div>
                                         </div>

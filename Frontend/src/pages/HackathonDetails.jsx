@@ -53,18 +53,14 @@ const HackathonDetails = () => {
                     calculateStatus(found);
 
                     // Fetch problems for this hackathon
-                    const probRes = await getProblems(id); // create a specific call or filter
-                    // Note: getProblems() in my previous step returned all. 
-                    // But I updated ProblemController to accept ?hackathonId=
-                    // I need to update getProblems in problemApi.js to pass the param?
-                    // Actually, let's just use the updated API which supports params
-                    // But wait, my problemApi.js defines getProblems as taking no args or... 
-                    // Let me check problemApi.js definition I wrote. 
-                    // "export const getProblems = async () => { ... axios.get(`${API_URL}/problems`); }"
-                    // It doesn't accept args. I need to update problemApi.js too.
-
-                    // For now, I'll fix problemApi.js in next step.
-                    // Assuming getProblems(id) works or I'll fix it.
+                    try {
+                        const probRes = await getProblems(id);
+                        if (probRes.success) {
+                            setProblems(probRes.data || []);
+                        }
+                    } catch (err) {
+                        console.error("Failed to load problems", err);
+                    }
                 } else {
                     alert("Hackathon not found");
                     navigate('/');
@@ -279,11 +275,22 @@ const HackathonDetails = () => {
 
                     <div className="flex flex-wrap gap-4">
                         {isRegistered ? (
-                            <div className="flex gap-3">
+                            <div className="flex flex-wrap gap-3">
                                 <button disabled className="bg-green-600/20 text-green-400 border border-green-500/50 px-6 py-3 rounded-xl font-bold flex items-center gap-2 cursor-default">
                                     <CheckCircle size={20} />
                                     Registered
                                 </button>
+
+                                {problems.length > 0 && (
+                                    <ShinyButton
+                                        onClick={() => navigate(`/student/problem/${problems[0].id}`)}
+                                        className="!bg-emerald-600 !from-emerald-500 !to-emerald-700"
+                                        icon={Code}
+                                    >
+                                        Start Challenge
+                                    </ShinyButton>
+                                )}
+
                                 <ShinyButton
                                     onClick={() => setShowSubmissionModal(true)}
                                     className="!bg-blue-600 !from-blue-500 !to-blue-700"

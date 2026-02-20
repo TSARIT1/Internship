@@ -43,9 +43,11 @@ const ProblemDetail = () => {
 
     const loadProblem = async () => {
         setLoading(true);
-        const res = await getProblemById(id);
+        const res = await getProblem(id);
         if (res.success) {
             setProblem(res.data);
+            // Default code based on problem template if available? OR just standard language templates
+            // If problem has starterCode, use it?
         } else {
             alert("Failed to load problem");
         }
@@ -58,18 +60,18 @@ const ProblemDetail = () => {
         setSubmissionResult(null);
         setOutput({ status: 'Running...', logs: [] });
 
-        const res = await runCode(id, language, code);
+        const res = await runCode({ problemId: id, language, code });
 
         if (res.success) {
             setOutput({
-                status: res.allPassed ? 'Passed' : 'Failed',
-                results: res.results,
+                status: res.data.allPassed ? 'Passed' : 'Failed',
+                results: res.data.results,
                 error: null
             });
         } else {
             setOutput({
                 status: 'Error',
-                error: res.error?.message || "Execution failed",
+                error: res.error?.message || res.error || "Execution failed",
                 results: []
             });
         }
@@ -91,9 +93,13 @@ const ProblemDetail = () => {
         setSubmissionResult(null);
         setOutput({ status: 'Submitting...', logs: [] });
 
-        // Pass hackathonId if present in query params or context? 
-        // For now null, detached problem solving
-        const res = await submitSolution(id, student.id, language, code, problem.hackathonId);
+        const res = await submitCode({
+            problemId: id,
+            userId: student.id,
+            language,
+            code,
+            hackathonId: problem.hackathonId
+        });
 
         if (res.success) {
             setSubmissionResult(res.data);
@@ -105,7 +111,7 @@ const ProblemDetail = () => {
         } else {
             setOutput({
                 status: 'Error',
-                error: res.error?.message || "Submission failed"
+                error: res.error?.message || res.error || "Submission failed"
             });
         }
         setIsRunning(false);

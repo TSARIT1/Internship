@@ -439,6 +439,7 @@ export const getHackathons = async () => {
 
 export const registerForHackathon = async (hackathonId, userId) => {
     try {
+        // Fix: API_URL is /api/auth, so we need to step back to /api/hackathons
         const response = await axios.post(`${API_URL.replace('/auth', '')}/hackathons/${hackathonId}/register`, { userId });
         return { success: true, data: response.data };
     } catch (error) {

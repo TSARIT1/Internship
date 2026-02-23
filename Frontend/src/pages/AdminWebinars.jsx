@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { getWebinars, addWebinar, deleteWebinar, updateWebinar } from '../services/webinarApi';
-import { Trash2, Plus, Calendar, Clock, Video, Image as ImageIcon, Pencil, X } from 'lucide-react';
+import { Trash2, Plus, Calendar, Clock, Video, Image as ImageIcon, Pencil, X, IndianRupee, Unlock } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+const emptyForm = {
+    title: '',
+    speaker: '',
+    date: '',
+    time: '',
+    description: '',
+    meetingLink: '',
+    image: '',
+    isPaid: false,
+    price: ''
+};
 
 const AdminWebinars = () => {
     const [webinars, setWebinars] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({
-        title: '',
-        speaker: '',
-        date: '',
-        time: '',
-        description: '',
-        meetingLink: '',
-        image: ''
-    });
+    const [formData, setFormData] = useState(emptyForm);
 
     useEffect(() => {
         fetchWebinars();
@@ -33,25 +37,34 @@ const AdminWebinars = () => {
     };
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+            // clear price if switching to free
+            ...(name === 'isPaid' && !checked ? { price: '' } : {})
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const payload = {
+            ...formData,
+            isPaid: formData.isPaid,
+            price: formData.isPaid && formData.price !== '' ? parseFloat(formData.price) : null
+        };
         try {
             if (editingId) {
-                const response = await updateWebinar(editingId, formData);
+                const response = await updateWebinar(editingId, payload);
                 setWebinars(webinars.map(w => w.id === editingId ? response.data : w));
                 setEditingId(null);
                 alert("Webinar updated successfully!");
             } else {
-                const response = await addWebinar(formData);
+                const response = await addWebinar(payload);
                 setWebinars([...webinars, response.data]);
                 alert("Webinar added successfully!");
             }
-            setFormData({
-                title: '', speaker: '', date: '', time: '', description: '', meetingLink: '', image: ''
-            });
+            setFormData(emptyForm);
         } catch (error) {
             console.error("Error saving webinar:", error);
             alert("Failed to save webinar.");
@@ -59,9 +72,7 @@ const AdminWebinars = () => {
     };
 
     const handleEdit = (webinar) => {
-        console.log("Editing webinar:", webinar); // Debug log
         setEditingId(webinar.id);
-        // Explicitly map fields to ensure no undefined/null values break controlled inputs
         setFormData({
             title: webinar.title || '',
             speaker: webinar.speaker || '',
@@ -69,16 +80,16 @@ const AdminWebinars = () => {
             time: webinar.time || '',
             description: webinar.description || '',
             meetingLink: webinar.meetingLink || '',
-            image: webinar.image || ''
+            image: webinar.image || '',
+            isPaid: webinar.isPaid || false,
+            price: webinar.price != null ? String(webinar.price) : ''
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancelEdit = () => {
         setEditingId(null);
-        setFormData({
-            title: '', speaker: '', date: '', time: '', description: '', meetingLink: '', image: ''
-        });
+        setFormData(emptyForm);
     };
 
     const handleDelete = async (id) => {
@@ -186,6 +197,49 @@ const AdminWebinars = () => {
                                     placeholder="Brief description of the session..."
                                 />
                             </div>
+
+                            {/* Paid / Free Toggle */}
+                            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                                <label className="block text-sm font-bold text-slate-700 mb-3">Webinar Type</label>
+                                <div className="flex gap-3">
+                                    <label className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg border-2 cursor-pointer transition-all font-semibold text-sm ${!formData.isPaid ? 'border-green-500 bg-green-50 text-green-700' : 'border-slate-200 bg-white text-slate-500'}`}>
+                                        <input
+                                            type="radio" name="isPaid" className="hidden"
+                                            checked={!formData.isPaid}
+                                            onChange={() => setFormData(prev => ({ ...prev, isPaid: false, price: '' }))}
+                                        />
+                                        <Unlock size={15} />
+                                        Free
+                                    </label>
+                                    <label className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg border-2 cursor-pointer transition-all font-semibold text-sm ${formData.isPaid ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-slate-200 bg-white text-slate-500'}`}>
+                                        <input
+                                            type="radio" name="isPaid" className="hidden"
+                                            checked={formData.isPaid}
+                                            onChange={() => setFormData(prev => ({ ...prev, isPaid: true }))}
+                                        />
+                                        <IndianRupee size={15} />
+                                        Paid
+                                    </label>
+                                </div>
+
+                                {/* Price input — visible only when Paid */}
+                                {formData.isPaid && (
+                                    <div className="mt-3">
+                                        <label className="block text-sm font-bold text-slate-700 mb-1">Price (₹)</label>
+                                        <div className="relative">
+                                            <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                                            <input
+                                                type="number" name="price" min="1" step="1"
+                                                required={formData.isPaid}
+                                                value={formData.price} onChange={handleChange}
+                                                className="w-full bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-amber-500 transition-colors"
+                                                placeholder="e.g. 499"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <button type="submit" className={`w-full text-white font-bold py-3 rounded-xl transition-colors shadow-md ${editingId ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
                                 {editingId ? 'Update Webinar' : 'Create Webinar'}
                             </button>
@@ -219,7 +273,18 @@ const AdminWebinars = () => {
                                     className="w-24 h-24 rounded-lg object-cover hidden sm:block"
                                 />
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold text-slate-900 mb-1">{webinar.title}</h3>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h3 className="text-lg font-bold text-slateate-900">{webinar.title}</h3>
+                                        {webinar.isPaid ? (
+                                            <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                                <IndianRupee size={11} />{webinar.price}
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                FREE
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-slate-500 mb-2">by {webinar.speaker}</p>
                                     <div className="flex gap-4 text-xs font-bold text-slate-500 uppercase tracking-wide">
                                         <span className="flex items-center gap-1"><Calendar size={14} /> {webinar.date}</span>

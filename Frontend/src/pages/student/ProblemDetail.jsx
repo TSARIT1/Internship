@@ -1,9 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { getProblem, runCode, submitCode } from '../../services/problemApi';
 import { Play, CheckCircle, AlertTriangle, ArrowLeft, RefreshCw, Terminal, Clock, Database, ChevronDown, ChevronUp } from 'lucide-react';
+import useAntiCheat from '../../hooks/useAntiCheat';
+import AntiCheatWarning from '../../components/AntiCheatWarning';
 
 const ProblemDetail = () => {
     const { id } = useParams(); // Problem ID
@@ -19,6 +21,29 @@ const ProblemDetail = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [activeTab, setActiveTab] = useState('description'); // description, output
     const [submissionResult, setSubmissionResult] = useState(null);
+
+    // Anti-cheat: active for any logged-in student
+    // problem.hackathonId is available after load — hook re-evaluates as problem state changes
+    const studentData = JSON.parse(sessionStorage.getItem('student') || 'null');
+    const { tabSwitchCount, warningVisible, dismissWarning } = useAntiCheat(
+        !!studentData,
+        studentData?.id,
+        problem?.hackathonId ?? null
+    );
+
+    // Monaco editor ref to block paste inside editor
+    const editorRef = useRef(null);
+    const handleEditorDidMount = (editor) => {
+        editorRef.current = editor;
+        // Block paste inside Monaco editor
+        editor.onKeyDown((e) => {
+            const isCtrlV = (e.ctrlKey || e.metaKey) && e.keyCode === 52; // KeyCode 52 = V
+            if (isCtrlV) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    };
 
     // Default code templates
     const templates = {
@@ -122,6 +147,12 @@ const ProblemDetail = () => {
 
     return (
         <div className="h-screen bg-slate-900 text-white flex flex-col overflow-hidden">
+            {/* Anti-cheat warning overlay */}
+            <AntiCheatWarning
+                visible={warningVisible}
+                switchCount={tabSwitchCount}
+                onDismiss={dismissWarning}
+            />
             {/* Header */}
             <header className="bg-slate-800 border-b border-white/10 px-4 py-3 flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-4">
@@ -280,12 +311,15 @@ const ProblemDetail = () => {
                         language={language}
                         value={code}
                         onChange={(value) => setCode(value)}
+                        onMount={handleEditorDidMount}
                         options={{
                             minimap: { enabled: false },
                             fontSize: 14,
                             lineNumbers: 'on',
                             scrollBeyondLastLine: false,
                             automaticLayout: true,
+                            // Paste is blocked via onKeyDown in handleEditorDidMount
+                            contextmenu: false,  // disable right-click context menu in editor
                         }}
                     />
                 </div>

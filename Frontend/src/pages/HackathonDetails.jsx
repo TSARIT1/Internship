@@ -6,6 +6,8 @@ import ShinyButton from '../components/ui/ShinyButton';
 import { getHackathons, registerForHackathon, getMyHackathonRegistrations, submitProject, getMySubmission, getSubmissions } from '../services/hackathonApi';
 import { getProblems } from '../services/problemApi';
 import confetti from 'canvas-confetti';
+import useAntiCheat from '../hooks/useAntiCheat';
+import AntiCheatWarning from '../components/AntiCheatWarning';
 
 const HackathonDetails = () => {
     const { id } = useParams();
@@ -25,6 +27,15 @@ const HackathonDetails = () => {
         videoLink: '',
         description: ''
     });
+
+    // Anti-cheat: active for any logged-in student on this page
+    const studentData = JSON.parse(sessionStorage.getItem('student') || 'null');
+    const antiCheatEnabled = !!studentData;
+    const { tabSwitchCount, warningVisible, dismissWarning } = useAntiCheat(
+        antiCheatEnabled,
+        studentData?.id,
+        id   // hackathon id from useParams
+    );
 
     useEffect(() => {
         loadHackathon();
@@ -222,7 +233,13 @@ const HackathonDetails = () => {
     );
 
     return (
-        <div className="min-h-screen bg-slate-900 text-white pb-20 pt-24">
+        <div className={`min-h-screen bg-slate-900 text-white pb-20 pt-24 ${antiCheatEnabled ? 'anti-cheat-zone' : ''}`}>
+            {/* Anti-cheat warning overlay */}
+            <AntiCheatWarning
+                visible={warningVisible}
+                switchCount={tabSwitchCount}
+                onDismiss={dismissWarning}
+            />
             {/* Header / Hero */}
             <div className="container mx-auto px-6 mb-12">
                 <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors">

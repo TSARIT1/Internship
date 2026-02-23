@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, ArrowRight, Video } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, Video, IndianRupee } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const WebinarCard = ({ webinar, onRegister }) => {
@@ -28,6 +28,16 @@ const WebinarCard = ({ webinar, onRegister }) => {
                     <Video size={14} />
                     Webinar
                 </div>
+                {/* Paid / Free badge */}
+                {webinar.isPaid ? (
+                    <div className="absolute top-4 left-4 z-20 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1">
+                        <IndianRupee size={12} />{webinar.price}
+                    </div>
+                ) : (
+                    <div className="absolute top-4 left-4 z-20 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                        FREE
+                    </div>
+                )}
             </div>
 
             {/* Content Section */}

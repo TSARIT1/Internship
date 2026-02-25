@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getHackathons, addHackathon, updateHackathon, deleteHackathon, getSubmissions, gradeSubmission } from '../services/hackathonApi';
+import { getHackathons, addHackathon, updateHackathon, deleteHackathon, getSubmissions, gradeSubmission, markAsWinner } from '../services/hackathonApi';
 import { Trash2, Plus, Calendar, Clock, Trophy, MapPin, Pencil, X, CheckCircle, Users, Download, Code, ExternalLink, Star, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx'; // Assuming user has this or we use simple CSV
@@ -153,6 +153,24 @@ const AdminHackathons = () => {
             }
         } catch (error) {
             console.error("Grading error:", error);
+        }
+    };
+
+    const handleMarkWinner = async (submissionId) => {
+        if (!window.confirm("Mark this submission as the 🏆 Winner? This will remove the winner badge from any other submission.")) return;
+        const response = await markAsWinner(submissionId);
+        if (response.success) {
+            // Update local state: clear all winners, set this one
+            setSelectedHackathonSubmissions(prev => prev.map(item => ({
+                ...item,
+                submission: {
+                    ...item.submission,
+                    winner: item.submission.id === submissionId
+                }
+            })));
+            alert("🏆 Winner marked successfully!");
+        } else {
+            alert("Failed to mark winner.");
         }
     };
 
@@ -428,74 +446,172 @@ const AdminHackathons = () => {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-4">
-                                    {selectedHackathonSubmissions.map((item, index) => (
-                                        <div key={index} className="border rounded-xl p-5 hover:bg-gray-50 transition-colors">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <h3 className="font-bold text-lg text-gray-900">
-                                                        {item.submission.projectTitle || "Coding Challenge Entry"}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-600">by <span className="font-semibold">{item.username}</span> ({item.email})</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded block mb-1">
-                                                        {new Date(item.submission.submittedAt).toLocaleDateString()}
-                                                    </span>
-                                                    {item.submission.status && (
-                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${item.submission.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
-                                                                item.submission.status === 'WRONG_ANSWER' ? 'bg-red-100 text-red-700' :
-                                                                    'bg-slate-100 text-slate-700'
-                                                            }`}>
-                                                            {item.submission.status}
+                                    {[...selectedHackathonSubmissions]
+                                        .sort((a, b) => (b.submission.score ?? -1) - (a.submission.score ?? -1))
+                                        .map((item, index) => (
+                                            <div
+                                                key={index}
+                                                className={`border rounded-xl p-5 transition-colors relative ${item.submission.winner
+                                                        ? 'border-amber-400 bg-amber-50 shadow-md shadow-amber-100'
+                                                        : 'border-gray-200 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                {/* Winner badge */}
+                                                {item.submission.winner && (
+                                                    <div className="absolute top-3 right-3 bg-amber-400 text-white text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1 shadow">
+                                                        🏆 WINNER
+                                                    </div>
+                                                )}
+
+                                                <div className="flex justify-between items-start mb-3 pr-24">
+                                                    <div>
+                                                        <h3 className="font-bold text-lg text-gray-900">
+                                                            {item.submission.projectTitle || "Coding Challenge Entry"}
+                                                        </h3>
+                                                        <p className="text-sm text-gray-600">by <span className="font-semibold">{item.username}</span> ({item.email})</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded block mb-1">
+                                                            {new Date(item.submission.submittedAt).toLocaleDateString()}
                                                         </span>
+                                                        {item.submission.status && (
+                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${item.submission.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                                                    item.submission.status === 'WRONG_ANSWER' ? 'bg-red-100 text-red-700' :
+                                                                        'bg-slate-100 text-slate-700'
+                                                                }`}>
+                                                                {item.submission.status}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {item.submission.description ? (
+                                                    <p className="text-gray-700 mb-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                                        {item.submission.description}
+                                                    </p>
+                                                ) : (
+                                                    <div className="mb-4 text-sm text-slate-500 bg-slate-50 p-3 rounded-lg flex items-center gap-4">
+                                                        <span>Language: <strong>{item.submission.language || 'N/A'}</strong></span>
+                                                        <span>Passed Cases: <strong>{item.submission.passedTestCases}/{item.submission.totalTestCases}</strong></span>
+                                                    </div>
+                                                )}
+
+                                                {/* Score + Feedback display */}
+                                                {item.submission.score !== null && item.submission.score !== undefined && (
+                                                    <div className="mb-3 flex items-center gap-3">
+                                                        <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-lg text-sm font-bold">
+                                                            Score: {item.submission.score}
+                                                        </span>
+                                                        {item.submission.feedback && (
+                                                            <span className="text-sm text-gray-500 italic">"{item.submission.feedback}"</span>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex gap-3 flex-wrap">
+                                                    {item.submission.repoLink && (
+                                                        <a
+                                                            href={item.submission.repoLink}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                                                        >
+                                                            <Code size={16} /> GitHub Repo
+                                                        </a>
                                                     )}
+                                                    {item.submission.videoLink && (
+                                                        <a
+                                                            href={item.submission.videoLink}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2 text-sm font-medium text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                                        >
+                                                            <ExternalLink size={16} /> View Demo
+                                                        </a>
+                                                    )}
+                                                    <button
+                                                        onClick={() => openGradeModal(item.submission)}
+                                                        className="flex items-center gap-2 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
+                                                    >
+                                                        <Star size={16} /> {item.submission.score != null ? `Score: ${item.submission.score}` : 'Grade Project'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleMarkWinner(item.submission.id)}
+                                                        className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${item.submission.winner
+                                                                ? 'bg-amber-400 text-white border-amber-400'
+                                                                : 'text-amber-700 bg-white border-amber-300 hover:bg-amber-50'
+                                                            }`}
+                                                    >
+                                                        🏆 {item.submission.winner ? 'Winner!' : 'Mark as Winner'}
+                                                    </button>
                                                 </div>
                                             </div>
-
-                                            {item.submission.description ? (
-                                                <p className="text-gray-700 mb-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                                    {item.submission.description}
-                                                </p>
-                                            ) : (
-                                                <div className="mb-4 text-sm text-slate-500 bg-slate-50 p-3 rounded-lg flex items-center gap-4">
-                                                    <span>Language: <strong>{item.submission.language || 'N/A'}</strong></span>
-                                                    <span>Passed Cases: <strong>{item.submission.passedTestCases}/{item.submission.totalTestCases}</strong></span>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-3">
-                                                {item.submission.repoLink && (
-                                                    <a
-                                                        href={item.submission.repoLink}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                                                    >
-                                                        <Code size={16} /> GitHub Repo
-                                                    </a>
-                                                )}
-                                                {item.submission.videoLink && (
-                                                    <a
-                                                        href={item.submission.videoLink}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-2 text-sm font-medium text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                                                    >
-                                                        <ExternalLink size={16} /> View Demo
-                                                    </a>
-                                                )}
-                                                <button
-                                                    onClick={() => openGradeModal(item.submission)}
-                                                    className="flex items-center gap-2 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg hover:bg-amber-100 transition-colors"
-                                                >
-                                                    <Star size={16} /> {item.submission.score !== null ? `Score: ${item.submission.score}` : 'Grade Project'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
                                 </div>
                             )}
                         </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Grade Modal */}
+            {showGradeModal && selectedSubmission && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+                    >
+                        <div className="flex justify-between items-center mb-5">
+                            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <Star size={20} className="text-amber-500" /> Grade Submission
+                            </h2>
+                            <button onClick={() => setShowGradeModal(false)} className="text-gray-400 hover:text-gray-600">
+                                <X size={22} />
+                            </button>
+                        </div>
+
+                        <div className="mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                            <p className="font-semibold text-slate-800">{selectedSubmission.projectTitle || 'Coding Submission'}</p>
+                        </div>
+
+                        <form onSubmit={handleGradeSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Score (0–100)</label>
+                                <input
+                                    type="number" min="0" max="100" required
+                                    value={gradeData.score}
+                                    onChange={e => setGradeData({ ...gradeData, score: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors text-lg font-bold"
+                                    placeholder="e.g. 85"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Feedback (optional)</label>
+                                <textarea
+                                    rows="3"
+                                    value={gradeData.feedback}
+                                    onChange={e => setGradeData({ ...gradeData, feedback: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+                                    placeholder="Great work on the UI! Could improve error handling..."
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowGradeModal(false)}
+                                    className="flex-1 border border-slate-200 text-slate-600 py-2 rounded-xl font-medium hover:bg-slate-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-xl font-bold transition-colors"
+                                >
+                                    Save Grade
+                                </button>
+                            </div>
+                        </form>
                     </motion.div>
                 </div>
             )}

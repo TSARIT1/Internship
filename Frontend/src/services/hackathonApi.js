@@ -90,7 +90,6 @@ export const submitProject = async (submissionData) => {
 
 export const getMySubmission = async (hackathonId, userId) => {
     try {
-        // Backend: @GetMapping("/hackathon/{hackathonId}/my-submission/{userId}")
         const response = await axios.get(`${API_URL.replace('/hackathons', '')}/submissions/hackathon/${hackathonId}/my-submission/${userId}`);
         return { success: true, data: response.data };
     } catch (error) {
@@ -98,4 +97,11 @@ export const getMySubmission = async (hackathonId, userId) => {
     }
 };
 
-
+export const markAsWinner = async (submissionId) => {
+    try {
+        const response = await axios.put(`${API_URL.replace('/hackathons', '')}/submissions/${submissionId}/mark-winner`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+};

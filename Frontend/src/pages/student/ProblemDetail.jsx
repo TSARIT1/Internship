@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { getProblem, runCode, submitCode } from '../../services/problemApi';
 import { Play, CheckCircle, AlertTriangle, ArrowLeft, RefreshCw, Terminal, Clock, Database, ChevronDown, ChevronUp } from 'lucide-react';
 import useAntiCheat from '../../hooks/useAntiCheat';
 import AntiCheatWarning from '../../components/AntiCheatWarning';
+import HackathonTerminal from '../../components/HackathonTerminal';
 
 const ProblemDetail = () => {
     const { id } = useParams(); // Problem ID
@@ -21,6 +22,46 @@ const ProblemDetail = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [activeTab, setActiveTab] = useState('description'); // description, output
     const [submissionResult, setSubmissionResult] = useState(null);
+
+    // Terminal error state — persists for 30 minutes via localStorage
+    const [terminalError, setTerminalError] = useState(null);
+    const TERMINAL_DURATION_MS = 30 * 60 * 1000;
+
+    // Restore terminal error from localStorage on mount
+    useEffect(() => {
+        const studentData = JSON.parse(sessionStorage.getItem('student') || 'null');
+        if (!studentData) return;
+        const key = `hackathon-terminal-${id}-${studentData.id}`;
+        const stored = localStorage.getItem(key);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                const elapsed = Date.now() - new Date(parsed.timestamp).getTime();
+                if (elapsed < TERMINAL_DURATION_MS) {
+                    setTerminalError(parsed);
+                } else {
+                    localStorage.removeItem(key);
+                }
+            } catch { localStorage.removeItem(key); }
+        }
+    }, [id]);
+
+    // Save terminal error to localStorage whenever it changes
+    const saveTerminalError = useCallback((errorData) => {
+        const studentData = JSON.parse(sessionStorage.getItem('student') || 'null');
+        if (!studentData) return;
+        const key = `hackathon-terminal-${id}-${studentData.id}`;
+        if (errorData) {
+            localStorage.setItem(key, JSON.stringify(errorData));
+        } else {
+            localStorage.removeItem(key);
+        }
+        setTerminalError(errorData);
+    }, [id]);
+
+    const clearTerminalError = useCallback(() => {
+        saveTerminalError(null);
+    }, [saveTerminalError]);
 
     // Anti-cheat: active for any logged-in student
     // problem.hackathonId is available after load — hook re-evaluates as problem state changes
@@ -93,11 +134,30 @@ const ProblemDetail = () => {
                 results: res.data.results,
                 error: null
             });
+
+            // Check individual test case results for stderr / errors
+            const errorResults = (res.data.results || []).filter(r => r.stderr && r.stderr.trim());
+            if (errorResults.length > 0) {
+                const combinedStderr = errorResults.map((r, i) => `--- Test Case ${i + 1} ---\n${r.stderr}`).join('\n\n');
+                const errorType = combinedStderr.toLowerCase().includes('compile') ? 'COMPILE_ERROR' : 'RUNTIME_ERROR';
+                saveTerminalError({
+                    message: combinedStderr,
+                    type: errorType,
+                    timestamp: new Date().toISOString()
+                });
+            }
         } else {
+            const errMsg = res.error?.response?.data?.message || res.error?.message || res.error || "Execution failed";
             setOutput({
                 status: 'Error',
-                error: res.error?.message || res.error || "Execution failed",
+                error: errMsg,
                 results: []
+            });
+            // Show error in persistent terminal
+            saveTerminalError({
+                message: typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg),
+                type: 'RUNTIME_ERROR',
+                timestamp: new Date().toISOString()
             });
         }
         setIsRunning(false);
@@ -130,13 +190,30 @@ const ProblemDetail = () => {
             setSubmissionResult(res.data);
             setOutput({
                 status: res.data.status, // ACCEPTED, WRONG_ANSWER
-                results: [], // We don't get individual case details on submit usually
+                results: [],
                 summary: `Passed ${res.data.passed} of ${res.data.total} test cases.`
             });
+
+            // Show persistent terminal for non-accepted submissions with error details
+            if (res.data.status !== 'ACCEPTED' && res.data.errorOutput) {
+                saveTerminalError({
+                    message: res.data.errorOutput,
+                    type: res.data.status === 'COMPILE_ERROR' ? 'COMPILE_ERROR' :
+                        res.data.status === 'RUNTIME_ERROR' ? 'RUNTIME_ERROR' : 'RUNTIME_ERROR',
+                    timestamp: new Date().toISOString()
+                });
+            }
         } else {
+            const errMsg = res.error?.response?.data?.message || res.error?.message || res.error || "Submission failed";
             setOutput({
                 status: 'Error',
-                error: res.error?.message || res.error || "Submission failed"
+                error: errMsg
+            });
+            // Show error in persistent terminal
+            saveTerminalError({
+                message: typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg),
+                type: 'RUNTIME_ERROR',
+                timestamp: new Date().toISOString()
             });
         }
         setIsRunning(false);
@@ -303,25 +380,38 @@ const ProblemDetail = () => {
                     </div>
                 </div>
 
-                {/* Right Panel: Editor */}
+                {/* Right Panel: Editor + Terminal */}
                 <div className="w-2/3 flex flex-col bg-[#1e1e1e]">
-                    <Editor
-                        height="100%"
-                        theme="vs-dark"
-                        language={language}
-                        value={code}
-                        onChange={(value) => setCode(value)}
-                        onMount={handleEditorDidMount}
-                        options={{
-                            minimap: { enabled: false },
-                            fontSize: 14,
-                            lineNumbers: 'on',
-                            scrollBeyondLastLine: false,
-                            automaticLayout: true,
-                            // Paste is blocked via onKeyDown in handleEditorDidMount
-                            contextmenu: false,  // disable right-click context menu in editor
-                        }}
-                    />
+                    <div className={`flex-1 ${terminalError ? 'h-[60%]' : 'h-full'}`}>
+                        <Editor
+                            height="100%"
+                            theme="vs-dark"
+                            language={language}
+                            value={code}
+                            onChange={(value) => setCode(value)}
+                            onMount={handleEditorDidMount}
+                            options={{
+                                minimap: { enabled: false },
+                                fontSize: 14,
+                                lineNumbers: 'on',
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true,
+                                contextmenu: false,
+                            }}
+                        />
+                    </div>
+
+                    {/* Persistent Error Terminal — shows for 30 minutes */}
+                    {terminalError && (
+                        <div className="shrink-0 px-2 pb-2">
+                            <HackathonTerminal
+                                errorOutput={terminalError.message}
+                                errorType={terminalError.type}
+                                errorTimestamp={terminalError.timestamp}
+                                onClear={clearTerminalError}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

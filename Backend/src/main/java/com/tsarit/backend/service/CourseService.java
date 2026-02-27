@@ -46,11 +46,12 @@ public class CourseService {
         if (updatedData.getDuration() != null)
             course.setDuration(updatedData.getDuration());
         if (updatedData.getLevel() != null)
-            if (updatedData.getLevel() != null)
-                course.setLevel(updatedData.getLevel());
+            course.setLevel(updatedData.getLevel());
         if (updatedData.getDomain() != null)
             course.setDomain(updatedData.getDomain());
 
+        System.out.println("Updating course: " + name + " with fee: " + updatedData.getTotalFee() + " and discount: "
+                + updatedData.getDiscount());
         return courseRepository.save(course);
     }
 

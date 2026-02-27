@@ -37,19 +37,24 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully");
     }
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthController.class);
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            System.out.println("Login attempt for: " + loginRequest.getUsername());
+            logger.info("Login attempt for identifier: {}", loginRequest.getUsername());
 
             Optional<User> userOptional = userService.findByUsername(loginRequest.getUsername());
 
             if (userOptional.isEmpty()) {
+                logger.info("User not found by username. Trying email...");
                 userOptional = userService.findByEmail(loginRequest.getUsername());
             }
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
+                logger.info("User found: ID={}, Username={}, Email={}, Role={}", user.getId(), user.getUsername(),
+                        user.getEmail(), user.getRole());
 
                 String rawPassword = loginRequest.getPassword();
                 String storedPassword = user.getPassword();
@@ -58,13 +63,21 @@ public class AuthController {
                     return ResponseEntity.badRequest().body("Password is required");
                 }
 
+                // Log hashes (TEMPORARY DEBUGGING)
+                logger.info("Stored Password Hash: {}", storedPassword);
+                // logger.info("Raw Password: {}", rawPassword); // refrain from logging raw
+                // password if possible, or do it only if seemingly impossible to debug
+                // otherwise
+
                 // 1. Check if password matches using the Encoder (Normal Case)
-                // specific check to avoid NPEs if stored password is null
-                if (storedPassword != null && passwordEncoder.matches(rawPassword, storedPassword)) {
-                    System.out.println("Login successful for user: " + user.getUsername());
+                boolean matchesEncoded = storedPassword != null && passwordEncoder.matches(rawPassword, storedPassword);
+                logger.info("PasswordEncoder Match Result: {}", matchesEncoded);
+
+                if (matchesEncoded) {
+                    logger.info("Login successful for user: {}", user.getUsername());
                     String token = jwtUtils.generateJwtToken(user);
 
-                    Map<String, Object> response = new HashMap<>(); // Change return type to Map or specific DTO
+                    Map<String, Object> response = new HashMap<>();
                     response.put("token", token);
                     response.put("user", user);
 
@@ -72,8 +85,8 @@ public class AuthController {
                 }
                 // 2. Fallback: Check if it matches as Plain Text (Legacy/Migration Case)
                 else if (storedPassword != null && storedPassword.equals(rawPassword)) {
-                    System.out.println("Legacy plain text password detected for user: " + user.getUsername()
-                            + ". Migrating to BCrypt.");
+                    logger.warn("Legacy plain text password detected for user: {}. Migrating to BCrypt.",
+                            user.getUsername());
 
                     // Encode and Update
                     String encodedPassword = passwordEncoder.encode(rawPassword);
@@ -84,20 +97,20 @@ public class AuthController {
 
                     // GENERATE TOKEN
                     String token = jwtUtils.generateJwtToken(user);
-                    Map<String, Object> response = new HashMap<>(); // Standard Map
+                    Map<String, Object> response = new HashMap<>();
                     response.put("token", token);
                     response.put("user", user);
 
                     return ResponseEntity.ok(response);
                 } else {
-                    System.out.println("Password mismatch for user: " + user.getUsername());
+                    logger.error("Password mismatch for user: {}", user.getUsername());
                 }
             } else {
-                System.out.println("User not found for identifier: " + loginRequest.getUsername());
+                logger.error("User not found for identifier: {}", loginRequest.getUsername());
             }
             return ResponseEntity.status(401).body("Invalid username or password");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Internal error during login", e);
             return ResponseEntity.status(500).body("Internal error during login: " + e.getMessage());
         }
     }

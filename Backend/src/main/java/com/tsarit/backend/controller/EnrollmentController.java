@@ -25,6 +25,9 @@ public class EnrollmentController {
     private UserService userService;
 
     @Autowired
+    private com.tsarit.backend.service.RazorpayService razorpayService;
+
+    @Autowired
     private com.tsarit.backend.service.EmailService emailService;
 
     @PostMapping("/enroll")
@@ -52,6 +55,16 @@ public class EnrollmentController {
             if (enrollmentRepository.findByUserAndCourseName(user, courseName).isPresent()) {
                 return ResponseEntity.badRequest().body("User already enrolled in this course");
             }
+
+            // --- Payment Verification & Capture ---
+            try {
+                if (!"OFFLINE_OR_TEST".equals(transactionId)) {
+                    razorpayService.verifyAndCapturePayment(transactionId, amountPaid);
+                }
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Payment verification failed: " + e.getMessage());
+            }
+            // --------------------------------------
 
             // Create Enrollment
             Enrollment enrollment = new Enrollment();
@@ -101,6 +114,8 @@ public class EnrollmentController {
             return ResponseEntity.status(404).body("User not found");
         }
         List<Enrollment> enrollments = enrollmentRepository.findByUser(userOpt.get());
+        System.out.println("DEBUG: Found " + enrollments.size() + " enrollments for user " + userId);
+        enrollments.forEach(e -> System.out.println(" - Course: " + e.getCourseName() + ", Status: " + e.getStatus()));
         return ResponseEntity.ok(enrollments);
     }
 

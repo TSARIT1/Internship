@@ -1,0 +1,20 @@
+2026-02-27T09:51:06.846+05:30  INFO 25816 --- [backend] [main] com.tsarit.backend.BackendApplication    : Starting BackendApplication using Java 23.0.1 with PID 25816 (D:\Desktop\NewWebsite\New Web\Backend\target\classes started by Nikhil Nawale in D:\Desktop\NewWebsite\New Web\Backend)
+2026-02-27T09:51:06.889+05:30 DEBUG 25816 --- [backend] [main] com.tsarit.backend.BackendApplication    : Running with Spring Boot v3.2.2, Spring v6.1.3
+2026-02-27T09:51:06.891+05:30  INFO 25816 --- [backend] [main] com.tsarit.backend.BackendApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-02-27T09:51:11.747+05:30  INFO 25816 --- [backend] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27T09:51:11.984+05:30  INFO 25816 --- [backend] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 215 ms. Found 15 JPA repository interfaces.
+2026-02-27T09:51:13.549+05:30  INFO 25816 --- [backend] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-02-27T09:51:13.590+05:30  INFO 25816 --- [backend] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-27T09:51:13.591+05:30  INFO 25816 --- [backend] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-02-27T09:51:13.777+05:30  INFO 25816 --- [backend] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-27T09:51:13.778+05:30  INFO 25816 --- [backend] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 6743 ms
+2026-02-27T09:51:14.153+05:30  INFO 25816 --- [backend] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27T09:51:14.356+05:30  INFO 25816 --- [backend] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2026-02-27T09:51:14.496+05:30  INFO 25816 --- [backend] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-27T09:51:15.147+05:30  INFO 25816 --- [backend] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27T09:51:15.216+05:30  INFO 25816 --- [backend] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-27T09:51:16.363+05:30  INFO 25816 --- [backend] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@ba562e0
+2026-02-27T09:51:16.366+05:30  INFO 25816 --- [backend] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-27T09:51:19.257+05:30  INFO 25816 --- [backend] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27T09:51:19.760+05:30  INFO 25816 --- [backend] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27T09:51:21.632+05:30 DEBUG 25816 --- [backend] [main] c.t.backend.security.AuthTokenFilter     : Filter 'authTokenFilter' configured for use

@@ -26,11 +26,18 @@ public class Webinar {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime time;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String meetingLink;
+
+    @Column(columnDefinition = "TEXT")
     private String image;
+
+    private boolean isPaid = false;
+
+    private Double price;
 
     // Getters and Setters
     public Long getId() {
@@ -95,5 +102,21 @@ public class Webinar {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public boolean isPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(boolean isPaid) {
+        this.isPaid = isPaid;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 }

@@ -113,8 +113,30 @@ public class DataInitializer implements CommandLineRunner {
                         // Assuming registerUser encodes:
                         // admin.setPassword("admin123");
                         // userService.registerUser(admin);
+                } // Close previous if block
+
+                // Ensure Admin Password is Correct even if user exists
+                Optional<com.tsarit.backend.entity.User> adminOpt = userService.findByEmail("admin@tsarit.com");
+                if (adminOpt.isPresent()) {
+                        com.tsarit.backend.entity.User existingAdmin = adminOpt.get();
+                        existingAdmin.setPassword("admin123");
+                        userService.registerUser(existingAdmin); // Will re-encode password
+                        System.out.println("Admin password reset to 'admin123'");
                 }
+
+                // --- DEBUG: Check enrollments for nnikhiln2002@gmail.com ---
+                Optional<com.tsarit.backend.entity.User> debugUserOpt = userService
+                                .findByEmail("nnikhiln2002@gmail.com");
+                if (debugUserOpt.isPresent()) {
+                        // Debug User check passed
+                } else {
+                        System.out.println("DEBUG: User nnikhiln2002@gmail.com NOT FOUND in database.");
+                }
+                // ------------------------------------------------------------
         }
+
+        @Autowired
+        private com.tsarit.backend.repository.EnrollmentRepository enrollmentRepository;
 
         // Rename to createDataObject to avoid confusion, these objects are just data
         // holders until saved

@@ -19,7 +19,7 @@ public class Quiz {
     @Column(length = 2000) // Optional description
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id")
     private List<Question> questions = new ArrayList<>();
 

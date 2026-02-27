@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getWebinars, addWebinar, deleteWebinar, updateWebinar } from '../services/webinarApi';
-import { Trash2, Plus, Calendar, Clock, Video, Image as ImageIcon, Pencil, X, IndianRupee, Unlock } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { getWebinarsAdmin, addWebinar, deleteWebinar, updateWebinar, getWebinarRegistrations } from '../services/webinarApi';
+import { Trash2, Plus, Calendar, Clock, Video, Image as ImageIcon, Pencil, X, IndianRupee, Unlock, Users, ChevronDown, ChevronUp, Mail } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const emptyForm = {
     title: '',
@@ -20,6 +20,9 @@ const AdminWebinars = () => {
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState(emptyForm);
+    const [expandedWebinar, setExpandedWebinar] = useState(null);
+    const [registrations, setRegistrations] = useState({});
+    const [loadingRegs, setLoadingRegs] = useState({});
 
     useEffect(() => {
         fetchWebinars();
@@ -27,7 +30,7 @@ const AdminWebinars = () => {
 
     const fetchWebinars = async () => {
         try {
-            const response = await getWebinars();
+            const response = await getWebinarsAdmin();
             setWebinars(response.data);
         } catch (error) {
             console.error("Error fetching webinars:", error);
@@ -102,6 +105,38 @@ const AdminWebinars = () => {
             console.error("Error deleting webinar:", error);
             alert("Failed to delete webinar.");
         }
+    };
+
+    const toggleRegistrations = async (webinarId) => {
+        if (expandedWebinar === webinarId) {
+            setExpandedWebinar(null);
+            return;
+        }
+        setExpandedWebinar(webinarId);
+        if (!registrations[webinarId]) {
+            setLoadingRegs(prev => ({ ...prev, [webinarId]: true }));
+            try {
+                const response = await getWebinarRegistrations(webinarId);
+                setRegistrations(prev => ({ ...prev, [webinarId]: response.data }));
+            } catch (error) {
+                console.error("Error fetching registrations:", error);
+            } finally {
+                setLoadingRegs(prev => ({ ...prev, [webinarId]: false }));
+            }
+        }
+    };
+
+    // Helper to get webinar status
+    const getWebinarStatus = (webinar) => {
+        if (!webinar.date) return { label: 'No Date', color: 'bg-slate-100 text-slate-600' };
+        const now = new Date();
+        const webinarDate = new Date(webinar.date);
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const wDate = new Date(webinarDate.getFullYear(), webinarDate.getMonth(), webinarDate.getDate());
+
+        if (wDate > today) return { label: 'Upcoming', color: 'bg-blue-100 text-blue-700' };
+        if (wDate < today) return { label: 'Completed', color: 'bg-slate-100 text-slate-600' };
+        return { label: 'Live Today', color: 'bg-green-100 text-green-700' };
     };
 
     return (
@@ -249,7 +284,7 @@ const AdminWebinars = () => {
 
                 {/* Webinar List */}
                 <div className="lg:col-span-2 space-y-6">
-                    <h2 className="text-xl font-bold text-slate-900">Upcoming Webinars</h2>
+                    <h2 className="text-xl font-bold text-slate-900">All Webinars</h2>
                     {loading ? (
                         <div className="flex justify-center p-12">
                             <div className="animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-slate-600"></div>
@@ -259,58 +294,120 @@ const AdminWebinars = () => {
                             No webinars scheduled yet.
                         </div>
                     ) : (
-                        webinars.map((webinar) => (
-                            <motion.div
-                                key={webinar.id}
-                                layout
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`bg-white rounded-2xl border shadow-sm p-4 flex gap-6 items-center transition-all ${editingId === webinar.id ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'}`}
-                            >
-                                <img
-                                    src={webinar.image}
-                                    alt={webinar.title}
-                                    className="w-24 h-24 rounded-lg object-cover hidden sm:block"
-                                />
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h3 className="text-lg font-bold text-slateate-900">{webinar.title}</h3>
-                                        {webinar.isPaid ? (
-                                            <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                                                <IndianRupee size={11} />{webinar.price}
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                                FREE
-                                            </span>
+                        webinars.map((webinar) => {
+                            const status = getWebinarStatus(webinar);
+                            const regs = registrations[webinar.id] || [];
+                            const isExpanded = expandedWebinar === webinar.id;
+
+                            return (
+                                <motion.div
+                                    key={webinar.id}
+                                    layout
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${editingId === webinar.id ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'}`}
+                                >
+                                    <div className="p-4 flex gap-6 items-center">
+                                        <img
+                                            src={webinar.image}
+                                            alt={webinar.title}
+                                            className="w-24 h-24 rounded-lg object-cover hidden sm:block"
+                                        />
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                <h3 className="text-lg font-bold text-slate-900">{webinar.title}</h3>
+                                                {webinar.isPaid ? (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                                        <IndianRupee size={11} />{webinar.price}
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                        FREE
+                                                    </span>
+                                                )}
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${status.color}`}>
+                                                    {status.label}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-slate-500 mb-2">by {webinar.speaker}</p>
+                                            <div className="flex gap-4 text-xs font-bold text-slate-500 uppercase tracking-wide">
+                                                <span className="flex items-center gap-1"><Calendar size={14} /> {webinar.date}</span>
+                                                <span className="flex items-center gap-1"><Clock size={14} /> {webinar.time}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleRegistrations(webinar.id)}
+                                                className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors relative"
+                                                title="View Registrations"
+                                            >
+                                                <Users size={20} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEdit(webinar)}
+                                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                title="Edit Webinar"
+                                            >
+                                                <Pencil size={20} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDelete(webinar.id)}
+                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Delete Webinar"
+                                            >
+                                                <Trash2 size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Registrations Expandable Section */}
+                                    <AnimatePresence>
+                                        {isExpanded && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="border-t border-slate-100 overflow-hidden"
+                                            >
+                                                <div className="p-4 bg-slate-50">
+                                                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                                                        <Users size={16} />
+                                                        Registered Students ({regs.length})
+                                                    </h4>
+                                                    {loadingRegs[webinar.id] ? (
+                                                        <div className="flex justify-center py-4">
+                                                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-300 border-t-slate-600"></div>
+                                                        </div>
+                                                    ) : regs.length === 0 ? (
+                                                        <p className="text-sm text-slate-400 text-center py-4">No registrations yet.</p>
+                                                    ) : (
+                                                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                            {regs.map((reg, idx) => (
+                                                                <div key={reg.id || idx} className="flex items-center justify-between bg-white rounded-lg px-4 py-2 text-sm border border-slate-100">
+                                                                    <div>
+                                                                        <span className="font-semibold text-slate-800">{reg.studentName}</span>
+                                                                        <span className="text-slate-400 ml-2 flex items-center gap-1 inline-flex">
+                                                                            <Mail size={12} /> {reg.studentEmail}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-xs text-slate-400">
+                                                                        {reg.registeredAt ? new Date(reg.registeredAt).toLocaleDateString() : ''}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
                                         )}
-                                    </div>
-                                    <p className="text-sm text-slate-500 mb-2">by {webinar.speaker}</p>
-                                    <div className="flex gap-4 text-xs font-bold text-slate-500 uppercase tracking-wide">
-                                        <span className="flex items-center gap-1"><Calendar size={14} /> {webinar.date}</span>
-                                        <span className="flex items-center gap-1"><Clock size={14} /> {webinar.time}</span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleEdit(webinar)}
-                                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Edit Webinar"
-                                    >
-                                        <Pencil size={20} />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete(webinar.id)}
-                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Delete Webinar"
-                                    >
-                                        <Trash2 size={20} />
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))
+                                    </AnimatePresence>
+                                </motion.div>
+                            );
+                        })
                     )}
                 </div>
             </div>

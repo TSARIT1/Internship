@@ -56,7 +56,13 @@ public class CourseController {
             Course updated = courseService.updateCourse(name, course);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            e.printStackTrace();
+            Throwable rootCause = e;
+            while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+                rootCause = rootCause.getCause();
+            }
+            return ResponseEntity.status(500)
+                    .body("Error updating course: " + e.getMessage() + " Root Cause: " + rootCause.getMessage());
         }
     }
 

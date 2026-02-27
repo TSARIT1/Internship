@@ -1,9 +1,25 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, ArrowRight, Video, IndianRupee } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, Video, IndianRupee, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const WebinarCard = ({ webinar, onRegister }) => {
+const WebinarCard = ({ webinar, onRegister, isRegistered = false }) => {
     const [loading, setLoading] = useState(false);
+
+    // Helper to get webinar status
+    const getWebinarStatus = () => {
+        if (!webinar.date) return { label: 'No Date', color: 'bg-slate-500' };
+        const now = new Date();
+        const webinarDate = new Date(webinar.date);
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const wDate = new Date(webinarDate.getFullYear(), webinarDate.getMonth(), webinarDate.getDate());
+
+        if (wDate > today) return { label: 'Upcoming', color: 'bg-blue-500' };
+        if (wDate < today) return { label: 'Completed', color: 'bg-slate-500' };
+        return { label: 'Live Today', color: 'bg-green-500' };
+    };
+
+    const status = getWebinarStatus();
+    const isCompleted = status.label === 'Completed';
 
     const handleRegister = async () => {
         setLoading(true);
@@ -28,13 +44,17 @@ const WebinarCard = ({ webinar, onRegister }) => {
                     <Video size={14} />
                     Webinar
                 </div>
+                {/* Status badge */}
+                <div className={`absolute top-4 left-4 z-20 ${status.color} text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm`}>
+                    {status.label}
+                </div>
                 {/* Paid / Free badge */}
                 {webinar.isPaid ? (
-                    <div className="absolute top-4 left-4 z-20 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1">
+                    <div className="absolute bottom-14 left-4 z-20 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1">
                         <IndianRupee size={12} />{webinar.price}
                     </div>
                 ) : (
-                    <div className="absolute top-4 left-4 z-20 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                    <div className="absolute bottom-14 left-4 z-20 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
                         FREE
                     </div>
                 )}
@@ -66,16 +86,39 @@ const WebinarCard = ({ webinar, onRegister }) => {
                     {webinar.description}
                 </p>
 
+                {/* Show meeting link if registered */}
+                {isRegistered && webinar.meetingLink && (
+                    <a
+                        href={webinar.meetingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-center mb-3 py-2 px-4 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-colors"
+                    >
+                        🔗 Join Meeting
+                    </a>
+                )}
+
                 <button
                     onClick={handleRegister}
-                    disabled={loading}
-                    className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 hover:shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                    disabled={loading || isRegistered || isCompleted}
+                    className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${isRegistered
+                            ? 'bg-emerald-50 text-emerald-600 cursor-default'
+                            : isCompleted
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-slate-900 hover:bg-blue-600 text-white shadow-lg shadow-slate-900/10 hover:shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed'
+                        }`}
                 >
                     {loading ? (
                         <>
                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             Registering...
                         </>
+                    ) : isRegistered ? (
+                        <>
+                            <CheckCircle size={18} /> Registered
+                        </>
+                    ) : isCompleted ? (
+                        "Webinar Ended"
                     ) : (
                         <>
                             Register Now <ArrowRight size={18} />

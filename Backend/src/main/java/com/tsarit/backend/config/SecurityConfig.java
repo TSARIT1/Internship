@@ -30,7 +30,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/api/courses/**", "/api/testimonials/**", "/api/webinars/**",
-                                "/api/uploads/**", "/api/hackathons/**", "/api/ai/**", "/api/enrollments/**")
+                                "/api/uploads/**", "/api/hackathons/**", "/api/ai/**", "/api/enrollments/**",
+                                "/api/submissions/**", "/api/problems/**", "/api/contacts/**", "/api/stats/**",
+                                "/api/anti-cheat/**")
                         .permitAll() // Public read access (mostly)
                         // Note: We will secure specific WRITE methods using @PreAuthorize or specific
                         // matchers below

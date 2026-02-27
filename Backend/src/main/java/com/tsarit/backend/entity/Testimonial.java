@@ -1,7 +1,6 @@
 package com.tsarit.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
 @Table(name = "testimonials")
@@ -16,10 +15,6 @@ public class Testimonial {
 
     @Column(length = 1000)
     private String message;
-
-    private String image;
-
-    private String videoUrl;
 
     // Getters and Setters
     public Long getId() {
@@ -54,6 +49,17 @@ public class Testimonial {
         this.message = message;
     }
 
+    @Column(length = 1000)
+    private String image;
+
+    @Column(length = 1000)
+    private String videoUrl;
+
+    @Column(length = 1000)
+    private String thumbnail;
+
+    // Getters and Setters
+
     public String getImage() {
         return image;
     }
@@ -68,5 +74,13 @@ public class Testimonial {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

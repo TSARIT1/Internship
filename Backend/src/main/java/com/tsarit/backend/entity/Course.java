@@ -50,7 +50,7 @@ public class Course {
     private String gradient;
     private String shadow;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Changed to LAZY to avoid MultipleBagFetchException
     @JoinColumn(name = "course_id")
     private List<Section> sections = new ArrayList<>();
 

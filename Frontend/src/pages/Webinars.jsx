@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WebinarCard from '../components/WebinarCard';
-import { getWebinars, registerForWebinar } from '../services/webinarApi';
+import { getWebinars, registerForWebinar, getMyWebinarRegistrations } from '../services/webinarApi';
 import { motion } from 'framer-motion';
 import { Search, MonitorPlay } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Webinars = () => {
     const [webinars, setWebinars] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [registeredIds, setRegisteredIds] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchWebinars();
@@ -17,8 +20,16 @@ const Webinars = () => {
 
     const fetchWebinars = async () => {
         try {
-            const response = await getWebinars();
-            setWebinars(response.data);
+            const student = JSON.parse(sessionStorage.getItem('student') || 'null');
+            const userId = student?.id;
+
+            const [webinarsRes, registrationsRes] = await Promise.all([
+                getWebinars(userId),
+                userId ? getMyWebinarRegistrations(userId) : Promise.resolve({ data: [] })
+            ]);
+
+            setWebinars(webinarsRes.data);
+            setRegisteredIds(registrationsRes.data || []);
         } catch (error) {
             console.error("Error fetching webinars:", error);
         } finally {
@@ -27,20 +38,30 @@ const Webinars = () => {
     };
 
     const handleRegister = async (id) => {
+        // Check if user is logged in
+        const student = JSON.parse(sessionStorage.getItem('student') || 'null');
+        if (!student || !student.id) {
+            alert("Please login to register for this webinar.");
+            navigate('/login');
+            return;
+        }
+
         try {
-            const response = await registerForWebinar(id, { studentId: 101 }); // Mock student ID
+            const response = await registerForWebinar(id, student.id);
             if (response.data.success) {
-                alert("Successfully registered for the webinar! details sent to email.");
+                setRegisteredIds(prev => [...prev, id]);
+                alert("Successfully registered for the webinar! 🎉");
             }
         } catch (error) {
             console.error("Registration failed:", error);
-            alert("Failed to register. Please try again.");
+            const message = error.response?.data?.error || "Failed to register. Please try again.";
+            alert(message);
         }
     };
 
     const filteredWebinars = webinars.filter(webinar =>
-        webinar.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        webinar.speaker.toLowerCase().includes(searchTerm.toLowerCase())
+        webinar.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        webinar.speaker?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -99,6 +120,7 @@ const Webinars = () => {
                                 key={webinar.id}
                                 webinar={webinar}
                                 onRegister={handleRegister}
+                                isRegistered={registeredIds.includes(webinar.id)}
                             />
                         ))}
                     </div>

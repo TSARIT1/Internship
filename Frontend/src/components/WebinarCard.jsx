@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, ArrowRight, Video, IndianRupee, CheckCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar, Clock, User, ArrowRight, Video, IndianRupee, CheckCircle, Mail, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const WebinarCard = ({ webinar, onRegister, isRegistered = false }) => {
+const WebinarCard = ({ webinar, onRegister, onGuestRegister, isRegistered = false, isGuest = false }) => {
     const [loading, setLoading] = useState(false);
+    const [showGuestForm, setShowGuestForm] = useState(false);
+    const [guestName, setGuestName] = useState('');
+    const [guestEmail, setGuestEmail] = useState('');
 
     // Helper to get webinar status
     const getWebinarStatus = () => {
@@ -22,9 +25,29 @@ const WebinarCard = ({ webinar, onRegister, isRegistered = false }) => {
     const isCompleted = status.label === 'Completed';
 
     const handleRegister = async () => {
+        if (isGuest) {
+            setShowGuestForm(true);
+            return;
+        }
         setLoading(true);
         await onRegister(webinar.id);
         setLoading(false);
+    };
+
+    const handleGuestSubmit = async (e) => {
+        e.preventDefault();
+        if (!guestName.trim() || !guestEmail.trim()) return;
+        setLoading(true);
+        try {
+            await onGuestRegister(webinar.id, guestName.trim(), guestEmail.trim());
+            setShowGuestForm(false);
+            setGuestName('');
+            setGuestEmail('');
+        } catch (err) {
+            // error is handled by the parent
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -98,33 +121,100 @@ const WebinarCard = ({ webinar, onRegister, isRegistered = false }) => {
                     </a>
                 )}
 
-                <button
-                    onClick={handleRegister}
-                    disabled={loading || isRegistered || isCompleted}
-                    className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${isRegistered
+                {/* Guest Registration Form */}
+                <AnimatePresence>
+                    {showGuestForm && !isRegistered && !isCompleted && (
+                        <motion.form
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            onSubmit={handleGuestSubmit}
+                            className="mb-4 overflow-hidden"
+                        >
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+                                <div className="flex items-center justify-between mb-1">
+                                    <p className="text-sm font-semibold text-blue-800">Register for this Webinar</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowGuestForm(false)}
+                                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                                <div className="relative">
+                                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Your Name"
+                                        value={guestName}
+                                        onChange={(e) => setGuestName(e.target.value)}
+                                        required
+                                        className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="email"
+                                        placeholder="Your Email"
+                                        value={guestEmail}
+                                        onChange={(e) => setGuestEmail(e.target.value)}
+                                        required
+                                        className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading || !guestName.trim() || !guestEmail.trim()}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Registering...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Confirm Registration <ArrowRight size={16} />
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.form>
+                    )}
+                </AnimatePresence>
+
+                {/* Main Register Button */}
+                {!showGuestForm && (
+                    <button
+                        onClick={handleRegister}
+                        disabled={loading || isRegistered || isCompleted}
+                        className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${isRegistered
                             ? 'bg-emerald-50 text-emerald-600 cursor-default'
                             : isCompleted
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                 : 'bg-slate-900 hover:bg-blue-600 text-white shadow-lg shadow-slate-900/10 hover:shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed'
-                        }`}
-                >
-                    {loading ? (
-                        <>
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Registering...
-                        </>
-                    ) : isRegistered ? (
-                        <>
-                            <CheckCircle size={18} /> Registered
-                        </>
-                    ) : isCompleted ? (
-                        "Webinar Ended"
-                    ) : (
-                        <>
-                            Register Now <ArrowRight size={18} />
-                        </>
-                    )}
-                </button>
+                            }`}
+                    >
+                        {loading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Registering...
+                            </>
+                        ) : isRegistered ? (
+                            <>
+                                <CheckCircle size={18} /> Registered
+                            </>
+                        ) : isCompleted ? (
+                            "Webinar Ended"
+                        ) : (
+                            <>
+                                Register Now <ArrowRight size={18} />
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
         </motion.div>
     );

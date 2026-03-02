@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8081/api/testimonials";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const API_URL = `${API_BASE}/testimonials`;
 
 // --- TEXT TESTIMONIALS (REAL BACKEND) ---
 
@@ -35,39 +36,7 @@ export const deleteTestimonial = async (id) => {
     }
 };
 
-// --- VIDEO TESTIMONIALS (STILL MOCK - FOR NOW) ---
-// If you want to move video testimonials to backend soon, we can replicate the pattern above.
-// For now, keeping as local storage mock to avoid breaking that page until backend ready.
-
-const INITIAL_VIDEO_DATA = [
-    {
-        id: 1,
-        name: "Sarah Jenkins",
-        course: "Full Stack Web Development",
-        message: "The practical projects gave me the confidence to apply for senior roles. Absolutely game-changing!",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", 
-        thumbnail: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
-        rating: 5
-    },
-    {
-        id: 2,
-        name: "Michael Chen",
-        course: "Data Science Mastery",
-        message: "I never thought I could master Python this quickly. The mentorship was top-notch.",
-        videoUrl: "https://www.youtube.com/embed/LXb3EKWsInQ", 
-        thumbnail: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=600",
-        rating: 5
-    },
-    {
-        id: 3,
-        name: "Emma Davis",
-        course: "UI/UX Design Specialist",
-        message: "From wireframes to prototypes, this course covered everything I needed to know.",
-        videoUrl: "https://www.youtube.com/embed/pQN-pnXPaVg",
-        thumbnail: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=600",
-        rating: 4
-    }
-];
+// --- VIDEO TESTIMONIALS ---
 
 export const getVideoTestimonials = async () => {
     try {

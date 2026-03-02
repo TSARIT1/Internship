@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WebinarCard from '../components/WebinarCard';
-import { getWebinars, registerForWebinar, getMyWebinarRegistrations } from '../services/webinarApi';
+import { getWebinars, registerForWebinar, getMyWebinarRegistrations, guestRegisterForWebinar } from '../services/webinarApi';
 import { motion } from 'framer-motion';
 import { Search, MonitorPlay } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,13 +14,15 @@ const Webinars = () => {
     const [registeredIds, setRegisteredIds] = useState([]);
     const navigate = useNavigate();
 
+    const student = JSON.parse(sessionStorage.getItem('student') || 'null');
+    const isGuest = !student || !student.id;
+
     useEffect(() => {
         fetchWebinars();
     }, []);
 
     const fetchWebinars = async () => {
         try {
-            const student = JSON.parse(sessionStorage.getItem('student') || 'null');
             const userId = student?.id;
 
             const [webinarsRes, registrationsRes] = await Promise.all([
@@ -29,7 +31,12 @@ const Webinars = () => {
             ]);
 
             setWebinars(webinarsRes.data);
-            setRegisteredIds(registrationsRes.data || []);
+
+            // Merge logged-in registrations with guest registrations from localStorage
+            const serverIds = registrationsRes.data || [];
+            const guestIds = JSON.parse(localStorage.getItem('guestWebinarRegistrations') || '[]');
+            const mergedIds = [...new Set([...serverIds, ...guestIds])];
+            setRegisteredIds(mergedIds);
         } catch (error) {
             console.error("Error fetching webinars:", error);
         } finally {
@@ -37,15 +44,8 @@ const Webinars = () => {
         }
     };
 
+    // Handler for logged-in user registration
     const handleRegister = async (id) => {
-        // Check if user is logged in
-        const student = JSON.parse(sessionStorage.getItem('student') || 'null');
-        if (!student || !student.id) {
-            alert("Please login to register for this webinar.");
-            navigate('/login');
-            return;
-        }
-
         try {
             const response = await registerForWebinar(id, student.id);
             if (response.data.success) {
@@ -56,6 +56,27 @@ const Webinars = () => {
             console.error("Registration failed:", error);
             const message = error.response?.data?.error || "Failed to register. Please try again.";
             alert(message);
+        }
+    };
+
+    // Handler for guest registration
+    const handleGuestRegister = async (webinarId, name, email) => {
+        try {
+            const response = await guestRegisterForWebinar(webinarId, name, email);
+            if (response.data.success) {
+                // Persist guest registration in localStorage
+                const existing = JSON.parse(localStorage.getItem('guestWebinarRegistrations') || '[]');
+                const updated = [...new Set([...existing, webinarId])];
+                localStorage.setItem('guestWebinarRegistrations', JSON.stringify(updated));
+
+                setRegisteredIds(prev => [...prev, webinarId]);
+                alert("Successfully registered for the webinar! 🎉 Check your email for details.");
+            }
+        } catch (error) {
+            console.error("Guest registration failed:", error);
+            const message = error.response?.data?.error || "Failed to register. Please try again.";
+            alert(message);
+            throw error; // re-throw so WebinarCard knows it failed
         }
     };
 
@@ -120,7 +141,9 @@ const Webinars = () => {
                                 key={webinar.id}
                                 webinar={webinar}
                                 onRegister={handleRegister}
+                                onGuestRegister={handleGuestRegister}
                                 isRegistered={registeredIds.includes(webinar.id)}
+                                isGuest={isGuest}
                             />
                         ))}
                     </div>

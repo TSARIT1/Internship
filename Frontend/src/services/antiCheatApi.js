@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8080/api/anticheat';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const API_BASE = `${API_BASE_URL}/anticheat`;
 
 /**
  * Log a tab switch event to the backend.

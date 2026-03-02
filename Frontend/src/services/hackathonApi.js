@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8081/api/hackathons";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const API_URL = `${API_BASE}/hackathons`;
 
 export const getHackathons = async () => {
     try {

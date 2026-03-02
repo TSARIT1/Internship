@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8081/api/auth";
-const ENROLLMENT_URL = "http://localhost:8081/api/enrollments";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const API_URL = `${API_BASE}/auth`;
+const ENROLLMENT_URL = `${API_BASE}/enrollments`;
 
 // AXIOS INTERCEPTOR TO ADD TOKEN
 axios.interceptors.request.use(
@@ -15,49 +16,11 @@ axios.interceptors.request.use(
     error => Promise.reject(error)
 );
 
-// --- Mock Data & Helpers ---
-
-const INITIAL_STUDENTS = [
-    { id: 1, name: "John Doe", email: "john@example.com", password: "password123", webinar: "Data Science", date: "2024-03-15", totalFee: 5000, discount: 0 },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", password: "password123", webinar: "AI & ML Workshop", date: "2024-03-14", totalFee: 8000, discount: 1000 },
-    // ... other mock students kept for references
-];
-
-const getLocalStudents = () => {
-    const data = sessionStorage.getItem('students');
-    if (data) return JSON.parse(data);
-    sessionStorage.setItem('students', JSON.stringify(INITIAL_STUDENTS));
-    return INITIAL_STUDENTS;
-};
-
-const setLocalStudents = (data) => {
-    sessionStorage.setItem('students', JSON.stringify(data));
-};
-
-const INITIAL_INTERNSHIP_COURSES = {
-    "Data Science": { totalFee: 1, discount: 0, domain: "Data & AI", level: "Intermediate", duration: "8 Weeks", description: "Master data analysis..." },
-    "Machine Learning": { totalFee: 1, discount: 0, domain: "Data & AI", level: "Advanced", duration: "10 Weeks", description: "Build predictive models..." },
-    "AI": { totalFee: 10, discount: 0, domain: "Data & AI", level: "Advanced", duration: "12 Weeks", description: "Explore deep learning..." },
-    "MERN Stack": { totalFee: 1, discount: 0, domain: "Web Development", level: "Intermediate", duration: "8 Weeks", description: "Build full-stack web apps..." },
-    "DevOps": { totalFee: 1, discount: 0, domain: "Cloud & Ops", level: "Intermediate", duration: "8 Weeks", description: "Learn CI/CD, Docker..." },
-    "Java Full Stack": { totalFee: 1, discount: 0, domain: "Web Development", level: "Beginner", duration: "10 Weeks", description: "Master Java, Spring Boot..." },
-    "Python Programming": { totalFee: 1, discount: 0, domain: "Programming", level: "Beginner", duration: "6 Weeks", description: "A solid foundation in Python..." },
-    "AWS Cloud Computing": { totalFee: 1, discount: 0, domain: "Cloud & Ops", level: "Intermediate", duration: "8 Weeks", description: "Become an AWS expert..." },
-    "Cyber Security": { totalFee: 1, discount: 0, domain: "Security", level: "Advanced", duration: "8 Weeks", description: "Learn network security..." }
-};
-
-const getLocalPricingData = () => {
-    const data = sessionStorage.getItem('pricing');
-    if (data) return JSON.parse(data);
-    sessionStorage.setItem('pricing', JSON.stringify(INITIAL_INTERNSHIP_COURSES));
-    return INITIAL_INTERNSHIP_COURSES;
-};
-
 // --- API Functions ---
 
 export const getPricing = async () => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/courses`);
+        const response = await axios.get(`${API_BASE}/courses`);
         const mappedData = response.data.map(c => ({
             course: c.name,
             title: c.name,
@@ -94,7 +57,7 @@ export const updatePricing = async (courseName, newFee, newDiscount, existingCou
         if (payload.course) delete payload.course;
         if (payload.title) delete payload.title;
 
-        const response = await axios.put(`${API_URL.replace('/auth', '')}/courses/${courseName}`, payload);
+        const response = await axios.put(`${API_BASE}/courses/${courseName}`, payload);
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Update Pricing Error:", error);
@@ -168,7 +131,7 @@ export const uploadFile = async (file) => {
     try {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await axios.post(`http://localhost:8080/api/upload`, formData, {
+        const response = await axios.post(`${API_BASE}/upload`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         return { success: true, data: response.data };
@@ -208,7 +171,7 @@ export const checkEnrollmentStatus = async (userId, courseName) => {
 
 export const getAllCourses = async () => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/courses`);
+        const response = await axios.get(`${API_BASE}/courses`);
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, data: [] };
@@ -218,7 +181,7 @@ export const getAllCourses = async () => {
 // ... other course methods ...
 export const addCourse = async (courseData) => {
     try {
-        const response = await axios.post(`${API_URL.replace('/auth', '')}/courses`, courseData);
+        const response = await axios.post(`${API_BASE}/courses`, courseData);
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, message: "Failed to add course" };
@@ -227,7 +190,7 @@ export const addCourse = async (courseData) => {
 
 export const deleteCourse = async (courseId) => {
     try {
-        await axios.delete(`${API_URL.replace('/auth', '')}/courses/${courseId}`);
+        await axios.delete(`${API_BASE}/courses/${courseId}`);
         return { success: true };
     } catch (error) {
         return { success: false, message: "Failed to delete course" };
@@ -341,7 +304,7 @@ export const getStudents = async () => {
 
 export const getCourseContent = async (courseName) => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/courses/${courseName}`);
+        const response = await axios.get(`${API_BASE}/courses/${courseName}`);
         if (response.status === 200) return { success: true, data: response.data };
     } catch (error) {
         return { success: false, message: "Course content not found" };
@@ -350,7 +313,7 @@ export const getCourseContent = async (courseName) => {
 
 export const updateLiveClassLink = async (courseName, link) => {
     try {
-        const response = await axios.put(`${API_URL.replace('/auth', '')}/courses/${courseName}/live-link`, { link });
+        const response = await axios.put(`${API_BASE}/courses/${courseName}/live-link`, { link });
         return { success: true, data: link };
     } catch (error) {
         return { success: false, message: "Failed to update link" };
@@ -366,7 +329,7 @@ export const addCourseVideo = async (courseName, sectionTitle, videoData) => {
             type: videoData.type,
             section: sectionTitle
         };
-        const response = await axios.post(`${API_URL.replace('/auth', '')}/courses/${courseName}/videos`, payload);
+        const response = await axios.post(`${API_BASE}/courses/${courseName}/videos`, payload);
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, message: "Failed to add video" };
@@ -375,7 +338,7 @@ export const addCourseVideo = async (courseName, sectionTitle, videoData) => {
 
 export const deleteCourseVideo = async (courseName, sectionId, videoId) => {
     try {
-        await axios.delete(`${API_URL.replace('/auth', '')}/courses/${courseName}/sections/${sectionId}/videos/${videoId}`);
+        await axios.delete(`${API_BASE}/courses/${courseName}/sections/${sectionId}/videos/${videoId}`);
         return { success: true };
     } catch (error) {
         return { success: false, message: "Failed to delete video" };
@@ -384,7 +347,7 @@ export const deleteCourseVideo = async (courseName, sectionId, videoId) => {
 
 export const deleteCourseSection = async (courseName, sectionId) => {
     try {
-        await axios.delete(`${API_URL.replace('/auth', '')}/courses/${courseName}/sections/${sectionId}`);
+        await axios.delete(`${API_BASE}/courses/${courseName}/sections/${sectionId}`);
         return { success: true };
     } catch (error) {
         return { success: false, message: "Failed to delete section" };
@@ -393,7 +356,7 @@ export const deleteCourseSection = async (courseName, sectionId) => {
 
 export const sendContactMessage = async (contactData) => {
     try {
-        const response = await axios.post(`${API_URL.replace('/auth', '')}/contact`, contactData);
+        const response = await axios.post(`${API_BASE}/contact`, contactData);
         return { success: true, message: response.data };
     } catch (error) {
         return { success: false, message: "Failed to send message" };
@@ -402,7 +365,7 @@ export const sendContactMessage = async (contactData) => {
 
 export const getAdminStats = async () => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/admin/stats`);
+        const response = await axios.get(`${API_BASE}/admin/stats`);
         return { success: true, data: response.data };
     } catch (error) {
         return { success: false, message: error.response?.data?.message || "Failed to fetch stats" };
@@ -416,7 +379,7 @@ export const createQuiz = async (quizData) => {
             description: quizData.description,
             questions: quizData.questions
         };
-        const response = await axios.post(`${API_URL.replace('/auth', '')}/quizzes/create?courseName=${encodeURIComponent(quizData.courseName)}&sectionId=${quizData.sectionId}`, payload, {
+        const response = await axios.post(`${API_BASE}/quizzes/create?courseName=${encodeURIComponent(quizData.courseName)}&sectionId=${quizData.sectionId}`, payload, {
             headers: { 'Content-Type': 'application/json' }
         });
         return { success: true, data: response.data };
@@ -429,7 +392,7 @@ export const createQuiz = async (quizData) => {
 
 export const getHackathons = async () => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/hackathons`);
+        const response = await axios.get(`${API_BASE}/hackathons`);
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Failed to fetch hackathons:", error);
@@ -440,7 +403,7 @@ export const getHackathons = async () => {
 export const registerForHackathon = async (hackathonId, userId) => {
     try {
         // Fix: API_URL is /api/auth, so we need to step back to /api/hackathons
-        const response = await axios.post(`${API_URL.replace('/auth', '')}/hackathons/${hackathonId}/register`, { userId });
+        const response = await axios.post(`${API_BASE}/hackathons/${hackathonId}/register`, { userId });
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Error registering for hackathon:", error);
@@ -450,7 +413,7 @@ export const registerForHackathon = async (hackathonId, userId) => {
 
 export const getMyHackathonRegistrations = async (userId) => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/hackathons/my-registrations/${userId}`);
+        const response = await axios.get(`${API_BASE}/hackathons/my-registrations/${userId}`);
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Fetch my hackathons error:", error);
@@ -460,7 +423,7 @@ export const getMyHackathonRegistrations = async (userId) => {
 
 export const submitProject = async (submissionData) => {
     try {
-        const response = await axios.post(`${API_URL.replace('/auth', '')}/submissions/submit`, submissionData);
+        const response = await axios.post(`${API_BASE}/submissions/submit`, submissionData);
         return { success: true, data: response.data };
     } catch (error) {
         console.error("Submission error:", error);
@@ -470,7 +433,7 @@ export const submitProject = async (submissionData) => {
 
 export const getMySubmission = async (hackathonId, userId) => {
     try {
-        const response = await axios.get(`${API_URL.replace('/auth', '')}/submissions/hackathon/${hackathonId}/my-submission/${userId}`);
+        const response = await axios.get(`${API_BASE}/submissions/hackathon/${hackathonId}/my-submission/${userId}`);
         return { success: true, data: response.data }; 
     } catch (error) {
         console.error("Fetch submission error:", error);

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:8081/api/webinars";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const API_URL = `${API_BASE}/webinars`;
 
 // ---- WEBINAR CRUD ----
 
@@ -41,4 +42,14 @@ export const getMyWebinarRegistrations = async (userId) => {
 
 export const getWebinarRegistrations = async (webinarId) => {
     return axios.get(`${API_URL}/${webinarId}/registrations`);
+};
+
+// ---- GUEST REGISTRATION (no login required) ----
+
+export const guestRegisterForWebinar = async (webinarId, name, email) => {
+    return axios.post(`${API_URL}/${webinarId}/guest-register`, { name, email });
+};
+
+export const checkGuestRegistration = async (webinarId, email) => {
+    return axios.get(`${API_URL}/${webinarId}/check-guest-registration`, { params: { email } });
 };

@@ -19,6 +19,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableMethodSecurity // Enable @PreAuthorize
 public class SecurityConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}")
+    private String allowedOrigins;
+
     @Autowired
     private com.tsarit.backend.security.AuthTokenFilter authTokenFilter;
 
@@ -30,9 +33,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/api/courses/**", "/api/testimonials/**", "/api/webinars/**",
-                                "/api/uploads/**", "/api/hackathons/**", "/api/ai/**", "/api/enrollments/**",
-                                "/api/submissions/**", "/api/problems/**", "/api/contacts/**", "/api/stats/**",
-                                "/api/anti-cheat/**")
+                                "/api/upload/**", "/api/hackathons/**", "/api/ai/**", "/api/enrollments/**",
+                                "/api/submissions/**", "/api/problems/**", "/api/contact/**", "/api/admin/**",
+                                "/api/anticheat/**", "/api/quizzes/**")
                         .permitAll() // Public read access (mostly)
                         // Note: We will secure specific WRITE methods using @PreAuthorize or specific
                         // matchers below
@@ -51,9 +54,7 @@ public class SecurityConfig {
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://127.0.0.1:5173",
-                "http://localhost:5174", "http://127.0.0.1:5174",
-                "http://localhost:5175", "http://127.0.0.1:5175"));
+        configuration.setAllowedOrigins(java.util.Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.List.of("*"));
         configuration.setAllowCredentials(true);

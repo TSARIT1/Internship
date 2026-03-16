@@ -13,7 +13,6 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173") // Adjust for frontend URL
 public class AuthController {
 
     @Autowired
@@ -174,12 +173,36 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        if (email == null || email.isBlank()) {
-            return ResponseEntity.badRequest().body("Email is required");
+        try {
+            String email = payload.get("email");
+            if (email == null || email.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email is required"));
+            }
+            boolean sent = passwordResetService.initiateReset(email);
+            if (!sent) {
+                return ResponseEntity.badRequest().body(Map.of("message", "This mail id is not registered"));
+            }
+            return ResponseEntity.ok(Map.of("message", "OTP sent to your registered email"));
+        } catch (Exception e) {
+            logger.error("Error in forgot-password: ", e);
+            return ResponseEntity.status(500).body(Map.of("message", "Failed to process request. Please try again."));
         }
-        passwordResetService.initiateReset(email);
-        return ResponseEntity.ok("If an account exists with this email, a reset link has been sent.");
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        String otp = payload.get("otp");
+
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email and OTP are required"));
+        }
+
+        String resetToken = passwordResetService.verifyOtp(email, otp);
+        if (resetToken == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid or expired OTP"));
+        }
+        return ResponseEntity.ok(Map.of("message", "OTP verified successfully", "resetToken", resetToken));
     }
 
     @PostMapping("/reset-password")
@@ -188,14 +211,14 @@ public class AuthController {
         String newPassword = payload.get("newPassword");
 
         if (token == null || newPassword == null) {
-            return ResponseEntity.badRequest().body("Token and new password are required");
+            return ResponseEntity.badRequest().body(Map.of("message", "Token and new password are required"));
         }
 
         boolean success = passwordResetService.resetPassword(token, newPassword);
         if (success) {
-            return ResponseEntity.ok("Password reset successfully. You can now login.");
+            return ResponseEntity.ok(Map.of("message", "Password reset successfully. You can now login."));
         } else {
-            return ResponseEntity.badRequest().body("Invalid or expired token.");
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid or expired token."));
         }
     }
 

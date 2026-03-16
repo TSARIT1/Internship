@@ -13,6 +13,7 @@ const AdminCourses = () => {
         slug: '',
         duration: '',
         level: 'Beginner',
+        domain: '',
         description: '',
         iconName: 'Code',
         color: 'text-blue-600',
@@ -60,7 +61,7 @@ const AdminCourses = () => {
             setIsModalOpen(false);
             fetchCourses();
             setFormData({
-                name: '', slug: '', duration: '', level: 'Beginner', description: '',
+                name: '', slug: '', duration: '', level: 'Beginner', domain: '', description: '',
                 iconName: 'Code', color: 'text-blue-600', bgColor: 'bg-blue-100',
                 borderColor: 'group-hover:border-blue-500/50', gradient: 'from-blue-600 to-cyan-500',
                 shadow: 'group-hover:shadow-blue-500/20', totalFee: '', discount: ''
@@ -198,6 +199,10 @@ const AdminCourses = () => {
                                                 <option>Intermediate</option>
                                                 <option>Advanced</option>
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Domain</label>
+                                            <input required name="domain" value={formData.domain} onChange={handleInputChange} className="w-full p-2 border rounded-lg" placeholder="e.g. Technology, IT" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-slate-700 mb-1">Total Fee (₹)</label>

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/webinars")
-@CrossOrigin(origins = "http://localhost:5173")
 public class WebinarController {
 
     @Autowired
@@ -206,5 +205,62 @@ public class WebinarController {
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
+    }
+
+    // ---------- GUEST REGISTRATION (No login required) ----------
+
+    @PostMapping("/{id}/guest-register")
+    public ResponseEntity<?> guestRegisterForWebinar(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        try {
+            String name = (String) payload.get("name");
+            String email = (String) payload.get("email");
+
+            if (name == null || name.trim().isEmpty() || email == null || email.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Name and email are required"));
+            }
+
+            // Validate webinar
+            Optional<Webinar> webinarOpt = webinarRepository.findById(id);
+            if (webinarOpt.isEmpty()) {
+                return ResponseEntity.status(404).body(Map.of("error", "Webinar not found"));
+            }
+            Webinar webinar = webinarOpt.get();
+
+            // Check duplicate registration by email
+            if (registrationRepository.existsByStudentEmailAndWebinar(email.trim(), webinar)) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "This email is already registered for this webinar"));
+            }
+
+            // Create guest registration (no user linked)
+            WebinarRegistration registration = new WebinarRegistration();
+            registration.setUser(null);
+            registration.setWebinar(webinar);
+            registration.setRegisteredAt(LocalDateTime.now());
+            registration.setStudentName(name.trim());
+            registration.setStudentEmail(email.trim());
+
+            registrationRepository.save(registration);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Successfully registered for " + webinar.getTitle(),
+                    "registrationId", registration.getId()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Registration failed: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}/check-guest-registration")
+    public ResponseEntity<?> checkGuestRegistration(@PathVariable Long id, @RequestParam String email) {
+        Optional<Webinar> webinarOpt = webinarRepository.findById(id);
+        if (webinarOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("error", "Webinar not found"));
+        }
+        boolean registered = registrationRepository.existsByStudentEmailAndWebinar(email.trim(), webinarOpt.get());
+        return ResponseEntity.ok(Map.of("registered", registered));
     }
 }

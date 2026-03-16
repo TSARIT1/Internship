@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "webinar_registrations", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "user_id", "webinar_id" })
-})
+@Table(name = "webinar_registrations")
 public class WebinarRegistration {
 
     @Id
@@ -14,7 +12,7 @@ public class WebinarRegistration {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @ManyToOne

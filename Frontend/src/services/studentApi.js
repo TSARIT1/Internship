@@ -226,18 +226,27 @@ export const loginStudent = async (email, password) => {
 export const forgotPassword = async (email) => {
     try {
         const response = await axios.post(`${API_URL}/forgot-password`, { email });
-        return { success: true, message: response.data };
+        return { success: true, message: response.data.message };
     } catch (error) {
-        return { success: false, message: "Failed to send reset link" };
+        return { success: false, message: error.response?.data?.message || "This mail id is not registered" };
+    }
+};
+
+export const verifyOtp = async (email, otp) => {
+    try {
+        const response = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+        return { success: true, message: response.data.message, resetToken: response.data.resetToken };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Invalid or expired OTP" };
     }
 };
 
 export const resetPassword = async (token, newPassword) => {
     try {
         const response = await axios.post(`${API_URL}/reset-password`, { token, newPassword });
-        return { success: true, message: response.data };
+        return { success: true, message: response.data.message };
     } catch (error) {
-        return { success: false, message: "Failed to reset password" };
+        return { success: false, message: error.response?.data?.message || "Failed to reset password" };
     }
 };
 

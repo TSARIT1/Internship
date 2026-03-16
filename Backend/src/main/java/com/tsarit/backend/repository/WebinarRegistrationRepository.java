@@ -18,4 +18,6 @@ public interface WebinarRegistrationRepository extends JpaRepository<WebinarRegi
     boolean existsByUserAndWebinar(User user, Webinar webinar);
 
     long countByWebinar(Webinar webinar);
+
+    boolean existsByStudentEmailAndWebinar(String studentEmail, Webinar webinar);
 }

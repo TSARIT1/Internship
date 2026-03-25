@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Globe, BarChart, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Globe, BarChart, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { getIcon } from '../utils/IconMapper';
 import EnrollButton from './EnrollButton';
 
 const CourseCard = ({ course, isEnrolled }) => {
     const navigate = useNavigate();
 
-
+    const IconComponent = getIcon(course.iconName);
 
     const finalFee = course.totalFee - course.discount;
 
@@ -23,8 +24,8 @@ const CourseCard = ({ course, isEnrolled }) => {
 
             {/* Icon & Domain */}
             <div className="mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-700 mb-4 shadow-inner">
-                    <BookOpen size={24} />
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${course.gradient || 'from-slate-100 to-slate-200'} flex items-center justify-center ${course.gradient ? 'text-white' : 'text-slate-700'} mb-4 shadow-inner`}>
+                    <IconComponent size={24} />
                 </div>
                 <div className="flex flex-wrap gap-2 mb-2">
                     <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-xs font-bold uppercase flex items-center gap-1">

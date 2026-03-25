@@ -1,25 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Brain, Database, Cloud, Code, Server, Coffee, Shield, Video, Globe, Lock, Tablet, Layout } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SpotlightCard from './ui/SpotlightCard';
 import EnrollButton from './EnrollButton';
+import { getIcon } from '../utils/IconMapper';
 import { getAllCourses } from '../services/studentApi';
-
-const iconMap = {
-    'Brain': Brain,
-    'Database': Database,
-    'Cloud': Cloud,
-    'Code': Code,
-    'Server': Server,
-    'Coffee': Coffee,
-    'Shield': Shield,
-    'Video': Video,
-    'Globe': Globe,
-    'Lock': Lock,
-    'Tablet': Tablet,
-    'Layout': Layout
-};
 
 const InternshipCards = () => {
     const [courses, setCourses] = useState([]);
@@ -72,7 +58,7 @@ const InternshipCards = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {courses.map((item, index) => {
-                        const IconComponent = iconMap[item.iconName] || Code; // Fallback icon
+                        const IconComponent = getIcon(item.iconName);
 
                         return (
                             <motion.div

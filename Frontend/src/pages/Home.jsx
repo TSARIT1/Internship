@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 
 import VideoTestimonials from '../components/VideoTestimonials';
 import Hackathon from '../components/Hackathon';
+import WebinarPreview from '../components/WebinarPreview';
 
 const Home = () => {
     return (
@@ -18,6 +19,7 @@ const Home = () => {
                 <Hero />
                 <Advantage />
                 <InternshipCards />
+                <WebinarPreview />
                 <Hackathon />
                 <VideoTestimonials />
                 <Testimonials />

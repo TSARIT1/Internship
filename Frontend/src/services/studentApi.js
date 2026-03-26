@@ -219,7 +219,7 @@ export const loginStudent = async (email, password) => {
             return { success: true, data: { user, token } };
         }
     } catch (error) {
-        return { success: false, message: error.response?.data?.message || "Login failed" };
+        return { success: false, message: error.response?.data || "Login failed" };
     }
 };
 

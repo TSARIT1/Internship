@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 import { loginStudent } from '../services/studentApi';
 
@@ -8,6 +8,7 @@ const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -19,13 +20,24 @@ const AdminLogin = () => {
             const response = await loginStudent(email, password);
 
             if (response.success) {
+                const user = response.data.user || response.data;
+
+                // Check if user has ADMIN role
+                if (user.role !== 'ADMIN') {
+                    // Clear any tokens that were set during login
+                    sessionStorage.removeItem('token');
+                    sessionStorage.removeItem('role');
+                    setError('Access denied. You do not have admin privileges.');
+                    return;
+                }
+
                 // Store token and user details in sessionStorage
                 const token = response.data.token || localStorage.getItem('token');
                 sessionStorage.setItem('token', token); // For API requests
                 sessionStorage.setItem('adminToken', token); // For AdminProtectedRoute
 
                 // Ensure we store the user logic for Profile access
-                sessionStorage.setItem('adminUser', JSON.stringify(response.data.user || response.data));
+                sessionStorage.setItem('adminUser', JSON.stringify(user));
                 sessionStorage.setItem('isAdmin', 'true');
                 navigate('/admin/dashboard');
             } else {
@@ -72,13 +84,20 @@ const AdminLogin = () => {
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-12 py-3 focus:outline-none focus:border-blue-500 transition-colors"
                                 placeholder="••••••••"
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
                         </div>
                     </div>
                     <div className="flex justify-end mt-2">

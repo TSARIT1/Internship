@@ -2,6 +2,36 @@ import React, { useState } from 'react';
 import { Calendar, Clock, User, ArrowRight, Video, IndianRupee, CheckCircle, Mail, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Format time from 'HH:mm:ss' or 'HH:mm' → '12:30 PM'
+const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    const parts = timeStr.split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parts[1] || '00';
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${m} ${ampm}`;
+};
+
+// Banner image with gradient fallback
+const SmartBannerImage = ({ src, title }) => {
+    const [error, setError] = useState(false);
+    const isValidUrl = src && src.startsWith('http');
+    if (!isValidUrl || error) {
+        return (
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 flex flex-col items-center justify-center">
+                <Video size={48} className="text-white/40 mb-2" />
+                <span className="text-white/70 text-sm font-semibold text-center px-4 line-clamp-2">{title}</span>
+            </div>
+        );
+    }
+    return (
+        <img src={src} alt={title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={() => setError(true)} />
+    );
+};
+
 const WebinarCard = ({ webinar, onRegister, onGuestRegister, isRegistered = false, isGuest = false }) => {
     const [loading, setLoading] = useState(false);
     const [showGuestForm, setShowGuestForm] = useState(false);
@@ -58,11 +88,7 @@ const WebinarCard = ({ webinar, onRegister, onGuestRegister, isRegistered = fals
             {/* Image Section */}
             <div className="relative h-48 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent z-10" />
-                <img
-                    src={webinar.image}
-                    alt={webinar.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+                <SmartBannerImage src={webinar.image} title={webinar.title} />
                 <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
                     <Video size={14} />
                     Webinar
@@ -101,7 +127,7 @@ const WebinarCard = ({ webinar, onRegister, onGuestRegister, isRegistered = fals
                     </div>
                     <div className="flex items-center gap-2 text-slate-600 text-sm bg-slate-50 p-2 rounded-lg">
                         <Clock size={16} className="text-blue-500" />
-                        <span>{webinar.time}</span>
+                        <span>{formatTime(webinar.time)}</span>
                     </div>
                 </div>
 

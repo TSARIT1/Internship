@@ -3,6 +3,36 @@ import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
 import { getTestimonials } from '../services/testimonialApi';
 
+// Initials avatar for when image fails or is missing
+const InitialsAvatar = ({ name }) => {
+    const initials = (name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#f97316'];
+    const color = colors[name ? name.charCodeAt(0) % colors.length : 0];
+    return (
+        <div style={{
+            width: 48, height: 48, borderRadius: '50%',
+            backgroundColor: color,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, fontWeight: 700, color: '#fff', flexShrink: 0
+        }}>
+            {initials}
+        </div>
+    );
+};
+
+const SmartAvatar = ({ src, name }) => {
+    const [imgError, setImgError] = useState(false);
+    if (!src || imgError) return <InitialsAvatar name={name} />;
+    return (
+        <img
+            src={src}
+            alt={name}
+            className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md flex-shrink-0"
+            onError={() => setImgError(true)}
+        />
+    );
+};
+
 const Testimonials = () => {
     const [testimonials, setTestimonials] = useState([]);
 
@@ -52,11 +82,7 @@ const Testimonials = () => {
                             </p>
 
                             <div className="flex items-center gap-4">
-                                <img
-                                    src={item.image || "https://randomuser.me/api/portraits/lego/1.jpg"}
-                                    alt={item.name}
-                                    className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
-                                />
+                                <SmartAvatar src={item.image} name={item.name} />
                                 <div>
                                     <div className="font-bold text-slate-900">{item.name}</div>
                                     <div className="text-xs text-blue-600 font-bold uppercase tracking-wide">{item.course}</div>
@@ -71,4 +97,3 @@ const Testimonials = () => {
 };
 
 export default Testimonials;
-

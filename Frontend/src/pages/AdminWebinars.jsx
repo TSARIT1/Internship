@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getWebinarsAdmin, addWebinar, deleteWebinar, updateWebinar, getWebinarRegistrations } from '../services/webinarApi';
-import { Trash2, Plus, Calendar, Clock, Video, Image as ImageIcon, Pencil, X, IndianRupee, Unlock, Users, ChevronDown, ChevronUp, Mail } from 'lucide-react';
+import { Trash2, Plus, Calendar, Clock, Video, Image as ImageIcon, Pencil, X, IndianRupee, Unlock, Users, Mail, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
 
 const emptyForm = {
     title: '',
@@ -15,6 +18,17 @@ const emptyForm = {
     price: ''
 };
 
+// Format time from "HH:mm:ss.SSSSSS" or "HH:mm" → "HH:mm AM/PM"
+const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    const parts = timeStr.split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parts[1] || '00';
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${m} ${ampm}`;
+};
+
 const AdminWebinars = () => {
     const [webinars, setWebinars] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,6 +37,9 @@ const AdminWebinars = () => {
     const [expandedWebinar, setExpandedWebinar] = useState(null);
     const [registrations, setRegistrations] = useState({});
     const [loadingRegs, setLoadingRegs] = useState({});
+    const [uploading, setUploading] = useState(false);
+    const [imagePreview, setImagePreview] = useState('');
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         fetchWebinars();
@@ -44,9 +61,29 @@ const AdminWebinars = () => {
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
-            // clear price if switching to free
             ...(name === 'isPaid' && !checked ? { price: '' } : {})
         }));
+        if (name === 'image') setImagePreview(value);
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const localUrl = URL.createObjectURL(file);
+        setImagePreview(localUrl);
+        setUploading(true);
+        try {
+            const fd = new FormData();
+            fd.append('file', file);
+            const res = await axios.post(`${API_BASE}/upload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            const uploadedUrl = res.data.fileUrl;
+            setFormData(prev => ({ ...prev, image: uploadedUrl }));
+            setImagePreview(uploadedUrl);
+        } catch {
+            alert('Image upload failed. Please paste a URL instead.');
+        } finally {
+            setUploading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -68,6 +105,7 @@ const AdminWebinars = () => {
                 alert("Webinar added successfully!");
             }
             setFormData(emptyForm);
+            setImagePreview('');
         } catch (error) {
             console.error("Error saving webinar:", error);
             alert("Failed to save webinar.");
@@ -80,19 +118,23 @@ const AdminWebinars = () => {
             title: webinar.title || '',
             speaker: webinar.speaker || '',
             date: webinar.date || '',
-            time: webinar.time || '',
+            time: webinar.time ? webinar.time.substring(0, 5) : '',
             description: webinar.description || '',
             meetingLink: webinar.meetingLink || '',
             image: webinar.image || '',
             isPaid: webinar.isPaid || false,
             price: webinar.price != null ? String(webinar.price) : ''
         });
+        // Only show preview for http URLs, not base64
+        const img = webinar.image || '';
+        setImagePreview(img.startsWith('http') ? img : '');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancelEdit = () => {
         setEditingId(null);
         setFormData(emptyForm);
+        setImagePreview('');
     };
 
     const handleDelete = async (id) => {
@@ -100,18 +142,13 @@ const AdminWebinars = () => {
         try {
             await deleteWebinar(id);
             setWebinars(webinars.filter(w => w.id !== id));
-            alert("Webinar deleted successfully!");
         } catch (error) {
-            console.error("Error deleting webinar:", error);
             alert("Failed to delete webinar.");
         }
     };
 
     const toggleRegistrations = async (webinarId) => {
-        if (expandedWebinar === webinarId) {
-            setExpandedWebinar(null);
-            return;
-        }
+        if (expandedWebinar === webinarId) { setExpandedWebinar(null); return; }
         setExpandedWebinar(webinarId);
         if (!registrations[webinarId]) {
             setLoadingRegs(prev => ({ ...prev, [webinarId]: true }));
@@ -126,17 +163,29 @@ const AdminWebinars = () => {
         }
     };
 
-    // Helper to get webinar status
     const getWebinarStatus = (webinar) => {
         if (!webinar.date) return { label: 'No Date', color: 'bg-slate-100 text-slate-600' };
         const now = new Date();
         const webinarDate = new Date(webinar.date);
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const wDate = new Date(webinarDate.getFullYear(), webinarDate.getMonth(), webinarDate.getDate());
-
         if (wDate > today) return { label: 'Upcoming', color: 'bg-blue-100 text-blue-700' };
         if (wDate < today) return { label: 'Completed', color: 'bg-slate-100 text-slate-600' };
         return { label: 'Live Today', color: 'bg-green-100 text-green-700' };
+    };
+
+    // Default gradient banner for webinars without a proper image
+    const WebinarBanner = ({ src, title }) => {
+        const [imgError, setImgError] = useState(false);
+        const isValidUrl = src && src.startsWith('http');
+        if (!isValidUrl || imgError) {
+            return (
+                <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 hidden sm:flex items-center justify-center flex-shrink-0">
+                    <Video size={28} className="text-white" />
+                </div>
+            );
+        }
+        return <img src={src} alt={title} className="w-24 h-24 rounded-lg object-cover hidden sm:block flex-shrink-0" onError={() => setImgError(true)} />;
     };
 
     return (
@@ -165,72 +214,76 @@ const AdminWebinars = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Title</label>
-                                <input
-                                    type="text" name="title" required
-                                    value={formData.title} onChange={handleChange}
+                                <input type="text" name="title" required value={formData.title} onChange={handleChange}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                    placeholder="e.g. React Masterclass"
-                                />
+                                    placeholder="e.g. React Masterclass" />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Speaker</label>
-                                <input
-                                    type="text" name="speaker" required
-                                    value={formData.speaker} onChange={handleChange}
+                                <input type="text" name="speaker" required value={formData.speaker} onChange={handleChange}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                    placeholder="e.g. John Doe"
-                                />
+                                    placeholder="e.g. John Doe" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Date</label>
-                                    <input
-                                        type="date" name="date" required
-                                        value={formData.date} onChange={handleChange}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                    />
+                                    <input type="date" name="date" required value={formData.date} onChange={handleChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Time</label>
-                                    <input
-                                        type="time" name="time" required
-                                        value={formData.time} onChange={handleChange}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                    />
+                                    <input type="time" name="time" required value={formData.time} onChange={handleChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors" />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Meeting Link</label>
                                 <div className="relative">
                                     <Video className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                    <input
-                                        type="url" name="meetingLink" required
-                                        value={formData.meetingLink} onChange={handleChange}
+                                    <input type="url" name="meetingLink" required value={formData.meetingLink} onChange={handleChange}
                                         className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                        placeholder="https://meet.google.com/..."
-                                    />
+                                        placeholder="https://meet.google.com/..." />
                                 </div>
                             </div>
+
+                            {/* Banner Image - Upload or URL */}
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-1">Banner Image URL</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Banner Image</label>
+
+                                {/* Preview */}
+                                {imagePreview && (
+                                    <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-slate-100">
+                                        <img src={imagePreview} alt="preview" className="w-full h-full object-cover"
+                                            onError={() => setImagePreview('')} />
+                                    </div>
+                                )}
+
+                                {/* Upload button */}
+                                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                                    className="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 hover:bg-slate-100 text-slate-700 font-medium text-sm transition-colors disabled:opacity-50 mb-2">
+                                    <Upload size={16} />
+                                    {uploading ? 'Uploading...' : 'Upload Image'}
+                                </button>
+                                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+
+                                <div className="relative my-2 flex items-center">
+                                    <div className="flex-grow border-t border-slate-200"></div>
+                                    <span className="mx-2 text-xs text-slate-400 flex-shrink-0">or paste URL</span>
+                                    <div className="flex-grow border-t border-slate-200"></div>
+                                </div>
                                 <div className="relative">
                                     <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                    <input
-                                        type="url" name="image" required
-                                        value={formData.image} onChange={handleChange}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                        placeholder="https://images.unsplash.com/..."
-                                    />
+                                    <input type="url" name="image" value={formData.image} onChange={handleChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition-colors text-sm"
+                                        placeholder="https://images.unsplash.com/..." />
                                 </div>
                             </div>
+
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Description</label>
-                                <textarea
-                                    name="description" required rows="3"
-                                    value={formData.description} onChange={handleChange}
+                                <textarea name="description" required rows="3" value={formData.description} onChange={handleChange}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors"
-                                    placeholder="Brief description of the session..."
-                                />
+                                    placeholder="Brief description of the session..." />
                             </div>
 
                             {/* Paid / Free Toggle */}
@@ -238,44 +291,32 @@ const AdminWebinars = () => {
                                 <label className="block text-sm font-bold text-slate-700 mb-3">Webinar Type</label>
                                 <div className="flex gap-3">
                                     <label className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg border-2 cursor-pointer transition-all font-semibold text-sm ${!formData.isPaid ? 'border-green-500 bg-green-50 text-green-700' : 'border-slate-200 bg-white text-slate-500'}`}>
-                                        <input
-                                            type="radio" name="isPaid" className="hidden"
-                                            checked={!formData.isPaid}
-                                            onChange={() => setFormData(prev => ({ ...prev, isPaid: false, price: '' }))}
-                                        />
-                                        <Unlock size={15} />
-                                        Free
+                                        <input type="radio" name="isPaid" className="hidden" checked={!formData.isPaid}
+                                            onChange={() => setFormData(prev => ({ ...prev, isPaid: false, price: '' }))} />
+                                        <Unlock size={15} /> Free
                                     </label>
                                     <label className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg border-2 cursor-pointer transition-all font-semibold text-sm ${formData.isPaid ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-slate-200 bg-white text-slate-500'}`}>
-                                        <input
-                                            type="radio" name="isPaid" className="hidden"
-                                            checked={formData.isPaid}
-                                            onChange={() => setFormData(prev => ({ ...prev, isPaid: true }))}
-                                        />
-                                        <IndianRupee size={15} />
-                                        Paid
+                                        <input type="radio" name="isPaid" className="hidden" checked={formData.isPaid}
+                                            onChange={() => setFormData(prev => ({ ...prev, isPaid: true }))} />
+                                        <IndianRupee size={15} /> Paid
                                     </label>
                                 </div>
-
-                                {/* Price input — visible only when Paid */}
                                 {formData.isPaid && (
                                     <div className="mt-3">
                                         <label className="block text-sm font-bold text-slate-700 mb-1">Price (₹)</label>
                                         <div className="relative">
                                             <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-                                            <input
-                                                type="number" name="price" min="1" step="1"
-                                                required={formData.isPaid}
+                                            <input type="number" name="price" min="1" step="1" required={formData.isPaid}
                                                 value={formData.price} onChange={handleChange}
                                                 className="w-full bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-amber-500 transition-colors"
-                                                placeholder="e.g. 499"
-                                            />
+                                                placeholder="e.g. 499" />
                                         </div>
                                     </div>
                                 )}
                             </div>
 
-                            <button type="submit" className={`w-full text-white font-bold py-3 rounded-xl transition-colors shadow-md ${editingId ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                            <button type="submit" disabled={uploading}
+                                className={`w-full text-white font-bold py-3 rounded-xl transition-colors shadow-md disabled:opacity-50 ${editingId ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
                                 {editingId ? 'Update Webinar' : 'Create Webinar'}
                             </button>
                         </form>
@@ -307,57 +348,37 @@ const AdminWebinars = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${editingId === webinar.id ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'}`}
                                 >
-                                    <div className="p-4 flex gap-6 items-center">
-                                        <img
-                                            src={webinar.image}
-                                            alt={webinar.title}
-                                            className="w-24 h-24 rounded-lg object-cover hidden sm:block"
-                                        />
-                                        <div className="flex-1">
+                                    <div className="p-4 flex gap-4 items-center">
+                                        <WebinarBanner src={webinar.image} title={webinar.title} />
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                <h3 className="text-lg font-bold text-slate-900">{webinar.title}</h3>
+                                                <h3 className="text-lg font-bold text-slate-900 truncate">{webinar.title}</h3>
                                                 {webinar.isPaid ? (
-                                                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full whitespace-nowrap">
                                                         <IndianRupee size={11} />{webinar.price}
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                                        FREE
-                                                    </span>
+                                                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">FREE</span>
                                                 )}
-                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${status.color}`}>
-                                                    {status.label}
-                                                </span>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${status.color}`}>{status.label}</span>
                                             </div>
                                             <p className="text-sm text-slate-500 mb-2">by {webinar.speaker}</p>
                                             <div className="flex gap-4 text-xs font-bold text-slate-500 uppercase tracking-wide">
                                                 <span className="flex items-center gap-1"><Calendar size={14} /> {webinar.date}</span>
-                                                <span className="flex items-center gap-1"><Clock size={14} /> {webinar.time}</span>
+                                                <span className="flex items-center gap-1"><Clock size={14} /> {formatTime(webinar.time)}</span>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleRegistrations(webinar.id)}
-                                                className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors relative"
-                                                title="View Registrations"
-                                            >
+                                        <div className="flex flex-col gap-2 flex-shrink-0">
+                                            <button type="button" onClick={() => toggleRegistrations(webinar.id)}
+                                                className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="View Registrations">
                                                 <Users size={20} />
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleEdit(webinar)}
-                                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                                title="Edit Webinar"
-                                            >
+                                            <button type="button" onClick={() => handleEdit(webinar)}
+                                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Webinar">
                                                 <Pencil size={20} />
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDelete(webinar.id)}
-                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                title="Delete Webinar"
-                                            >
+                                            <button type="button" onClick={() => handleDelete(webinar.id)}
+                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete Webinar">
                                                 <Trash2 size={20} />
                                             </button>
                                         </div>
@@ -375,8 +396,7 @@ const AdminWebinars = () => {
                                             >
                                                 <div className="p-4 bg-slate-50">
                                                     <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                                                        <Users size={16} />
-                                                        Registered Students ({regs.length})
+                                                        <Users size={16} /> Registered Students ({regs.length})
                                                     </h4>
                                                     {loadingRegs[webinar.id] ? (
                                                         <div className="flex justify-center py-4">
@@ -390,7 +410,7 @@ const AdminWebinars = () => {
                                                                 <div key={reg.id || idx} className="flex items-center justify-between bg-white rounded-lg px-4 py-2 text-sm border border-slate-100">
                                                                     <div>
                                                                         <span className="font-semibold text-slate-800">{reg.studentName}</span>
-                                                                        <span className="text-slate-400 ml-2 flex items-center gap-1 inline-flex">
+                                                                        <span className="text-slate-400 ml-2 inline-flex items-center gap-1">
                                                                             <Mail size={12} /> {reg.studentEmail}
                                                                         </span>
                                                                     </div>

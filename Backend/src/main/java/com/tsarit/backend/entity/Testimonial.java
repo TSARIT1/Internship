@@ -49,13 +49,13 @@ public class Testimonial {
         this.message = message;
     }
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String image;
 
     @Column(length = 1000)
     private String videoUrl;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String thumbnail;
 
     // Getters and Setters

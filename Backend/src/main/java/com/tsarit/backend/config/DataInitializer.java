@@ -93,46 +93,18 @@ public class DataInitializer implements CommandLineRunner {
                 }
                 System.out.println("Course data initialized/updated.");
 
-                // Initialize Admin User
+                // Initialize Admin User — only create if doesn't exist. NEVER override existing password.
                 if (userService.findByEmail("admin@tsarit.com").isEmpty()) {
                         com.tsarit.backend.entity.User admin = new com.tsarit.backend.entity.User();
                         admin.setUsername("Admin");
                         admin.setEmail("admin@tsarit.com");
-                        admin.setPassword("admin123"); // UserService.registerUser will encode this
+                        admin.setPassword("Admin@123"); // Will be BCrypt-encoded by registerUser
                         admin.setRole("ADMIN");
-                        userService.registerUser(admin); // Using registerUser (ensure it doesn't double-hash if using
-                                                         // raw password setters)
-                        // Actually registerUser uses save(), let's check.
-                        // UserService.registerUser usually encodes password.
-                        // But here I manually encoded it.
-                        // Let's check UserService code or just save directly using repository if I can
-                        // inject it.
-                        // To be safe, let's use userService.registerUser but with PLAIN text password,
-                        // as registerUser likely encodes it.
-                        // WAIT, I'll check UserService.
-                        // Assuming registerUser encodes:
-                        // admin.setPassword("admin123");
-                        // userService.registerUser(admin);
-                } // Close previous if block
-
-                // Ensure Admin Password is Correct even if user exists
-                Optional<com.tsarit.backend.entity.User> adminOpt = userService.findByEmail("admin@tsarit.com");
-                if (adminOpt.isPresent()) {
-                        com.tsarit.backend.entity.User existingAdmin = adminOpt.get();
-                        existingAdmin.setPassword("admin123");
-                        userService.registerUser(existingAdmin); // Will re-encode password
-                        System.out.println("Admin password reset to 'admin123'");
-                }
-
-                // --- DEBUG: Check enrollments for nnikhiln2002@gmail.com ---
-                Optional<com.tsarit.backend.entity.User> debugUserOpt = userService
-                                .findByEmail("nnikhiln2002@gmail.com");
-                if (debugUserOpt.isPresent()) {
-                        // Debug User check passed
+                        userService.registerUser(admin);
+                        System.out.println("Admin user created with default password.");
                 } else {
-                        System.out.println("DEBUG: User nnikhiln2002@gmail.com NOT FOUND in database.");
+                        System.out.println("Admin user already exists — password unchanged.");
                 }
-                // ------------------------------------------------------------
         }
 
         @Autowired

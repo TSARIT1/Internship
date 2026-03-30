@@ -1,6 +1,8 @@
 package com.tsarit.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +14,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "webinars")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Webinar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +38,7 @@ public class Webinar {
     @Column(columnDefinition = "TEXT")
     private String image;
 
+    @JsonProperty("isPaid")
     private boolean isPaid = false;
 
     private Double price;
@@ -104,11 +108,18 @@ public class Webinar {
         this.image = image;
     }
 
+    @JsonProperty("isPaid")
     public boolean isPaid() {
         return isPaid;
     }
 
     public void setPaid(boolean isPaid) {
+        this.isPaid = isPaid;
+    }
+
+    // Jackson alias: accept both "isPaid" and "paid" from JSON
+    @JsonProperty("isPaid")
+    public void setIsPaid(boolean isPaid) {
         this.isPaid = isPaid;
     }
 

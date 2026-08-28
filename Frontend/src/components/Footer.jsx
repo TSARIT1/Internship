@@ -59,10 +59,7 @@ const Footer = () => {
                             TSAR IT INTERNSHIP is a premier technical training & internship organization empowering engineering students and professionals with hands-on development experience, industry capstone projects, and guaranteed placement assistance.
                         </p>
 
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <ShieldCheck size={16} className="text-teal-400" />
-                            <span>Premier Technical Training & Internship Organization</span>
-                        </div>
+
 
                         {/* Newsletter Lead Form */}
                         <div className="pt-2">

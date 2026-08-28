@@ -45,9 +45,6 @@ const CertificateTemplate = forwardRef(({
                             <h2 className="text-2xl font-black tracking-tight text-slate-900 leading-tight font-serif">
                                 TSAR <span className="text-blue-600">IT</span> INTERNSHIP
                             </h2>
-                            <p className="text-[10px] uppercase font-extrabold tracking-widest text-slate-500">
-                                Premier Technical Training & Internship Organization
-                            </p>
                         </div>
                     </div>
 

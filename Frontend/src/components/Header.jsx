@@ -62,13 +62,7 @@ const Header = () => {
             >
                 {/* Top Mini Bar for Contact Info */}
                 <div className="hidden lg:block container mx-auto px-6 mb-2 text-xs text-slate-500">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200/50">
-                        <div className="flex items-center gap-6">
-                            <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                                <Sparkles size={13} className="text-amber-500" />
-                                <span>Premier Technical Training & Internship Organization</span>
-                            </span>
-                        </div>
+                    <div className="flex items-center justify-end pb-2 border-b border-slate-200/50">
                         <div className="flex items-center gap-5">
                             <a href="tel:+919491301258" className="flex items-center gap-1.5 text-slate-600 hover:text-blue-600 font-semibold transition-colors">
                                 <Phone size={13} className="text-blue-600" />

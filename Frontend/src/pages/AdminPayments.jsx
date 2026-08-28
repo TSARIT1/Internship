@@ -35,42 +35,21 @@ const AdminPayments = () => {
             const enrollments = enrollmentRes.success ? enrollmentRes.data : [];
             const users = usersRes.data || [];
 
-            // 1. Process Real Enrollments
+            // 1. Process Real Enrollments Only
             const mappedEnrollments = enrollments.map(e => ({
                 id: e.id,
-                transactionId: e.transactionId,
-                studentName: e.studentName || e.user.username,
-                email: e.user.email,
+                transactionId: e.transactionId || `TXN-TSAR-${e.id}`,
+                studentName: e.studentName || e.user?.name || e.user?.username || 'Student',
+                email: e.user?.email || 'N/A',
                 courseName: e.courseName,
-                // amountPaid logic: if stored, use it, else fee-discount
                 amountPaid: e.amountPaid !== undefined ? e.amountPaid : ((e.fee || 0) - (e.discount || 0)),
                 paymentTime: e.paymentTime || e.enrollmentDate,
                 status: e.status || "ACTIVE",
-                userId: e.user.id
+                userId: e.user?.id || e.userId
             }));
 
-            // 2. Process Legacy Users (who are NOT in enrollment list)
-            // We check if they have a 'course' and 'totalFee' set directly on User entity
-            const enrolledUserIds = new Set(enrollments.map(e => e.user.id));
-
-            const legacyPayments = users
-                .filter(u => !enrolledUserIds.has(u.id) && u.webinar && u.webinar !== "Not Selected") // u.webinar is mapped from u.course
-                .map(u => ({
-                    id: `legacy-${u.id}`,
-                    transactionId: "LEGACY", // Placeholder for old data
-                    studentName: u.name,
-                    email: u.email,
-                    courseName: u.webinar,
-                    amountPaid: (u.totalFee || 0) - (u.discount || 0),
-                    paymentTime: u.date, // User creation date or similar
-                    status: "ACTIVE", // Assumed active
-                    userId: u.id
-                }));
-
-            // Combine and Sort
-            const combinedData = [...mappedEnrollments, ...legacyPayments];
-            const sortedData = combinedData.sort((a, b) => {
-                // Sort by date/ID desc
+            // Sort by date/ID desc
+            const sortedData = mappedEnrollments.sort((a, b) => {
                 return new Date(b.paymentTime || 0) - new Date(a.paymentTime || 0);
             });
 

@@ -13,13 +13,13 @@ from ..models.schemas import (
     RAGQueryRequest, ChatMessage,
     OpenAIChatCompletionRequest, OpenAIChatCompletionResponse,
     OpenAIChoice, OpenAIChoiceMessage,
-    UniversalAgentActionRequest
+    UniversalAgentActionRequest, SectorAnalysisRequest
 )
 from ..core.raki_engine import raki_engine, SYSTEM_PROMPT_DEFAULT, SYSTEM_PROMPTS_BY_SITE
 from ..core.rag_store import rag_store
 from ..core.config import settings
 
-router = APIRouter(tags=["RAKI AI Universal Engine"])
+router = APIRouter(tags=["RAKI AI Multi-Sector Engine"])
 
 # ==============================================================================
 # Health & Model Discovery
@@ -35,6 +35,9 @@ async def health_check():
         "ollama_connected": True,
         "available_models_count": len(models),
         "default_model": settings.DEFAULT_MODEL,
+        "trained_sectors": [
+            "banking", "healthcare", "beauty", "telecom", "agriculture", "government", "data_science"
+        ],
         "supported_sites": list(SYSTEM_PROMPTS_BY_SITE.keys())
     }
 
@@ -42,6 +45,48 @@ async def health_check():
 async def get_models():
     models = await raki_engine.list_models()
     return {"models": models}
+
+@router.get("/api/sectors")
+async def list_sectors():
+    return {
+        "sectors": [
+            {
+                "id": "banking",
+                "name": "Banking & Fintech",
+                "capabilities": ["KYC/AML Biometrics", "ISO 20022 Payments", "Fraud Risk Scoring", "Credit Risk (PD/LGD/EAD)", "Algo Trading"]
+            },
+            {
+                "id": "healthcare",
+                "name": "Healthcare & Clinical",
+                "capabilities": ["HL7 FHIR R4", "HIPAA Compliance", "ESI Clinical Triage", "Differential Diagnostics", "Telehealth & e-Rx"]
+            },
+            {
+                "id": "beauty",
+                "name": "Beauty & Skincare",
+                "capabilities": ["Fitzpatrick Diagnostics", "Personalized AM/PM Routines", "Active Ingredient Synergy", "INCI Safety", "Clean Beauty"]
+            },
+            {
+                "id": "telecom",
+                "name": "Telecom & 5G/6G",
+                "capabilities": ["5G Standalone (SA)", "Network Slicing (eMBB/URLLC/mMTC)", "BGP Self-Healing", "Predictive Churn Reduction", "DWDM Fiber"]
+            },
+            {
+                "id": "agriculture",
+                "name": "Agriculture & AgTech",
+                "capabilities": ["NDVI Multispectral Drone Imaging", "Crop Pathology Diagnostics", "Precision NPK Soil Chemistry", "Smart Drip Irrigation", "Cold Chain Traceability"]
+            },
+            {
+                "id": "government",
+                "name": "Government & Public Sector",
+                "capabilities": ["Omnichannel Citizen Services", "Computer-Aided Dispatch (CAD)", "eID Digital Identity", "Automated BIM Permitting", "Procurement Transparency"]
+            },
+            {
+                "id": "data_science",
+                "name": "Data Science & Generative AI",
+                "capabilities": ["PyTorch & Transformers", "LLMs & Fine-Tuning (LoRA)", "RAG & Vector Databases", "Full Stack Cloud Architecture", "DevOps & CI/CD"]
+            }
+        ]
+    }
 
 @router.post("/api/models/pull")
 async def pull_model(req: ModelPullRequest):
@@ -51,7 +96,48 @@ async def pull_model(req: ModelPullRequest):
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 # ==============================================================================
-# OpenAI v1 Compatible Endpoints (Connect with ANY OpenAI / LangChain / Spring AI client)
+# Multi-Sector Real-Time AI Analysis Endpoint
+# ==============================================================================
+
+@router.post("/api/sector/analyze")
+async def analyze_sector(req: SectorAnalysisRequest):
+    sector = req.sector.lower()
+    
+    # 1. Retrieve targeted sector knowledge from RAG store
+    docs = rag_store.search(req.query, sector=sector, limit=4)
+    context_str = "\n\n".join([f"### [{d['title']}]:\n{d['content']}" for d in docs])
+    
+    system_prompt = f"""You are RAKI MASTER AI — the world-class domain specialist and chief technical architect in {sector.upper()}.
+Use the verified multi-sector technical knowledge base below to provide a rigorous, production-grade analysis:
+
+{context_str}
+
+Format your response with:
+1. 🎯 Executive Diagnostic & Intent Analysis
+2. ⚡ Core Operational / Engineering Solution (Include code, schema, formulas, or step-by-step actions)
+3. 🛡️ Regulatory Compliance, Safety & Risk Mitigation
+4. 📊 Concrete Performance Metrics & Verification Steps"""
+
+    messages = [ChatMessage(role="user", content=req.query)]
+    
+    result = await raki_engine.chat(
+        messages=messages,
+        model=req.model,
+        system_prompt=system_prompt,
+        site_context=sector,
+        temperature=0.3
+    )
+    
+    return {
+        "sector": sector,
+        "query": req.query,
+        "model": result.get("model", ""),
+        "context_documents": docs,
+        "analysis": result.get("response", "")
+    }
+
+# ==============================================================================
+# OpenAI v1 Compatible Endpoints
 # ==============================================================================
 
 @router.get("/v1/models")
@@ -115,7 +201,6 @@ async def openai_chat_completions(req: OpenAIChatCompletionRequest):
                     
         return StreamingResponse(stream_openai(), media_type="text/event-stream")
 
-    # Non-streaming response
     result = await raki_engine.chat(
         messages=req.messages,
         model=selected_model,
@@ -138,7 +223,7 @@ async def openai_chat_completions(req: OpenAIChatCompletionRequest):
     )
 
 # ==============================================================================
-# Native RAKI AI Endpoints (Multi-Site Context Aware)
+# Native RAKI AI Endpoints
 # ==============================================================================
 
 @router.post("/api/chat", response_model=ChatResponse)
@@ -195,22 +280,19 @@ async def grade_quiz_endpoint(req: QuizGradeRequest):
 
 @router.post("/api/rag/search")
 async def rag_search_endpoint(req: RAGQueryRequest):
-    context_docs = rag_store.search(req.query, limit=req.n_results)
+    context_docs = rag_store.search(req.query, sector=req.sector, limit=req.n_results)
     context_str = "\n\n".join([f"[{doc['title']}]: {doc['content']}" for doc in context_docs])
-    system_prompt = f"You are RAKI AI. Answer the user using verified technical knowledge below:\n\n{context_str}"
+    system_prompt = f"You are RAKI AI. Answer using the verified technical knowledge below:\n\n{context_str}"
     
     messages = [ChatMessage(role="user", content=req.query)]
     ai_answer = await raki_engine.chat(messages, model=req.model, system_prompt=system_prompt)
     
     return {
         "query": req.query,
+        "sector": req.sector,
         "context_documents": context_docs,
         "answer": ai_answer.get("response", "")
     }
-
-# ==============================================================================
-# Universal Multi-Site Agent Dispatcher
-# ==============================================================================
 
 @router.post("/api/agent/react")
 async def universal_agent_react(req: UniversalAgentActionRequest):
@@ -239,10 +321,6 @@ async def universal_agent_react(req: UniversalAgentActionRequest):
         "response": result.get("response", ""),
         "model": result.get("model", "")
     }
-
-# ==============================================================================
-# Embeddable Widget Static JavaScript Loader
-# ==============================================================================
 
 @router.get("/widget.js")
 @router.get("/api/widget.js")

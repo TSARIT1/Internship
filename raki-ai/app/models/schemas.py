@@ -12,7 +12,7 @@ class ChatRequest(BaseModel):
     stream: bool = False
     temperature: float = 0.7
     system_prompt: Optional[str] = None
-    site_context: Optional[str] = Field(None, description="Context identifier: 'internship', 'rynaty-ai', 'billing', 'hms', 'general'")
+    site_context: Optional[str] = Field(None, description="Context identifier: 'internship', 'rynatyai', 'banking', 'healthcare', 'beauty', 'telecom', 'agriculture', 'government', 'data_science'")
 
 class ChatResponse(BaseModel):
     model: str
@@ -45,8 +45,15 @@ class ModelPullRequest(BaseModel):
 
 class RAGQueryRequest(BaseModel):
     query: str
+    sector: Optional[str] = "all"
     n_results: int = 4
     model: Optional[str] = None
+
+class SectorAnalysisRequest(BaseModel):
+    sector: str = Field(..., description="Sector: 'banking', 'healthcare', 'beauty', 'telecom', 'agriculture', 'government', 'data_science'")
+    query: str = Field(..., description="The operational query, problem statement, or scenario to analyze")
+    model: Optional[str] = None
+    parameters: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 # ==============================================================================
 # OpenAI API Compatibility Schemas (Standard v1 specification)

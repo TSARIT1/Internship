@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAKI AI OS • Autonomous Intelligence & Coding Studio</title>
+    <title>RAKI AI OS • Multi-Sector Autonomous Intelligence & Coding Studio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -38,14 +38,14 @@
     <!-- Top Navigation Header -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-4 sticky top-0 z-50 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-teal-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/25">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/25">
                 ⚡
             </div>
             <div>
                 <h1 class="font-black text-lg text-white tracking-tight flex items-center gap-2">
-                    RAKI AI OS <span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-bold border border-indigo-500/30 uppercase tracking-wider">v2.0 Active</span>
+                    RAKI AI OS <span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-bold border border-indigo-500/30 uppercase tracking-wider">Multi-Sector Enterprise v2.0</span>
                 </h1>
-                <p class="text-xs text-slate-400">Autonomous LLM Engine & Coding Architect • TSAR IT INTERNSHIP</p>
+                <p class="text-xs text-slate-400">Autonomous LLM Engine • Banking • Healthcare • Beauty • Telecom • Agriculture • Government</p>
             </div>
         </div>
 
@@ -56,10 +56,9 @@
             </div>
 
             <select id="modelSelector" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500 font-mono">
-                <option value="llama3.2">llama3.2 (Default)</option>
-                <option value="mistral">mistral</option>
-                <option value="deepseek-r1:1.5b">deepseek-r1:1.5b</option>
-                <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
+                <option value="raki-master">raki-master (Trained Multi-Sector)</option>
+                <option value="llama3.2:1b">llama3.2:1b (Fast General)</option>
+                <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b (Coding Specialist)</option>
             </select>
 
             <a href="/docs" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-colors flex items-center gap-1.5">
@@ -74,7 +73,12 @@
 
         <!-- Left Navigation Tabs -->
         <aside class="w-64 bg-slate-900/50 border-r border-slate-800/80 p-4 space-y-2 shrink-0">
-            <button onclick="switchTab('chat')" id="tab-btn-chat" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
+            <button onclick="switchTab('sectors')" id="tab-btn-sectors" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                <span>Multi-Sector Hub</span>
+            </button>
+
+            <button onclick="switchTab('chat')" id="tab-btn-chat" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
                 <i data-lucide="message-square" class="w-4 h-4"></i>
                 <span>AI Chat & Mentor</span>
             </button>
@@ -99,138 +103,190 @@
                 <span>Model Manager</span>
             </button>
 
-            <div class="pt-6 mt-6 border-t border-slate-800/80 text-[11px] text-slate-500 space-y-2 px-2">
-                <div class="flex justify-between"><span>Engine:</span> <strong class="text-slate-300">Ollama Core</strong></div>
-                <div class="flex justify-between"><span>FastAPI:</span> <strong class="text-slate-300">Port 8000</strong></div>
-                <div class="flex justify-between"><span>Vector Store:</span> <strong class="text-slate-300">ChromaDB</strong></div>
+            <div class="pt-4 mt-4 border-t border-slate-800/80 px-2 space-y-2">
+                <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Trained Sectors</div>
+                <div class="text-xs text-slate-400 space-y-1.5 font-medium">
+                    <div class="flex items-center gap-2"><span>🏦</span> Banking & Fintech</div>
+                    <div class="flex items-center gap-2"><span>🩺</span> Healthcare & Clinical</div>
+                    <div class="flex items-center gap-2"><span>💄</span> Beauty & Skincare</div>
+                    <div class="flex items-center gap-2"><span>📡</span> Telecom & 5G</div>
+                    <div class="flex items-center gap-2"><span>🌾</span> Agriculture & AgTech</div>
+                    <div class="flex items-center gap-2"><span>🏛️</span> Government & Public</div>
+                    <div class="flex items-center gap-2"><span>🧠</span> Data Science & AI</div>
+                </div>
             </div>
         </aside>
 
         <!-- Right Content Panels -->
-        <section class="flex-1 flex flex-col bg-slate-950 p-6 overflow-y-auto custom-scrollbar">
+        <section class="flex-1 bg-slate-950 p-6 overflow-y-auto custom-scrollbar">
 
-            <!-- 1. CHAT TAB -->
-            <div id="tab-chat" class="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-                <div class="flex-1 bg-slate-900/60 rounded-3xl border border-slate-800 p-6 mb-4 overflow-y-auto custom-scrollbar space-y-4 min-h-[450px]" id="chatBox">
-                    <div class="flex gap-3 items-start">
-                        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">⚡</div>
-                        <div class="bg-slate-800 p-4 rounded-2xl max-w-2xl text-xs sm:text-sm text-slate-200 leading-relaxed">
-                            Hello! I am <strong>RAKI AI</strong>, your autonomous software architect and technical mentor. I can generate production code, debug full-stack applications, explain complex algorithms, or review technical architectures. How can I assist you?
+            <!-- TAB 1: MULTI-SECTOR INTELLIGENCE HUB (NEW) -->
+            <div id="tab-sectors" class="space-y-6 max-w-5xl mx-auto">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span>🌐</span> Multi-Sector Autonomous Intelligence Lab
+                        </h2>
+                        <p class="text-xs text-slate-400">Execute real-time domain analysis powered by trained RAKI AI RAG knowledge vectors.</p>
+                    </div>
+                </div>
+
+                <!-- Sector Selector Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                    <button onclick="selectSector('banking')" class="sector-card active p-3 bg-slate-900 border-2 border-indigo-500 rounded-2xl text-left transition-all hover:scale-105" data-sector="banking">
+                        <div class="text-2xl mb-1">🏦</div>
+                        <div class="font-bold text-xs text-white">Banking</div>
+                        <div class="text-[10px] text-slate-400">KYC, AML, ISO 20022</div>
+                    </button>
+                    <button onclick="selectSector('healthcare')" class="sector-card p-3 bg-slate-900 border border-slate-800 rounded-2xl text-left transition-all hover:scale-105" data-sector="healthcare">
+                        <div class="text-2xl mb-1">🩺</div>
+                        <div class="font-bold text-xs text-white">Healthcare</div>
+                        <div class="text-[10px] text-slate-400">FHIR, ESI Triage, HIPAA</div>
+                    </button>
+                    <button onclick="selectSector('beauty')" class="sector-card p-3 bg-slate-900 border border-slate-800 rounded-2xl text-left transition-all hover:scale-105" data-sector="beauty">
+                        <div class="text-2xl mb-1">💄</div>
+                        <div class="font-bold text-xs text-white">Beauty</div>
+                        <div class="text-[10px] text-slate-400">Skin Biome, INCI, AM/PM</div>
+                    </button>
+                    <button onclick="selectSector('telecom')" class="sector-card p-3 bg-slate-900 border border-slate-800 rounded-2xl text-left transition-all hover:scale-105" data-sector="telecom">
+                        <div class="text-2xl mb-1">📡</div>
+                        <div class="font-bold text-xs text-white">Telecom</div>
+                        <div class="text-[10px] text-slate-400">5G Slicing, BGP, Churn</div>
+                    </button>
+                    <button onclick="selectSector('agriculture')" class="sector-card p-3 bg-slate-900 border border-slate-800 rounded-2xl text-left transition-all hover:scale-105" data-sector="agriculture">
+                        <div class="text-2xl mb-1">🌾</div>
+                        <div class="font-bold text-xs text-white">Agriculture</div>
+                        <div class="text-[10px] text-slate-400">NDVI Drone, NPK, Drip</div>
+                    </button>
+                    <button onclick="selectSector('government')" class="sector-card p-3 bg-slate-900 border border-slate-800 rounded-2xl text-left transition-all hover:scale-105" data-sector="government">
+                        <div class="text-2xl mb-1">🏛️</div>
+                        <div class="font-bold text-xs text-white">Government</div>
+                        <div class="text-[10px] text-slate-400">Citizen eID, CAD, BIM</div>
+                    </button>
+                    <button onclick="selectSector('data_science')" class="sector-card p-3 bg-slate-900 border border-slate-800 rounded-2xl text-left transition-all hover:scale-105" data-sector="data_science">
+                        <div class="text-2xl mb-1">🧠</div>
+                        <div class="font-bold text-xs text-white">Data Science</div>
+                        <div class="text-[10px] text-slate-400">PyTorch, RAG, FullStack</div>
+                    </button>
+                </div>
+
+                <!-- Scenario & Execution Card -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-sm text-white flex items-center gap-2" id="currentSectorTitle">
+                            <span>🏦</span> Banking & Fintech Intelligence Task
+                        </h3>
+                        <span class="text-[11px] text-indigo-400 font-mono" id="currentSectorCapabilities">Capabilities: Biometrics • ISO 20022 • Fraud Scoring • Credit Risk</span>
+                    </div>
+
+                    <!-- Quick Preloaded Prompts -->
+                    <div class="flex flex-wrap gap-2 text-xs" id="sectorQuickChips">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div>
+                        <textarea id="sectorQueryInput" rows="3" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-2xl p-4 text-xs font-mono text-slate-200 outline-none transition-colors" placeholder="Enter scenario, problem statement, or operational question..."></textarea>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="executeSectorAnalysis()" id="btnRunSector" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all">
+                            <i data-lucide="play" class="w-4 h-4"></i>
+                            <span>Execute Domain Intelligence</span>
+                        </button>
+                    </div>
+
+                    <!-- Results Output -->
+                    <div id="sectorOutputContainer" class="hidden space-y-3 pt-4 border-t border-slate-800">
+                        <div class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+                            <span>RAKI AI Autonomous Synthesis Output:</span>
+                        </div>
+                        <div id="sectorOutputText" class="bg-slate-950 border border-slate-800/80 rounded-2xl p-5 text-xs text-slate-200 font-sans leading-relaxed whitespace-pre-wrap"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: AI CHAT -->
+            <div id="tab-chat" class="hidden space-y-4 max-w-4xl mx-auto h-full flex flex-col">
+                <div class="flex-1 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 overflow-y-auto space-y-4 custom-scrollbar" id="chatHistory">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black shrink-0">RAKI</div>
+                        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 text-xs leading-relaxed max-w-[85%]">
+                            👋 Greetings! I am <strong>RAKI AI OS</strong>, your Autonomous Technical Architect across Banking, Healthcare, Beauty, Telecom, Agriculture, Government, and Data Science. How can I assist today?
                         </div>
                     </div>
                 </div>
 
-                <form onsubmit="handleSendChat(event)" class="flex gap-3">
-                    <input
-                        type="text"
-                        id="chatInput"
-                        placeholder="Ask RAKI AI anything (e.g. 'Build a React 19 Kanban board component with Tailwind')..."
-                        class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500"
-                        required
-                    />
-                    <button type="submit" id="chatSendBtn" class="px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-2 cursor-pointer">
-                        <span>Send</span>
+                <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-2xl p-2.5">
+                    <input type="text" id="chatInput" onkeydown="if(event.key==='Enter') sendChatMessage()" placeholder="Ask RAKI AI anything..." class="flex-1 bg-transparent px-3 text-xs text-white focus:outline-none placeholder-slate-500" />
+                    <button onclick="sendChatMessage()" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-md transition-all">
                         <i data-lucide="send" class="w-4 h-4"></i>
                     </button>
-                </form>
+                </div>
             </div>
 
-            <!-- 2. CODE STUDIO TAB -->
-            <div id="tab-codegen" class="hidden max-w-4xl mx-auto w-full space-y-4">
-                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2">
-                        <i data-lucide="code" class="text-indigo-400"></i> Autonomous Code Generator
+            <!-- TAB 3: CODE STUDIO -->
+            <div id="tab-codegen" class="hidden space-y-6 max-w-4xl mx-auto">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="code" class="w-5 h-5 text-indigo-400"></i>
+                        <span>Autonomous Code Generation Studio</span>
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs text-slate-400 font-bold mb-1">Language</label>
-                            <select id="codeLang" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
-                                <option value="Python">Python</option>
-                                <option value="Java">Java (Spring Boot)</option>
-                                <option value="TypeScript / React">TypeScript / React 19</option>
-                                <option value="Node.js">Node.js (Express)</option>
-                                <option value="SQL">SQL (MySQL / Postgres)</option>
-                                <option value="DevOps / Docker">Docker & Kubernetes</option>
-                            </select>
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs text-slate-400 font-bold mb-1">Specification / Prompt</label>
-                            <input id="codePrompt" type="text" placeholder="e.g. Implement JWT Authentication Filter in Spring Boot 3" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white" />
-                        </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <select id="codeLang" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                            <option value="python">Python</option>
+                            <option value="java">Java (Spring Boot)</option>
+                            <option value="javascript">JavaScript / TypeScript (React 19)</option>
+                            <option value="sql">SQL / Database DDL</option>
+                        </select>
+                        <input id="codeFramework" placeholder="Framework (e.g. FastAPI, Spring Boot, PyTorch)" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200" />
                     </div>
-
-                    <button onclick="handleGenerateCode()" id="codeGenBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i> Generate Production Code
+                    <textarea id="codePrompt" rows="3" placeholder="Describe the function, API, or algorithm to synthesize..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-slate-200 outline-none"></textarea>
+                    <button onclick="generateCode()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg">
+                        <i data-lucide="cpu" class="w-4 h-4"></i> Generate Code
                     </button>
-                </div>
-
-                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Generated Output</span>
-                        <button onclick="copyCodeOutput()" class="text-xs text-indigo-400 hover:underline">Copy Code</button>
-                    </div>
-                    <pre id="codeOutput" class="bg-slate-950 p-4 rounded-2xl text-xs font-mono text-emerald-400 overflow-x-auto custom-scrollbar border border-slate-800/80 min-h-[200px]">Click "Generate Production Code" to begin...</pre>
+                    <pre id="codeOutput" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-emerald-400 overflow-x-auto whitespace-pre-wrap">// Output will appear here</pre>
                 </div>
             </div>
 
-            <!-- 3. CODE REVIEWER TAB -->
-            <div id="tab-codereview" class="hidden max-w-4xl mx-auto w-full space-y-4">
-                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2">
-                        <i data-lucide="shield-check" class="text-emerald-400"></i> Code Quality & Security Auditor
+            <!-- TAB 4: CODE REVIEWER -->
+            <div id="tab-codereview" class="hidden space-y-6 max-w-4xl mx-auto">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+                        <span>Security & Performance Code Auditor</span>
                     </h2>
-                    <textarea id="reviewCodeInput" rows="8" placeholder="Paste your code snippet here for automated security analysis, complexity evaluation, and bug refactoring..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500"></textarea>
-                    <button onclick="handleReviewCode()" id="reviewBtn" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2">
-                        <i data-lucide="check-circle" class="w-4 h-4"></i> Run Security & Quality Audit
+                    <textarea id="reviewCodeInput" rows="6" placeholder="Paste your code snippet here..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-slate-200 outline-none"></textarea>
+                    <button onclick="reviewCode()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i> Audit Code
                     </button>
-                </div>
-
-                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Audit Report</span>
-                    <div id="reviewOutput" class="text-xs text-slate-300 space-y-2 whitespace-pre-wrap leading-relaxed">Submit code above to inspect findings.</div>
+                    <div id="reviewOutput" class="bg-slate-950 border border-slate-800 rounded-2xl p-5 text-xs text-slate-200 whitespace-pre-wrap leading-relaxed"></div>
                 </div>
             </div>
 
-            <!-- 4. RAG KNOWLEDGE BASE TAB -->
-            <div id="tab-rag" class="hidden max-w-4xl mx-auto w-full space-y-4">
-                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2">
-                        <i data-lucide="database" class="text-amber-400"></i> RAG Vector Knowledge Base
+            <!-- TAB 5: RAG -->
+            <div id="tab-rag" class="hidden space-y-6 max-w-4xl mx-auto">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="database" class="w-5 h-5 text-purple-400"></i>
+                        <span>Multi-Sector Vector Search & RAG</span>
                     </h2>
-                    <p class="text-xs text-slate-400">Query verified technical documentation, project capstones, and curriculum syllabi using vector embeddings.</p>
-                    <div class="flex gap-3">
-                        <input id="ragQueryInput" type="text" placeholder="e.g. What enterprise capstone projects are included in the Data Science track?" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white" />
-                        <button onclick="handleRAGQuery()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-md">Query Vector Store</button>
+                    <div class="flex gap-2">
+                        <input id="ragQuery" placeholder="Search knowledge across Banking, Healthcare, Beauty, Telecom, Agriculture..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-200 outline-none" />
+                        <button onclick="searchRAG()" class="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl">Search</button>
                     </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Retrieved Context & AI Response</span>
-                    <div id="ragOutput" class="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">Enter a query to test RAG retrieval.</div>
+                    <div id="ragResults" class="space-y-3"></div>
                 </div>
             </div>
 
-            <!-- 5. MODEL MANAGER TAB -->
-            <div id="tab-models" class="hidden max-w-4xl mx-auto w-full space-y-4">
-                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2">
-                        <i data-lucide="cpu" class="text-teal-400"></i> Ollama AI Model Puller & Manager
+            <!-- TAB 6: MODELS -->
+            <div id="tab-models" class="hidden space-y-6 max-w-4xl mx-auto">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
+                        <span>Installed LLM Models</span>
                     </h2>
-                    <div class="flex gap-3">
-                        <input id="pullModelInput" type="text" placeholder="Model tag (e.g. 'llama3.2', 'deepseek-r1:1.5b', 'mistral', 'qwen2.5-coder:1.5b')..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white font-mono" />
-                        <button onclick="handlePullModel()" class="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-xl shadow-md">Pull Model</button>
-                    </div>
-                    <div id="pullStatus" class="text-xs font-mono text-teal-400 hidden"></div>
-                </div>
-
-                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Installed Local Models</span>
-                        <button onclick="fetchLocalModels()" class="text-xs text-indigo-400 hover:underline">Refresh</button>
-                    </div>
-                    <div id="installedModelsList" class="space-y-2 text-xs">
-                        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">Loading models...</div>
-                    </div>
+                    <div id="modelsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
             </div>
 
@@ -240,186 +296,260 @@
     <script>
         lucide.createIcons();
 
-        function switchTab(tabId) {
-            const tabs = ['chat', 'codegen', 'codereview', 'rag', 'models'];
-            tabs.forEach(t => {
-                const el = document.getElementById('tab-' + t);
-                const btn = document.getElementById('tab-btn-' + t);
-                if (t === tabId) {
-                    el.classList.remove('hidden');
-                    btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25";
+        let currentActiveSector = 'banking';
+
+        const sectorConfig = {
+            banking: {
+                title: 'Banking & Fintech Intelligence Task',
+                capabilities: 'Biometrics • ISO 20022 • Fraud Scoring • Credit Risk (PD/LGD/EAD) • Algo Trading',
+                chips: [
+                    'Execute Biometric KYC verification and AML screening workflow.',
+                    'Construct ISO 20022 pacs.008 XML message schema for instant payments.',
+                    'Calculate Expected Loss (EL) using PD, LGD, and EAD with sample figures.',
+                    'Design Real-Time Fraud Anomaly Detection pipeline using XGBoost.'
+                ]
+            },
+            healthcare: {
+                title: 'Healthcare & Clinical Diagnostics Task',
+                capabilities: 'HL7 FHIR R4 • HIPAA Security • ESI Clinical Triage • Differential Diagnosis • e-Rx',
+                chips: [
+                    'Construct FHIR R4 JSON resource bundle for Patient and Observation vitals.',
+                    'Perform Emergency Severity Index (ESI) Triage for patient with acute chest pain.',
+                    'Check drug-drug contraindications for Warfarin and NSAIDs with clinical rationale.',
+                    'Generate standard SOAP clinical encounter note format.'
+                ]
+            },
+            beauty: {
+                title: 'Beauty & Skincare Specialist Task',
+                capabilities: 'Fitzpatrick Phototypes • Baumann 16 Profiles • TEWL Barrier • INCI Safety • AM/PM',
+                chips: [
+                    'Design personalized AM/PM routine for Fitzpatrick Type III with mild acne & barrier damage.',
+                    'Explain ingredient synergy and buffering between Pure Vitamin C and Niacinamide.',
+                    'Check INCI safety regulations under FDA MoCRA and EU Cosmetics 1223/2009.',
+                    'Formulate optimal 3:1:1 ceramide-cholesterol-fatty acid lipid barrier emulsion.'
+                ]
+            },
+            telecom: {
+                title: 'Telecom & 5G/6G Network Operations Task',
+                capabilities: '5G Standalone • Network Slicing (eMBB/URLLC/mMTC) • BGP SRv6 • Churn Prediction',
+                chips: [
+                    'Configure 5G Network Slicing parameters for URLLC sub-1ms robotics.',
+                    'Design self-healing BGP-4 routing algorithm for fiber packet drop mitigation.',
+                    'Train Machine Learning churn prediction model from Call Detail Records (CDRs).',
+                    'Specify 800G DWDM optical long-haul transport architecture.'
+                ]
+            },
+            agriculture: {
+                title: 'Agriculture & Precision AgTech Task',
+                capabilities: 'Multispectral NDVI • Drone Orthomosaics • Crop Pathology • NPK Chemistry • Smart Drip',
+                chips: [
+                    'Analyze multispectral NDVI indices (0.75 vs 0.28) and generate canopy stress heatmap.',
+                    'Diagnose Early Blight (Alternaria solani) and provide organic & chemical VRA remedy.',
+                    'Calculate precision NPK soil dosage for high-yield wheat crop.',
+                    'Schedule smart drip irrigation using FAO-56 Penman-Monteith ET0 equation.'
+                ]
+            },
+            government: {
+                title: 'Government & Public Sector Governance Task',
+                capabilities: 'Citizen Case Mgmt • Computer-Aided Dispatch (CAD) • eID Digital Identity • BIM Permits',
+                chips: [
+                    'Automate municipal building permit compliance verification using BIM/CAD data.',
+                    'Design zero-knowledge sovereign digital identity (eID) authentication workflow.',
+                    'Configure Computer-Aided Emergency Dispatch (CAD) multi-unit routing.',
+                    'Build public procurement tender ledger with cryptographic audit trail.'
+                ]
+            },
+            data_science: {
+                title: 'Data Science & Generative AI Task',
+                capabilities: 'PyTorch • Transformers • LLM Fine-Tuning (LoRA) • RAG Vector DBs • FullStack',
+                chips: [
+                    'Write PyTorch script for Transformer Multi-Head Self-Attention layer.',
+                    'Build LangChain RAG pipeline with ChromaDB and Reciprocal Rank Fusion.',
+                    'Fine-tune Llama 3.2 model using QLoRA 4-bit quantization.',
+                    'Architect production Spring Boot 3.3 and React 19 microservices stack.'
+                ]
+            }
+        };
+
+        function selectSector(sectorKey) {
+            currentActiveSector = sectorKey;
+            document.querySelectorAll('.sector-card').forEach(c => {
+                if (c.getAttribute('data-sector') === sectorKey) {
+                    c.classList.add('border-indigo-500', 'border-2');
+                    c.classList.remove('border-slate-800');
                 } else {
-                    el.classList.add('hidden');
-                    btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white";
+                    c.classList.remove('border-indigo-500', 'border-2');
+                    c.classList.add('border-slate-800');
                 }
             });
-            lucide.createIcons();
+
+            const cfg = sectorConfig[sectorKey];
+            document.getElementById('currentSectorTitle').innerHTML = `<span>${getSectorEmoji(sectorKey)}</span> ${cfg.title}`;
+            document.getElementById('currentSectorCapabilities').textContent = `Capabilities: ${cfg.capabilities}`;
+
+            const chipsContainer = document.getElementById('sectorQuickChips');
+            chipsContainer.innerHTML = cfg.chips.map(chip => `
+                <button onclick="setSectorQuery('${chip.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-indigo-900/50 border border-slate-700 text-slate-300 transition-colors">
+                    ${chip}
+                </button>
+            `).join('');
+
+            document.getElementById('sectorQueryInput').value = cfg.chips[0];
+            document.getElementById('sectorOutputContainer').classList.add('hidden');
         }
 
-        async function handleSendChat(e) {
-            e.preventDefault();
-            const input = document.getElementById('chatInput');
-            const prompt = input.value.trim();
-            if (!prompt) return;
+        function getSectorEmoji(sector) {
+            const map = { banking: '🏦', healthcare: '🩺', beauty: '💄', telecom: '📡', agriculture: '🌾', government: '🏛️', data_science: '🧠' };
+            return map[sector] || '⚡';
+        }
 
-            const chatBox = document.getElementById('chatBox');
-            const model = document.getElementById('modelSelector').value;
+        function setSectorQuery(text) {
+            document.getElementById('sectorQueryInput').value = text;
+        }
 
-            // Append User Message
-            chatBox.innerHTML += `
-                <div class="flex gap-3 items-start justify-end">
-                    <div class="bg-indigo-600/90 text-white p-4 rounded-2xl max-w-2xl text-xs sm:text-sm leading-relaxed">${escapeHtml(prompt)}</div>
-                    <div class="w-8 h-8 rounded-xl bg-indigo-900 flex items-center justify-center text-white text-xs font-bold shrink-0">U</div>
-                </div>
-            `;
-            input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
+        async function executeSectorAnalysis() {
+            const query = document.getElementById('sectorQueryInput').value.trim();
+            if (!query) return;
 
-            // Append AI Typing Message
-            const aiMsgId = 'ai-msg-' + Date.now();
-            chatBox.innerHTML += `
-                <div class="flex gap-3 items-start" id="${aiMsgId}">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">⚡</div>
-                    <div class="bg-slate-800 p-4 rounded-2xl max-w-2xl text-xs sm:text-sm text-slate-200 leading-relaxed content-box">
-                        <span class="animate-pulse">RAKI AI is thinking...</span>
-                    </div>
-                </div>
-            `;
-            chatBox.scrollTop = chatBox.scrollHeight;
+            const btn = document.getElementById('btnRunSector');
+            const outContainer = document.getElementById('sectorOutputContainer');
+            const outText = document.getElementById('sectorOutputText');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Analyzing with RAKI AI...</span>';
+            lucide.createIcons();
+            outContainer.classList.remove('hidden');
+            outText.textContent = "Synthesizing multi-sector RAG knowledge vectors and running LLM inference...";
 
             try {
-                const res = await fetch('/api/chat', {
+                const res = await fetch('/api/sector/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: model,
-                        messages: [{ role: 'user', content: prompt }],
-                        stream: false
+                        sector: currentActiveSector,
+                        query: query,
+                        model: document.getElementById('modelSelector').value
                     })
                 });
+
                 const data = await res.json();
-                const container = document.getElementById(aiMsgId).querySelector('.content-box');
-                container.innerHTML = formatMarkdown(data.response || 'No response returned.');
+                outText.textContent = data.analysis || "No response received.";
             } catch (err) {
-                const container = document.getElementById(aiMsgId).querySelector('.content-box');
-                container.innerHTML = '<span class="text-red-400">Error communicating with RAKI AI engine. Make sure model is pulled.</span>';
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        async function handleGenerateCode() {
-            const prompt = document.getElementById('codePrompt').value.trim();
-            const language = document.getElementById('codeLang').value;
-            const model = document.getElementById('modelSelector').value;
-            const btn = document.getElementById('codeGenBtn');
-            const output = document.getElementById('codeOutput');
-
-            if (!prompt) return alert('Please enter a prompt');
-            btn.disabled = true;
-            btn.innerText = 'Generating...';
-            output.innerText = 'Generating code with ' + model + '...';
-
-            try {
-                const res = await fetch('/api/code/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt, language, model })
-                });
-                const data = await res.json();
-                output.innerText = data.code || 'No code generated.';
-            } catch (err) {
-                output.innerText = 'Error: ' + err.message;
+                outText.textContent = "Error executing analysis: " + err.message;
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Generate Production Code';
+                btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i><span>Execute Domain Intelligence</span>';
+                lucide.createIcons();
             }
         }
 
-        async function handleReviewCode() {
-            const code = document.getElementById('reviewCodeInput').value.trim();
-            const model = document.getElementById('modelSelector').value;
-            const btn = document.getElementById('reviewBtn');
-            const output = document.getElementById('reviewOutput');
+        function switchTab(tabId) {
+            ['sectors', 'chat', 'codegen', 'codereview', 'rag', 'models'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('tab-btn-' + t).className = 'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white';
+            });
 
-            if (!code) return alert('Please paste code to review');
-            btn.disabled = true;
-            btn.innerText = 'Auditing...';
-            output.innerText = 'Auditing code with RAKI AI...';
-
-            try {
-                const res = await fetch('/api/code/review', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, language: 'code', model })
-                });
-                const data = await res.json();
-                output.innerText = data.review || 'Audit completed without findings.';
-            } catch (err) {
-                output.innerText = 'Error: ' + err.message;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Run Security & Quality Audit';
-            }
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-btn-' + tabId).className = 'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25';
         }
 
-        async function handleRAGQuery() {
-            const query = document.getElementById('ragQueryInput').value.trim();
-            const model = document.getElementById('modelSelector').value;
-            const output = document.getElementById('ragOutput');
-            if (!query) return;
+        // Initialize default sector
+        selectSector('banking');
 
-            output.innerText = 'Querying Vector Store & Synthesizing Answer...';
-            try {
-                const res = await fetch('/api/rag/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, model })
-                });
-                const data = await res.json();
-                output.innerText = `💡 ANSWER:\n${data.answer}\n\n📚 RETRIEVED CONTEXT:\n` + 
-                    data.context_documents.map(d => `• [${d.title}]: ${d.content}`).join('\n');
-            } catch (err) {
-                output.innerText = 'Error: ' + err.message;
-            }
+        // Chat logic
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const hist = document.getElementById('chatHistory');
+            hist.innerHTML += `
+                <div class="flex items-start justify-end gap-3">
+                    <div class="bg-indigo-600 text-white rounded-2xl p-4 text-xs leading-relaxed max-w-[85%]">${msg}</div>
+                </div>
+            `;
+            input.value = '';
+            hist.scrollTop = hist.scrollHeight;
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: msg }],
+                    model: document.getElementById('modelSelector').value
+                })
+            });
+
+            const data = await res.json();
+            hist.innerHTML += `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black shrink-0">RAKI</div>
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 text-xs leading-relaxed max-w-[85%] whitespace-pre-wrap">${data.response}</div>
+                </div>
+            `;
+            hist.scrollTop = hist.scrollHeight;
         }
 
-        async function fetchLocalModels() {
-            const listEl = document.getElementById('installedModelsList');
-            try {
-                const res = await fetch('/api/models');
-                const data = await res.json();
-                if (data.models && data.models.length > 0) {
-                    listEl.innerHTML = data.models.map(m => `
-                        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-                            <div>
-                                <strong class="text-white font-mono">${m.name}</strong>
-                                <span class="text-[10px] text-slate-500 block">Size: ${(m.size / (1024*1024*1024)).toFixed(2)} GB • Format: ${m.details?.format || 'GGUF'}</span>
-                            </div>
-                            <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-bold">READY</span>
-                        </div>
-                    `).join('');
-                } else {
-                    listEl.innerHTML = '<div class="p-3 text-slate-500">No models found. Pull a model using the input above.</div>';
-                }
-            } catch (err) {
-                listEl.innerHTML = '<div class="p-3 text-red-400">Failed to load models.</div>';
-            }
+        async function generateCode() {
+            const prompt = document.getElementById('codePrompt').value;
+            const lang = document.getElementById('codeLang').value;
+            const framework = document.getElementById('codeFramework').value;
+            const out = document.getElementById('codeOutput');
+            out.textContent = "Synthesizing code...";
+
+            const res = await fetch('/api/code/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, language: lang, framework, model: document.getElementById('modelSelector').value })
+            });
+            const data = await res.json();
+            out.textContent = data.code;
         }
 
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        async function reviewCode() {
+            const code = document.getElementById('reviewCodeInput').value;
+            const out = document.getElementById('reviewOutput');
+            out.textContent = "Auditing code for vulnerabilities...";
+
+            const res = await fetch('/api/code/review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language: 'javascript', model: document.getElementById('modelSelector').value })
+            });
+            const data = await res.json();
+            out.textContent = data.review;
         }
 
-        function formatMarkdown(text) {
-            return escapeHtml(text).replace(/\n/g, '<br/>');
+        async function searchRAG() {
+            const query = document.getElementById('ragQuery').value;
+            const res = await fetch('/api/rag/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, model: document.getElementById('modelSelector').value })
+            });
+            const data = await res.json();
+            const container = document.getElementById('ragResults');
+            container.innerHTML = data.context_documents.map(d => `
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                    <div class="font-bold text-xs text-indigo-400">[${d.sector?.toUpperCase() || 'CORE'}] ${d.title}</div>
+                    <div class="text-xs text-slate-300 mt-1 leading-relaxed">${d.content}</div>
+                </div>
+            `).join('');
         }
 
-        function copyCodeOutput() {
-            navigator.clipboard.writeText(document.getElementById('codeOutput').innerText);
-            alert('Code copied to clipboard!');
-        }
-
-        fetchLocalModels();
+        // Fetch Models on Load
+        fetch('/api/models').then(r => r.json()).then(d => {
+            const list = document.getElementById('modelsList');
+            list.innerHTML = d.models.map(m => `
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-xs text-white font-mono">${m.name}</div>
+                        <div class="text-[10px] text-slate-400">${(m.size / 1024 / 1024).toFixed(0)} MB • ${m.details?.family || 'LLM'}</div>
+                    </div>
+                    <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] rounded font-bold">READY</span>
+                </div>
+            `).join('');
+        });
     </script>
 </body>
 </html>

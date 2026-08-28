@@ -87,10 +87,16 @@ const Header = () => {
 
                 <div className="container mx-auto px-6 flex items-center justify-between">
                     {/* Brand Logo */}
-                    <Link to="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-600/30 group-hover:scale-105 transition-transform">
-                            TS
-                        </div>
+                    <Link to="/" className="flex items-center gap-3 group">
+                        <img 
+                            src="/logo-main.jpeg" 
+                            alt="TSAR IT INTERNSHIP" 
+                            className="h-10 w-auto max-h-10 rounded-lg object-contain group-hover:scale-105 transition-transform shadow-xs"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/tsar-logo.jpg';
+                            }}
+                        />
                         <div className="flex flex-col">
                             <span className="text-xl sm:text-2xl font-black font-display text-slate-900 tracking-tight leading-none group-hover:text-blue-600 transition-colors">
                                 TSAR <span className="text-blue-600">IT</span>

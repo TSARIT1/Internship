@@ -38,9 +38,15 @@ const StudentSidebar = ({ onClose }) => {
             {/* Brand Header */}
             <div className="h-20 flex items-center justify-between px-6 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center font-black text-lg shadow-md shadow-blue-500/20 text-white">
-                        T
-                    </div>
+                    <img 
+                        src="/logo-main.jpeg" 
+                        alt="TSAR IT" 
+                        className="w-10 h-10 rounded-xl object-contain shadow-xs border border-slate-100"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/tsar-logo.jpg';
+                        }}
+                    />
                     <div>
                         <h1 className="font-black text-base tracking-tight text-slate-900 leading-none">
                             TSAR <span className="text-blue-600">IT</span>

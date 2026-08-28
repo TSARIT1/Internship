@@ -104,9 +104,15 @@ const AdminSidebar = () => {
                     {/* Header Brand */}
                     <div className="p-4 sm:p-5 border-b border-slate-800 shrink-0 bg-slate-950/60">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-md shadow-blue-600/30">
-                                TS
-                            </div>
+                            <img 
+                                src="/logo-main.jpeg" 
+                                alt="TSAR IT" 
+                                className="w-9 h-9 rounded-xl object-contain bg-white/10 p-0.5 shadow-md shadow-blue-600/30"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/tsar-logo.jpg';
+                                }}
+                            />
                             <div className="min-w-0">
                                 <h1 className="font-black text-sm text-white truncate tracking-tight font-display">
                                     TSAR IT INTERNSHIP

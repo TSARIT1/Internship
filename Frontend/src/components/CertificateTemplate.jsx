@@ -32,9 +32,15 @@ const CertificateTemplate = forwardRef(({
                 <div className="flex items-center justify-between border-b-2 border-slate-200/80 pb-4 relative z-10">
                     {/* Brand Logo & Organization */}
                     <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-teal-500 flex items-center justify-center text-white font-black text-2xl shadow-md">
-                            TS
-                        </div>
+                        <img 
+                            src="/logo-main.jpeg" 
+                            alt="TSAR IT" 
+                            className="w-14 h-14 rounded-2xl object-contain shadow-md border border-slate-200/60 p-0.5 bg-white"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/tsar-logo.jpg';
+                            }}
+                        />
                         <div>
                             <h2 className="text-2xl font-black tracking-tight text-slate-900 leading-tight font-serif">
                                 TSAR <span className="text-blue-600">IT</span> INTERNSHIP

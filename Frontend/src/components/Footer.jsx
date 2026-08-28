@@ -35,10 +35,16 @@ const Footer = () => {
 
                     {/* Brand & Mission (Col 1-2) */}
                     <div className="lg:col-span-2 space-y-5">
-                        <Link to="/" className="flex items-center gap-2">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/30">
-                                TS
-                            </div>
+                        <Link to="/" className="flex items-center gap-3">
+                            <img 
+                                src="/logo-main.jpeg" 
+                                alt="TSAR IT INTERNSHIP" 
+                                className="h-10 w-auto max-h-10 rounded-lg object-contain bg-white/10 p-0.5"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/tsar-logo.jpg';
+                                }}
+                            />
                             <div className="flex flex-col">
                                 <span className="text-2xl font-black font-display text-white tracking-tight leading-none">
                                     TSAR <span className="text-blue-500">IT</span>

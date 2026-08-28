@@ -72,7 +72,7 @@ const VerifyCertificate = () => {
             />
             <Header />
 
-            <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
+            <main className="flex-1 pt-32 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-3xl mx-auto space-y-8">
                     
                     {/* Header */}

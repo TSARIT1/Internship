@@ -6,15 +6,23 @@ Backend/target/
 *.jar
 *.war
 backend.log
+*.log
+*.log.*
+*.gz
 Backend/src/main/resources/application-prod.properties
 
 # =====================
-# Frontend
+# Frontend & Node
 # =====================
+node_modules/
+*/node_modules/
 Frontend/node_modules/
+frontend/node_modules/
+backend/node_modules/
+Backend/node_modules/
 Frontend/dist/
-Frontend/.env.production
-Frontend/.env.local
+frontend/dist/
+dist/
 
 # =====================
 # IDE & OS

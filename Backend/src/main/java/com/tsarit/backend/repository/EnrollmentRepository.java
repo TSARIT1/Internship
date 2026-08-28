@@ -11,6 +11,10 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     Optional<Enrollment> findByUserAndCourseName(User user, String courseName);
 
+    Optional<Enrollment> findByCertificateId(String certificateId);
+
+    List<Enrollment> findByCertificateIssued(boolean certificateIssued);
+
     @org.springframework.data.jpa.repository.Query("SELECT SUM(e.amountPaid) FROM Enrollment e")
     Double getTotalRevenue();
 }

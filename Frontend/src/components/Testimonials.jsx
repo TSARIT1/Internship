@@ -54,7 +54,7 @@ const Testimonials = () => {
                         viewport={{ once: true }}
                         className="text-3xl lg:text-5xl font-bold font-display text-slate-900 mb-6"
                     >
-                        Success <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Stories</span>
+                        Success <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">Stories</span>
                     </motion.h2>
                     <p className="text-slate-600 max-w-2xl mx-auto text-lg">
                         Hear from our students who transformed their careers with us.
@@ -71,7 +71,7 @@ const Testimonials = () => {
                             transition={{ delay: index * 0.1 }}
                             className="bg-slate-50 p-8 rounded-2xl border border-slate-100 shadow-lg relative hover:-translate-y-2 transition-transform duration-300"
                         >
-                            <Quote className="absolute top-8 right-8 text-blue-100" size={48} />
+                            <Quote className="absolute top-8 right-8 text-teal-100" size={48} />
 
                             <div className="flex gap-1 mb-6 text-amber-400">
                                 {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
@@ -85,7 +85,7 @@ const Testimonials = () => {
                                 <SmartAvatar src={item.image} name={item.name} />
                                 <div>
                                     <div className="font-bold text-slate-900">{item.name}</div>
-                                    <div className="text-xs text-blue-600 font-bold uppercase tracking-wide">{item.course}</div>
+                                    <div className="text-xs text-teal-600 font-bold uppercase tracking-wide">{item.course}</div>
                                 </div>
                             </div>
                         </motion.div>

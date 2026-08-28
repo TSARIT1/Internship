@@ -4,6 +4,29 @@ import { Mail, ArrowLeft, CheckCircle, AlertCircle, Lock, ShieldCheck, X } from 
 import { Link, useNavigate } from 'react-router-dom';
 import { forgotPassword, verifyOtp, resetPassword } from '../services/studentApi';
 
+const StepIndicator = ({ step }) => (
+    <div className="flex items-center justify-center gap-2 mb-8">
+        {[1, 2, 3].map((s) => (
+            <React.Fragment key={s}>
+                <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s
+                            ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/30'
+                            : 'bg-slate-100 text-slate-400'
+                        }`}
+                >
+                    {step > s ? '✓' : s}
+                </div>
+                {s < 3 && (
+                    <div
+                        className={`w-12 h-1 rounded-full transition-all duration-300 ${step > s ? 'bg-orange-400' : 'bg-slate-200'
+                            }`}
+                    />
+                )}
+            </React.Fragment>
+        ))}
+    </div>
+);
+
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: new password
@@ -149,30 +172,6 @@ const ForgotPassword = () => {
         }
     };
 
-    // Step indicators
-    const StepIndicator = () => (
-        <div className="flex items-center justify-center gap-2 mb-8">
-            {[1, 2, 3].map((s) => (
-                <React.Fragment key={s}>
-                    <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s
-                                ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/30'
-                                : 'bg-slate-100 text-slate-400'
-                            }`}
-                    >
-                        {step > s ? '✓' : s}
-                    </div>
-                    {s < 3 && (
-                        <div
-                            className={`w-12 h-1 rounded-full transition-all duration-300 ${step > s ? 'bg-orange-400' : 'bg-slate-200'
-                                }`}
-                        />
-                    )}
-                </React.Fragment>
-            ))}
-        </div>
-    );
-
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             {/* Background */}
@@ -215,7 +214,7 @@ const ForgotPassword = () => {
                         <ArrowLeft size={16} className="mr-1" /> Back to Login
                     </Link>
 
-                    <StepIndicator />
+                    <StepIndicator step={step} />
 
                     {/* Success State */}
                     {status === 'success' ? (

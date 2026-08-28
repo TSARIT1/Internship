@@ -82,4 +82,21 @@ public class UserService {
         user.setPassword(encryptedPassword);
         userRepository.save(user);
     }
+
+    public User toggleFreezeUser(Long id, Boolean freeze, String reason) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsFrozen(freeze != null ? freeze : !user.getIsFrozen());
+        if (reason != null) {
+            user.setFreezeReason(reason);
+        }
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
 }

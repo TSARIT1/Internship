@@ -49,15 +49,15 @@ const AdminVideoTestimonials = () => {
     const [thumbPreview, setThumbPreview] = useState('');
     const thumbInputRef = useRef(null);
 
-    useEffect(() => {
-        loadTestimonials();
-    }, []);
-
     const loadTestimonials = async () => {
         const response = await getVideoTestimonials();
         setTestimonials(response.data);
         setLoading(false);
     };
+
+    useEffect(() => {
+        loadTestimonials();
+    }, []);
 
     const handleDelete = async (id) => {
         if (window.confirm('Delete this video testimonial?')) {

@@ -32,7 +32,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @jakarta.validation.constraints.Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
+    @jakarta.validation.constraints.Pattern(regexp = "^$|^\\+?[0-9\\s\\-()]{7,20}$", message = "Please enter a valid phone number")
     private String phone;
     private String course;
     private String role; // ADMIN or STUDENT
@@ -140,5 +140,24 @@ public class User {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    private Boolean isFrozen = false;
+    private String freezeReason;
+
+    public Boolean getIsFrozen() {
+        return isFrozen != null ? isFrozen : false;
+    }
+
+    public void setIsFrozen(Boolean isFrozen) {
+        this.isFrozen = isFrozen;
+    }
+
+    public String getFreezeReason() {
+        return freezeReason;
+    }
+
+    public void setFreezeReason(String freezeReason) {
+        this.freezeReason = freezeReason;
     }
 }

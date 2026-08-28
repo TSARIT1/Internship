@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getCourseContent } from '../../services/studentApi';
+import { getCourseContent, getMyEnrollments, updateEnrollmentProgress } from '../../services/studentApi';
 import { PlayCircle, CheckCircle, ArrowLeft, Menu, X, Video, FileQuestion } from 'lucide-react';
 import QuizPlayer from '../../components/QuizPlayer';
 

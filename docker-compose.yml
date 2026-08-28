@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  tsar-mysql:
+    image: mysql:8.0
+    container_name: tsar-internship-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wesly8143
+      MYSQL_DATABASE: internship
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pwesly8143"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - tsar-network
+
+  tsar-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tsar-internship-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://tsar-mysql:3306/internship?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=wesly8143
+      - APP_CORS_ALLOWED_ORIGINS=https://internship.tsaritservices.com,http://internship.tsaritservices.com,http://localhost:5173
+      - APP_FRONTEND_URL=https://internship.tsaritservices.com
+    depends_on:
+      tsar-mysql:
+        condition: service_healthy
+    networks:
+      - tsar-network
+
+  tsar-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tsar-internship-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - tsar-backend
+    networks:
+      - tsar-network
+
+volumes:
+  mysql_data:
+
+networks:
+  tsar-network:
+    driver: bridge

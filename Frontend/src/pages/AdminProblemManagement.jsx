@@ -23,10 +23,6 @@ const AdminProblemManagement = () => {
         testCases: []
     });
 
-    useEffect(() => {
-        loadData();
-    }, []);
-
     const loadData = async () => {
         setLoading(true);
         const [probs, hacks] = await Promise.all([getProblems(), getHackathons()]);
@@ -34,6 +30,10 @@ const AdminProblemManagement = () => {
         if (hacks.success) setHackathons(hacks.data);
         setLoading(false);
     };
+
+    useEffect(() => {
+        loadData();
+    }, []);
 
     const handleEdit = (problem) => {
         setEditingProblem(problem.id);

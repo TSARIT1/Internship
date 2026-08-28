@@ -26,14 +26,21 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@jakarta.validation.Valid @RequestBody User user) {
+        if (user.getUsername() != null) user.setUsername(user.getUsername().trim());
+        if (user.getEmail() != null) user.setEmail(user.getEmail().trim().toLowerCase());
+        if (user.getPhone() != null) user.setPhone(user.getPhone().trim());
+
         if (userService.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            return ResponseEntity.badRequest().body(Map.of("message", "Username already exists"));
         }
         if (userService.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+        }
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("STUDENT");
         }
         userService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok(Map.of("message", "User registered successfully", "username", user.getUsername(), "email", user.getEmail()));
     }
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthController.class);
@@ -41,13 +48,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            logger.info("Login attempt for identifier: {}", loginRequest.getUsername());
+            String identifier = loginRequest.getUsername() != null ? loginRequest.getUsername() : loginRequest.getEmail();
+            logger.info("Login attempt for identifier: {}", identifier);
 
-            Optional<User> userOptional = userService.findByUsername(loginRequest.getUsername());
+            Optional<User> userOptional = userService.findByUsername(identifier);
 
             if (userOptional.isEmpty()) {
                 logger.info("User not found by username. Trying email...");
-                userOptional = userService.findByEmail(loginRequest.getUsername());
+                userOptional = userService.findByEmail(identifier);
             }
 
             if (userOptional.isPresent()) {
@@ -73,6 +81,14 @@ public class AuthController {
                 logger.info("PasswordEncoder Match Result: {}", matchesEncoded);
 
                 if (matchesEncoded) {
+                    if (Boolean.TRUE.equals(user.getIsFrozen())) {
+                        logger.warn("Frozen user attempted login: {}", user.getUsername());
+                        return ResponseEntity.status(403).body(Map.of(
+                                "message", "Your account has been temporarily frozen by administration. Please contact tsarit@tsaritservices.com to resolve.",
+                                "isFrozen", true
+                        ));
+                    }
+
                     logger.info("Login successful for user: {}", user.getUsername());
                     String token = jwtUtils.generateJwtToken(user);
 
@@ -122,13 +138,36 @@ public class AuthController {
     @PutMapping("/update-user/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         try {
-            // We can add specific logic here if we want to ensure only certain fields are
-            // updated
-            // For now, using the service method which likely saves the whole entity
             User existingUser = userService.updateUser(id, user);
             return ResponseEntity.ok(existingUser); // Return updated user
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/users/{id}/toggle-freeze")
+    public ResponseEntity<?> toggleFreeze(@PathVariable Long id, @RequestBody(required = false) Map<String, Object> payload) {
+        try {
+            Boolean freeze = payload != null && payload.containsKey("freeze") ? (Boolean) payload.get("freeze") : null;
+            String reason = payload != null && payload.containsKey("reason") ? (String) payload.get("reason") : null;
+            User updated = userService.toggleFreezeUser(id, freeze, reason);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", (Boolean.TRUE.equals(updated.getIsFrozen()) ? "Account has been frozen" : "Account has been reactivated"),
+                    "user", updated
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(Map.of("message", "Failed to update freeze status: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(Map.of("success", true, "message", "User deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Failed to delete user: " + e.getMessage()));
         }
     }
 
@@ -224,6 +263,7 @@ public class AuthController {
 
     static class LoginRequest {
         private String username;
+        private String email;
         private String password;
 
         public String getUsername() {
@@ -232,6 +272,14 @@ public class AuthController {
 
         public void setUsername(String username) {
             this.username = username;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
         }
 
         public String getPassword() {

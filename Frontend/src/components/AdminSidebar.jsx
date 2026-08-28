@@ -13,8 +13,10 @@ import {
     BookOpen,
 
     Server,
-    Code, // Import
+    Code,
     UserCog,
+    HelpCircle,
+    Award,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,6 +42,9 @@ const AdminSidebar = () => {
         { path: '/admin/video-testimonials', name: 'Video Reviews', icon: Video }, // Using Video icon since it matches
         { path: '/admin/testimonials', name: 'Testimonials', icon: MessageSquareQuote },
         { path: '/admin/students', name: 'Registered Students', icon: Users },
+        { path: '/admin/certificates', name: 'Certificates', icon: Award },
+        { path: '/admin/tickets', name: 'Support Tickets', icon: HelpCircle },
+        { path: '/admin/leads', name: 'Admissions Leads', icon: UserCog },
         { path: '/admin/payments', name: 'Payments', icon: CircleDollarSign },
         { path: '/admin/pricing', name: 'Pricing', icon: CircleDollarSign },
         { path: '/admin/course-content', name: 'Course Content', icon: Video },
@@ -47,53 +52,6 @@ const AdminSidebar = () => {
     ];
 
     const toggleSidebar = () => setIsOpen(!isOpen);
-
-    const SidebarContent = () => (
-        <div className="flex flex-col h-full bg-slate-900 text-white">
-            <div className="p-6 border-b border-slate-800">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-600/20">
-                        TS
-                    </div>
-                    <div>
-                        <h1 className="font-bold text-lg leading-tight">Admin Portal</h1>
-                        <p className="text-xs text-slate-400">Internship Manager</p>
-                    </div>
-                </div>
-            </div>
-
-            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                {menuItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => window.innerWidth < 1024 && setIsOpen(false)}
-                        className={({ isActive }) => `
-                            flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group
-                            ${isActive
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 font-medium'
-                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                            }
-                        `}
-                    >
-                        <item.icon size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                        <span className="flex-1">{item.name}</span>
-                        <ChevronRight size={16} className={`opacity-0 group-hover:opacity-100 transition-opacity`} />
-                    </NavLink>
-                ))}
-            </nav>
-
-            <div className="p-4 border-t border-slate-800">
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3.5 w-full text-left text-red-400 hover:bg-slate-800 hover:text-red-300 rounded-xl transition-all duration-200"
-                >
-                    <LogOut size={20} />
-                    <span className="font-medium">Logout</span>
-                </button>
-            </div>
-        </div>
-    );
 
     return (
         <>
@@ -124,7 +82,50 @@ const AdminSidebar = () => {
                 transition-transform duration-300 ease-in-out
                 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
-                <SidebarContent />
+                <div className="flex flex-col h-full bg-slate-900 text-white">
+                    <div className="p-6 border-b border-slate-800">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-600/20">
+                                TS
+                            </div>
+                            <div>
+                                <h1 className="font-bold text-lg leading-tight">Admin Portal</h1>
+                                <p className="text-xs text-slate-400">Internship Manager</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                        {menuItems.map((item) => (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                onClick={() => window.innerWidth < 1024 && setIsOpen(false)}
+                                className={({ isActive }) => `
+                                    flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group
+                                    ${isActive
+                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 font-medium'
+                                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                    }
+                                `}
+                            >
+                                <item.icon size={20} className="group-hover:scale-110 transition-transform duration-200" />
+                                <span className="flex-1">{item.name}</span>
+                                <ChevronRight size={16} className={`opacity-0 group-hover:opacity-100 transition-opacity`} />
+                            </NavLink>
+                        ))}
+                    </nav>
+
+                    <div className="p-4 border-t border-slate-800">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 px-4 py-3.5 w-full text-left text-red-400 hover:bg-slate-800 hover:text-red-300 rounded-xl transition-all duration-200"
+                        >
+                            <LogOut size={20} />
+                            <span className="font-medium">Logout</span>
+                        </button>
+                    </div>
+                </div>
             </aside>
         </>
     );

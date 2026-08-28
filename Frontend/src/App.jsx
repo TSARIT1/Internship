@@ -17,6 +17,7 @@ import PythonProgramming from './pages/PythonProgramming';
 import AWSCloudComputing from './pages/AWSCloudComputing';
 import CyberSecurity from './pages/CyberSecurity';
 import Webinars from './pages/Webinars';
+import Hackathons from './pages/Hackathons';
 
 import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -35,6 +36,7 @@ import AdminCourseContent from './pages/AdminCourseContent';
 
 import AdminHackathons from './pages/AdminHackathons';
 import AdminProfile from './pages/AdminProfile';
+import AdminLeads from './pages/AdminLeads';
 
 
 
@@ -51,7 +53,12 @@ import StudentHackathons from './pages/student/StudentHackathons';
 import HackathonDetails from './pages/HackathonDetails';
 import ProblemDetail from './pages/student/ProblemDetail';
 import AdminProblemManagement from './pages/AdminProblemManagement';
-
+import AdminTickets from './pages/AdminTickets';
+import AdminCertificates from './pages/AdminCertificates';
+import VerifyCertificate from './pages/VerifyCertificate';
+import StudentFees from './pages/student/StudentFees';
+import StudentCertificates from './pages/student/StudentCertificates';
+import StudentTickets from './pages/student/StudentTickets';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
@@ -82,7 +89,10 @@ function App() {
         <Route path="/enroll" element={<Enroll />} />
         <Route path="/enroll-success" element={<ProtectedRoute><EnrollSuccess /></ProtectedRoute>} />
         <Route path="/webinars" element={<Webinars />} />
+        <Route path="/hackathons" element={<Hackathons />} />
         <Route path="/hackathon/:id" element={<HackathonDetails />} />
+        <Route path="/verify-certificate" element={<VerifyCertificate />} />
+        <Route path="/verify-certificate/:certificateId" element={<VerifyCertificate />} />
 
         {/* Auth Routes */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -100,8 +110,11 @@ function App() {
           <Route path="video-testimonials" element={<AdminVideoTestimonials />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="students" element={<AdminStudents />} />
+          <Route path="certificates" element={<AdminCertificates />} />
+          <Route path="tickets" element={<AdminTickets />} />
           <Route path="payments" element={<AdminPayments />} />
           <Route path="pricing" element={<AdminPricing />} />
+          <Route path="leads" element={<AdminLeads />} />
           <Route path="problems" element={<AdminProblemManagement />} />
 
           <Route path="course-content" element={<AdminCourseContent />} />
@@ -113,6 +126,9 @@ function App() {
         <Route path="/studentdashboard" element={<StudentProtectedRoute><StudentLayout /></StudentProtectedRoute>}>
           <Route index element={<StudentDashboardHome />} />
           <Route path="courses" element={<StudentCourses />} />
+          <Route path="fees" element={<StudentFees />} />
+          <Route path="certificates" element={<StudentCertificates />} />
+          <Route path="tickets" element={<StudentTickets />} />
           <Route path="webinars" element={<StudentWebinars />} />
           <Route path="my-registrations" element={<StudentRegistrations />} />
           <Route path="testimonials" element={<StudentTestimonials />} />

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.UUID;
 
 @Service
@@ -35,7 +35,7 @@ public class PasswordResetService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    @org.springframework.beans.factory.annotation.Value("${app.mail.from:tsarit@tsaritservices.com}")
     private String fromEmail;
 
     /**
@@ -57,8 +57,8 @@ public class PasswordResetService {
         tokenRepository.findByUser(user).ifPresent(tokenRepository::delete);
 
         // Generate 6-digit OTP
-        String otp = String.format("%06d", new Random().nextInt(999999));
-        logger.info("Generated OTP for user {}: {}", user.getEmail(), otp);
+        String otp = String.format("%06d", new SecureRandom().nextInt(1000000));
+        logger.debug("Generated OTP for user {}", user.getEmail());
 
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setUser(user);
@@ -140,20 +140,52 @@ public class PasswordResetService {
     }
 
     private void sendOtpEmail(String to, String otp) {
-        String subject = "Password Reset OTP - TSARIT";
-        String content = "Hello,\n\n" +
-                "Your OTP for password reset is:\n\n" +
-                "    " + otp + "\n\n" +
-                "This OTP is valid for 10 minutes.\n" +
-                "If you did not request this, please ignore this email.\n\n" +
-                "Best Regards,\nTSAR IT Services Team";
+        String subject = "Password Reset OTP - TSAR IT Internship";
+        String htmlContent = """
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 540px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background-color: #ffffff;">
+                    <div style="background: linear-gradient(135deg, #1e293b, #0f172a); color: #ffffff; padding: 24px 28px;">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #38bdf8;">Password Reset Request</h2>
+                    </div>
+                    <div style="padding: 28px; color: #334155; line-height: 1.6;">
+                        <p style="font-size: 15px; margin-top: 0;">We received a request to reset your password for your TSAR IT Internship account.</p>
+                        <div style="text-align: center; margin: 24px 0; background: #f8fafc; padding: 18px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                            <span style="font-size: 13px; color: #64748b; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Your One-Time Password (OTP)</span>
+                            <strong style="font-size: 32px; letter-spacing: 6px; color: #0284c7; font-family: monospace;">%s</strong>
+                        </div>
+                        <p style="font-size: 13px; color: #64748b;">This OTP is valid for <strong>10 minutes</strong>. Please do not share this code with anyone.</p>
+                        <p style="font-size: 13px; color: #94a3b8; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 12px;">If you did not request a password reset, you can safely ignore this email.</p>
+                    </div>
+                    <div style="background-color: #f8fafc; padding: 14px 28px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8;">
+                        TSAR IT Internship Team &bull; <a href="https://internship.tsaritservices.com" style="color: #2563eb;">internship.tsaritservices.com</a>
+                    </div>
+                </div>
+                """.formatted(otp);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(content);
-        message.setFrom(fromEmail);
+        String textContent = String.format("""
+                Dear User,
 
-        mailSender.send(message);
+                We received a request to reset your password for your TSAR IT Internship account.
+
+                Your One-Time Password (OTP) is: %s
+
+                This OTP is valid for 10 minutes. Please do not share this code with anyone.
+
+                Best Regards,
+                TSAR IT Services Team
+                https://internship.tsaritservices.com/
+                """, otp);
+
+        try {
+            jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(fromEmail != null ? fromEmail : "tsarit@tsaritservices.com", "TSAR IT Internship");
+            helper.setTo(to.trim());
+            helper.setSubject(subject);
+            helper.setText(textContent, htmlContent);
+            mailSender.send(mimeMessage);
+            logger.info("Password reset OTP sent to {}", to);
+        } catch (Exception e) {
+            logger.error("Failed to send OTP to {}: {}", to, e.getMessage());
+        }
     }
 }

@@ -70,7 +70,7 @@ const AdminProfile = () => {
                     </div>
                     <div>
                         <h2 className="text-xl font-bold text-slate-900">{adminUser.username || 'Admin'}</h2>
-                        <p className="text-slate-500">{adminUser.email || 'admin@tsarit.com'}</p>
+                        <p className="text-slate-500">{adminUser.email || 'tsaritservices@gmail.com'}</p>
                     </div>
                 </div>
 

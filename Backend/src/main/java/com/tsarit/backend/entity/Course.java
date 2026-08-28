@@ -1,13 +1,13 @@
 package com.tsarit.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+// import lombok.Data; // Removed unused import
 import java.util.List;
 import java.util.ArrayList;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+// import jakarta.validation.constraints.Size; // Removed unused import
 
 @Entity
 @Table(name = "courses")

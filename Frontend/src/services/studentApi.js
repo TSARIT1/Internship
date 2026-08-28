@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:8080/api' : '/api');
 const API_URL = `${API_BASE}/auth`;
 const ENROLLMENT_URL = `${API_BASE}/enrollments`;
 
@@ -66,27 +66,48 @@ export const updatePricing = async (courseName, newFee, newDiscount, existingCou
 };
 
 export const updateStudentFee = async (id, fee, discount) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const students = getLocalStudents();
-            const studentIndex = students.findIndex(s => s.id === id);
-            if (studentIndex !== -1) {
-                students[studentIndex] = { ...students[studentIndex], totalFee: Number(fee), discount: Number(discount) };
-                setLocalStudents(students);
-                resolve({ success: true, data: students[studentIndex] });
-            } else {
-                resolve({ success: false, message: "Student not found" });
-            }
-        }, 500);
-    });
-};
-
-export const updateStudentCertificate = async (enrollmentId, status) => {
     try {
-        const response = await axios.put(`${ENROLLMENT_URL}/${enrollmentId}/certificate`, { status });
+        const response = await axios.put(`${ENROLLMENT_URL}/${id}/fee`, { fee: Number(fee), discount: Number(discount) });
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, message: "Update failed" };
+        return { success: false, message: "Failed to update fee" };
+    }
+};
+
+export const updateStudentCertificate = async (enrollmentId, status, extraData = {}) => {
+    try {
+        const payload = { status, ...extraData };
+        const response = await axios.put(`${ENROLLMENT_URL}/${enrollmentId}/certificate`, payload);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Update failed" };
+    }
+};
+
+export const generateCertificateForEnrollment = async (enrollmentId) => {
+    try {
+        const response = await axios.post(`${ENROLLMENT_URL}/${enrollmentId}/generate-certificate`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Certificate generation failed" };
+    }
+};
+
+export const generateAllCertificates = async () => {
+    try {
+        const response = await axios.post(`${ENROLLMENT_URL}/generate-all-certificates`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Batch certificate generation failed" };
+    }
+};
+
+export const verifyCertificateApi = async (certificateId) => {
+    try {
+        const response = await axios.get(`${ENROLLMENT_URL}/verify-certificate/${certificateId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Certificate verification failed" };
     }
 };
 
@@ -209,17 +230,25 @@ export const getAllEnrollments = async () => {
 
 export const loginStudent = async (email, password) => {
     try {
-        const response = await axios.post(`${API_URL}/login`, { username: email, password });
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const response = await axios.post(`${API_URL}/login`, { username: cleanEmail, password });
         if (response.status === 200) {
             const { token, user } = response.data;
             if(token) {
                 sessionStorage.setItem('token', token);
-                if (user.role) sessionStorage.setItem('role', user.role);
+                if (user?.role) sessionStorage.setItem('role', user.role);
             }
             return { success: true, data: { user, token } };
         }
+        return { success: false, message: "Login failed" };
     } catch (error) {
-        return { success: false, message: error.response?.data || "Login failed" };
+        let msg = "Invalid username or password";
+        if (typeof error.response?.data === 'string') {
+            msg = error.response.data;
+        } else if (typeof error.response?.data === 'object' && error.response?.data !== null) {
+            msg = error.response.data.message || Object.values(error.response.data).join(', ') || msg;
+        }
+        return { success: false, message: msg };
     }
 };
 
@@ -252,16 +281,26 @@ export const resetPassword = async (token, newPassword) => {
 
 export const registerStudent = async (studentData) => {
     try {
+        const cleanName = (studentData.name || studentData.username || '').trim();
+        const cleanEmail = (studentData.email || '').trim().toLowerCase();
+        const cleanPhone = (studentData.phone || '').trim();
+
         const response = await axios.post(`${API_URL}/register`, {
-            username: studentData.name || studentData.email,
-            email: studentData.email,
+            username: cleanName || cleanEmail,
+            email: cleanEmail,
             password: studentData.password,
-            phone: studentData.phone,
+            phone: cleanPhone,
             course: studentData.course || studentData.webinar
         });
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, message: error.response?.data || "Registration failed" };
+        let msg = "Registration failed";
+        if (typeof error.response?.data === 'string') {
+            msg = error.response.data;
+        } else if (typeof error.response?.data === 'object' && error.response?.data !== null) {
+            msg = error.response.data.message || Object.values(error.response.data).join(', ') || msg;
+        }
+        return { success: false, message: msg };
     }
 };
 
@@ -458,3 +497,107 @@ export const updateEnrollmentStatus = async (enrollmentId, status) => {
         return { success: false, message: "Status update failed" };
     }
 };
+
+export const updateEnrollmentProgress = async (enrollmentId, progress) => {
+    try {
+        const response = await axios.put(`${ENROLLMENT_URL}/${enrollmentId}/progress`, { progress });
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: "Progress update failed" };
+    }
+};
+
+export const getContactQueries = async () => {
+    try {
+        const response = await axios.get(`${API_BASE}/contact/all`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, data: [] };
+    }
+};
+
+export const updateContactStatus = async (id, status) => {
+    try {
+        const response = await axios.put(`${API_BASE}/contact/${id}/status`, { status });
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: "Status update failed" };
+    }
+};
+
+export const deleteContactQuery = async (id) => {
+    try {
+        const response = await axios.delete(`${API_BASE}/contact/${id}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: "Delete failed" };
+    }
+};
+
+// --- Helpdesk & Ticket Management ---
+
+export const createTicket = async (ticketData) => {
+    try {
+        const response = await axios.post(`${API_BASE}/tickets/create`, ticketData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Failed to create ticket" };
+    }
+};
+
+export const getMyTickets = async (userId) => {
+    try {
+        const response = await axios.get(`${API_BASE}/tickets/my-tickets/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, data: [] };
+    }
+};
+
+export const getAllTickets = async () => {
+    try {
+        const response = await axios.get(`${API_BASE}/tickets/all`);
+        return { success: true, data: response.data.tickets || [], stats: response.data.stats || {} };
+    } catch (error) {
+        return { success: false, data: [], stats: {} };
+    }
+};
+
+export const replyToTicket = async (ticketId, replyData) => {
+    try {
+        const response = await axios.put(`${API_BASE}/tickets/${ticketId}/reply`, replyData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Failed to submit reply" };
+    }
+};
+
+export const updateTicketStatus = async (ticketId, status) => {
+    try {
+        const response = await axios.put(`${API_BASE}/tickets/${ticketId}/status`, { status });
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: "Status update failed" };
+    }
+};
+
+// --- Super Admin Student Freeze / Unfreeze ---
+
+export const toggleFreezeStudent = async (userId, freeze, reason = '') => {
+    try {
+        const response = await axios.put(`${API_URL}/users/${userId}/toggle-freeze`, { freeze, reason });
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Failed to toggle account freeze state" };
+    }
+};
+
+export const deleteStudentAccount = async (userId) => {
+    try {
+        const response = await axios.delete(`${API_URL}/users/${userId}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "Failed to delete account" };
+    }
+};
+

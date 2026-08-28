@@ -1,10 +1,10 @@
 package com.tsarit.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+// import lombok.Data; // Removed unused import
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import com.tsarit.backend.entity.Quiz;
+// import com.tsarit.backend.entity.Quiz; // Removed unused import
 import java.util.List;
 import java.util.ArrayList;
 

@@ -83,16 +83,6 @@ const AdminCourseContent = () => {
     const [newVideo, setNewVideo] = useState({ title: '', section: '', type: 'youtube', url: '', duration: '' });
     const fileInputRef = useRef(null);
 
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
-    useEffect(() => {
-        if (selectedCourse) {
-            fetchContent(selectedCourse);
-        }
-    }, [selectedCourse]);
-
     const fetchCourses = async () => {
         const response = await getPricing();
         if (response.data) {
@@ -114,6 +104,16 @@ const AdminCourseContent = () => {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+    useEffect(() => {
+        if (selectedCourse) {
+            fetchContent(selectedCourse);
+        }
+    }, [selectedCourse]);
 
     const handleAddVideo = async (e) => {
         e.preventDefault();

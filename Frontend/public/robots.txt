@@ -1,0 +1,28 @@
+# Global SEO Robots.txt for TSAR IT INTERNSHIP (https://tsaritservices.com)
+User-agent: *
+Allow: /
+Allow: /data-science
+Allow: /machine-learning
+Allow: /ai
+Allow: /mern-stack
+Allow: /devops
+Allow: /java-full-stack
+Allow: /python-programming
+Allow: /aws-cloud-computing
+Allow: /cyber-security
+Allow: /webinars
+Allow: /hackathons
+Allow: /contact
+Allow: /enroll
+
+# Disallow private dashboards and internal state
+Disallow: /admin
+Disallow: /admin/
+Disallow: /student
+Disallow: /student/
+Disallow: /studentdashboard
+Disallow: /api/
+
+# International Sitemaps
+Sitemap: https://tsaritservices.com/sitemap.xml
+Host: https://tsaritservices.com

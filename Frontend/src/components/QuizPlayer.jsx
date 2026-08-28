@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) ? 'http://localhost:8080/api' : '/api';
 
 const QuizPlayer = ({ quiz, studentId, onComplete }) => {
-    if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+    const questions = quiz?.questions || [];
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [answers, setAnswers] = useState(Array(questions.length).fill(null));
+    const [result, setResult] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    if (!quiz || !questions.length) {
         return (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
                 <p className="text-slate-500">This quiz has no questions available.</p>
             </div>
         );
     }
-
-    const [currentQuestion, setCurrentQuestion] = useState(0);
-    // Initialize answers based on the VALID questions array
-    const [answers, setAnswers] = useState(Array(quiz.questions.length).fill(null));
-    const [result, setResult] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
 
     const handleOptionSelect = (optionIndex) => {
         const newAnswers = [...answers];

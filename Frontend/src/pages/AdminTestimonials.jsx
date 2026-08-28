@@ -41,15 +41,15 @@ const AdminTestimonials = () => {
     const [previewUrl, setPreviewUrl] = useState('');
     const fileInputRef = useRef(null);
 
-    useEffect(() => {
-        loadTestimonials();
-    }, []);
-
     const loadTestimonials = async () => {
         const response = await getTestimonials();
         setTestimonials(response.data);
         setLoading(false);
     };
+
+    useEffect(() => {
+        loadTestimonials();
+    }, []);
 
     const handleDelete = async (id) => {
         if (window.confirm('Delete this testimonial?')) {

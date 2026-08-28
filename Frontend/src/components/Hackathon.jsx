@@ -15,24 +15,13 @@ const Hackathon = () => {
             try {
                 const response = await getHackathons();
                 if (response.success && response.data.length > 0) {
-                    // Try to find the first "Upcoming" or "Open" hackathon
-                    // We avoid complex date sorting if the date format is free text (e.g. "March 15-16").
-                    // Instead, we trust the backend order or just pick the first matching status.
                     const upcoming = response.data.find(h => h.status === 'Upcoming' || h.status === 'Open');
 
                     if (upcoming) {
                         setUpcomingHackathon(upcoming);
                     } else {
-                        // Fallback to the latest one (assuming last in list is latest added)
                         setUpcomingHackathon(response.data[response.data.length - 1]);
                     }
-                } else {
-                    // No hackathons at all? Ensure we don't crash, but maybe set a default Placeholder for dev?
-                    // Or just leave null to hide section.
-                    // User said "nothing show", maybe they want to see the section.
-                    // Let's set a dummy one if empty so they see *something* during dev?
-                    // No, better to debug. If empty, it returns null.
-                    // I will confirm if they have data. Backend said yes.
                 }
             } catch (error) {
                 console.error("Failed to fetch hackathon data", error);
@@ -56,17 +45,17 @@ const Hackathon = () => {
             icon: Users,
             title: "Team Participation",
             desc: "Form teams of 2-4 members and collaborate to build innovative solutions.",
-            color: "text-blue-400",
-            bg: "bg-blue-400/10",
-            border: "border-blue-400/20"
+            color: "text-teal-400",
+            bg: "bg-teal-400/10",
+            border: "border-teal-400/20"
         },
         {
             icon: Target,
             title: "Real-World Problems",
             desc: "Solve actual industry challenges provided by our hiring partners.",
-            color: "text-purple-400",
-            bg: "bg-purple-400/10",
-            border: "border-purple-400/20"
+            color: "text-cyan-400",
+            bg: "bg-cyan-400/10",
+            border: "border-cyan-400/20"
         },
         {
             icon: Zap,
@@ -78,22 +67,20 @@ const Hackathon = () => {
         }
     ];
 
-    if (loading) return null; // Or a skeleton loader
-    if (!upcomingHackathon) return null; // Don't show section if no hackathon
+    if (loading) return null;
+    if (!upcomingHackathon) return null;
 
     return (
         <section id="hackathon" className="relative py-24 bg-slate-900 overflow-hidden">
-            {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[120px]" />
-                <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]" />
+                <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-teal-600/20 rounded-full blur-[120px]" />
+                <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-cyan-600/20 rounded-full blur-[120px]" />
                 <div className="absolute -bottom-[20%] left-[20%] w-[40%] h-[40%] bg-amber-600/10 rounded-full blur-[100px]" />
             </div>
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
 
-                    {/* Content Side */}
                     <div className="flex-1 text-center lg:text-left">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -101,7 +88,7 @@ const Hackathon = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                         >
-                            <span className="inline-block py-1 px-3 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-semibold mb-6">
+                            <span className="inline-block py-1 px-3 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-sm font-semibold mb-6">
                                 🚀 Upcoming Event
                             </span>
                             <h2 className="text-4xl md:text-5xl font-bold font-display text-white mb-6 leading-tight">
@@ -113,7 +100,7 @@ const Hackathon = () => {
 
                             <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-10">
                                 <div className="flex items-center gap-2 text-slate-300 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
-                                    <Calendar size={18} className="text-blue-400" />
+                                    <Calendar size={18} className="text-cyan-400" />
                                     <span className="font-semibold">{upcomingHackathon.date}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-slate-300 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700">
@@ -135,7 +122,7 @@ const Hackathon = () => {
 
                             <ShinyButton
                                 onClick={() => navigate(`/hackathon/${upcomingHackathon.id}`)}
-                                className="!bg-purple-600 !from-purple-500 !to-purple-700 !shadow-purple-500/25"
+                                className="!bg-teal-600 !from-teal-500 !to-teal-700 !shadow-teal-500/25"
                                 icon={ArrowRight}
                             >
                                 View Details & Register
@@ -143,7 +130,6 @@ const Hackathon = () => {
                         </motion.div>
                     </div>
 
-                    {/* Features Grid Side */}
                     <div className="flex-1 w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {features.map((feature, index) => (
@@ -164,7 +150,6 @@ const Hackathon = () => {
                             ))}
                         </div>
 
-                        {/* Floating "Live" Badge */}
                         <motion.div
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}

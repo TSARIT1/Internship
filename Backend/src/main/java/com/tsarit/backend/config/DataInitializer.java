@@ -93,15 +93,29 @@ public class DataInitializer implements CommandLineRunner {
                 }
                 System.out.println("Course data initialized/updated.");
 
-                // Initialize Admin User — only create if doesn't exist. NEVER override existing password.
-                if (userService.findByEmail("admin@tsarit.com").isEmpty()) {
-                        com.tsarit.backend.entity.User admin = new com.tsarit.backend.entity.User();
-                        admin.setUsername("Admin");
-                        admin.setEmail("admin@tsarit.com");
-                        admin.setPassword("Admin@123"); // Will be BCrypt-encoded by registerUser
-                        admin.setRole("ADMIN");
-                        userService.registerUser(admin);
-                        System.out.println("Admin user created with default password.");
+                // Initialize Super Admin User (tsaritservices@gmail.com / Tsarit@12345)
+                Optional<com.tsarit.backend.entity.User> superAdminOpt = userService.findByEmail("tsaritservices@gmail.com");
+                if (superAdminOpt.isEmpty()) {
+                        com.tsarit.backend.entity.User superAdmin = new com.tsarit.backend.entity.User();
+                        superAdmin.setUsername("Super Admin");
+                        superAdmin.setEmail("tsaritservices@gmail.com");
+                        superAdmin.setPassword("Tsarit@12345");
+                        superAdmin.setRole("ADMIN");
+                        userService.registerUser(superAdmin);
+                        System.out.println("Super Admin user created: tsaritservices@gmail.com / Tsarit@12345");
+                } else {
+                        com.tsarit.backend.entity.User superAdmin = superAdminOpt.get();
+                        superAdmin.setRole("ADMIN");
+                        superAdmin.setPassword("Tsarit@12345");
+                        userService.registerUser(superAdmin);
+                        System.out.println("Super Admin password updated: tsaritservices@gmail.com / Tsarit@12345");
+                }
+
+                // --- DEBUG: Check enrollments for nnikhiln2002@gmail.com ---
+                Optional<com.tsarit.backend.entity.User> debugUserOpt = userService
+                                .findByEmail("nnikhiln2002@gmail.com");
+                if (debugUserOpt.isPresent()) {
+                        // Debug User check passed
                 } else {
                         System.out.println("Admin user already exists — password unchanged.");
                 }

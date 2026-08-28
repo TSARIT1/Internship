@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ShinyButton from '../../components/ui/ShinyButton';
 import { User, Mail, Phone, Lock, Save, AlertCircle, CheckCircle } from 'lucide-react';
 import { updateStudentProfile, changePassword, uploadFile } from '../../services/studentApi';
+import { formatStudentId } from '../../utils/studentUtils';
 
 const StudentProfile = () => {
     const [student, setStudent] = useState({});
@@ -46,9 +47,11 @@ const StudentProfile = () => {
 
             if (res.success) {
                 setMessage({ type: 'success', text: 'Profile updated successfully!' });
-                // Update local student state
+                // Update local student state & sessionStorage
                 const updated = { ...student, name: formData.name, phone: formData.phone };
                 setStudent(updated);
+                sessionStorage.setItem('student', JSON.stringify(updated));
+                localStorage.setItem('student', JSON.stringify(updated));
             } else {
                 setMessage({ type: 'error', text: res.message || 'Failed to update profile.' });
             }
@@ -168,10 +171,16 @@ const StudentProfile = () => {
                                 <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                             </label>
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 mb-1">{student.name}</h2>
-                        <p className="text-slate-500 text-sm mb-4">{student.email}</p>
+                        <h2 className="text-xl font-bold text-slate-900 mb-1">{student.name || 'Scholar'}</h2>
+                        <p className="text-slate-500 text-sm mb-3">{student.email}</p>
+                        
+                        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200 mb-4 text-center">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Official Student ID</span>
+                            <span className="font-mono text-xs font-black text-blue-700">{formatStudentId(student.id)}</span>
+                        </div>
+
                         <div className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wide">
-                            Student Account
+                            Active Scholar Account
                         </div>
                     </div>
                 </div>

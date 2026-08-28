@@ -25,10 +25,6 @@ const AdminCourses = () => {
         discount: ''
     });
 
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
     const fetchCourses = async () => {
         setLoading(true);
         const response = await getAllCourses();
@@ -37,6 +33,10 @@ const AdminCourses = () => {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchCourses();
+    }, []);
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this course?')) {

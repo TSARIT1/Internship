@@ -35,7 +35,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/courses/**", "/api/testimonials/**", "/api/webinars/**",
                                 "/api/upload/**", "/api/hackathons/**", "/api/ai/**", "/api/enrollments/**",
                                 "/api/submissions/**", "/api/problems/**", "/api/contact/**", "/api/admin/**",
-                                "/api/anticheat/**", "/api/quizzes/**")
+                                "/api/anticheat/**", "/api/quizzes/**", "/api/pricing/**", "/api/video-testimonials/**",
+                                "/api/students/**", "/api/tickets/**")
                         .permitAll() // Public read access (mostly)
                         // Note: We will secure specific WRITE methods using @PreAuthorize or specific
                         // matchers below

@@ -19,41 +19,37 @@ const Login = () => {
     // const [course, setCourse] = useState('');
 
     const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // React.useEffect(() => {
-    //     const pending = sessionStorage.getItem('pendingEnrollment');
-    //     if (pending) {
-    //         setCourse(pending);
-    //     }
-    // }, []);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuccessMsg('');
         setLoading(true);
 
         try {
-            // Frontend-only Auth Simulation
-            // We are using the API for "real" authentication if available, but enforcing the storage requirements.
-
             let response;
             if (isLogin) {
                 response = await loginStudent(email, password);
             } else {
+                if (password.length < 6) {
+                    setError("Password must be at least 6 characters long.");
+                    setLoading(false);
+                    return;
+                }
                 if (password !== confirmPassword) {
                     setError("Passwords do not match!");
                     setLoading(false);
                     return;
                 }
                 const studentData = {
-                    name,
-                    email,
-                    phone,
-                    password,
-                    // course: course || 'General' // Removed course
+                    name: name.trim(),
+                    email: email.trim().toLowerCase(),
+                    phone: phone.trim(),
+                    password: password,
                 };
                 response = await enrollStudent(studentData);
             }
@@ -62,7 +58,9 @@ const Login = () => {
                 if (!isLogin) {
                     setIsLogin(true);
                     setError('');
-                    alert("Account created successfully! Please login with your credentials.");
+                    setSuccessMsg("🎉 Account created successfully! Please enter your password to login.");
+                    setPassword('');
+                    setConfirmPassword('');
                     setLoading(false);
                     return;
                 }
@@ -155,7 +153,7 @@ const Login = () => {
                             type="button"
                             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${isLogin ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                                 }`}
-                            onClick={() => { setIsLogin(true); setError(''); }}
+                            onClick={() => { setIsLogin(true); setError(''); setSuccessMsg(''); }}
                         >
                             Login
                         </button>
@@ -163,7 +161,7 @@ const Login = () => {
                             type="button"
                             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${!isLogin ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                                 }`}
-                            onClick={() => { setIsLogin(false); setError(''); }}
+                            onClick={() => { setIsLogin(false); setError(''); setSuccessMsg(''); }}
                         >
                             Sign Up
                         </button>
@@ -289,6 +287,12 @@ const Login = () => {
                                         {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
+                            </div>
+                        )}
+
+                        {successMsg && (
+                            <div className="text-emerald-700 text-sm p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center font-medium">
+                                {successMsg}
                             </div>
                         )}
 

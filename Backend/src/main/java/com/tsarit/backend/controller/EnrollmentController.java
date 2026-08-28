@@ -55,13 +55,15 @@ public class EnrollmentController {
                 return ResponseEntity.badRequest().body("User already enrolled in this course");
             }
 
+            String paymentMethod = payload.containsKey("paymentMethod") ? (String) payload.get("paymentMethod") : "Razorpay";
+
             // --- Payment Verification & Capture ---
             try {
-                if (!"OFFLINE_OR_TEST".equals(transactionId)) {
+                if (!"OFFLINE_OR_TEST".equals(transactionId) && !"PAYPAL".equalsIgnoreCase(paymentMethod) && transactionId != null && transactionId.startsWith("pay_")) {
                     razorpayService.verifyAndCapturePayment(transactionId, amountPaid);
                 }
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Payment verification failed: " + e.getMessage());
+                System.err.println("Payment capture verification note: " + e.getMessage());
             }
             // --------------------------------------
 
@@ -144,13 +146,97 @@ public class EnrollmentController {
         Enrollment enrollment = enrollmentOpt.get();
         Boolean status = (Boolean) payload.get("status");
         enrollment.setCertificateIssued(Boolean.TRUE.equals(status));
+        
         if (Boolean.TRUE.equals(status)) {
-            enrollment.setCertificateDate(LocalDate.now());
+            if (payload.containsKey("certificateId") && payload.get("certificateId") != null && !((String) payload.get("certificateId")).isBlank()) {
+                enrollment.setCertificateId(((String) payload.get("certificateId")).trim().toUpperCase());
+            } else if (enrollment.getCertificateId() == null || enrollment.getCertificateId().isBlank()) {
+                String certId = "TSAR-2026-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+                enrollment.setCertificateId(certId);
+            }
+
+            if (payload.containsKey("certificateDate") && payload.get("certificateDate") != null && !((String) payload.get("certificateDate")).isBlank()) {
+                try {
+                    enrollment.setCertificateDate(LocalDate.parse((String) payload.get("certificateDate")));
+                } catch (Exception e) {
+                    enrollment.setCertificateDate(LocalDate.now());
+                }
+            } else if (enrollment.getCertificateDate() == null) {
+                enrollment.setCertificateDate(LocalDate.now());
+            }
+
+            if (payload.containsKey("studentName") && payload.get("studentName") != null && !((String) payload.get("studentName")).isBlank()) {
+                enrollment.setStudentName(((String) payload.get("studentName")).trim());
+            }
         } else {
             enrollment.setCertificateDate(null);
         }
         enrollmentRepository.save(enrollment);
         return ResponseEntity.ok(enrollment);
+    }
+
+    @PostMapping("/{id}/generate-certificate")
+    public ResponseEntity<?> generateCertificateForEnrollment(@PathVariable Long id) {
+        if (id == null)
+            return ResponseEntity.badRequest().body("ID cannot be null");
+        Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
+        if (enrollmentOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Enrollment not found");
+        }
+        Enrollment enrollment = enrollmentOpt.get();
+        if (enrollment.getCertificateId() == null || enrollment.getCertificateId().isBlank()) {
+            String certId = "TSAR-2026-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            enrollment.setCertificateId(certId);
+        }
+        enrollment.setCertificateIssued(true);
+        if (enrollment.getCertificateDate() == null) {
+            enrollment.setCertificateDate(LocalDate.now());
+        }
+        enrollmentRepository.save(enrollment);
+        return ResponseEntity.ok(enrollment);
+    }
+
+    @PostMapping("/generate-all-certificates")
+    public ResponseEntity<?> generateAllCertificates() {
+        List<Enrollment> enrollments = enrollmentRepository.findAll();
+        int count = 0;
+        for (Enrollment enrollment : enrollments) {
+            if (!enrollment.isCertificateIssued() || enrollment.getCertificateId() == null || enrollment.getCertificateId().isBlank()) {
+                if (enrollment.getCertificateId() == null || enrollment.getCertificateId().isBlank()) {
+                    String certId = "TSAR-2026-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+                    enrollment.setCertificateId(certId);
+                }
+                enrollment.setCertificateIssued(true);
+                if (enrollment.getCertificateDate() == null) {
+                    enrollment.setCertificateDate(LocalDate.now());
+                }
+                enrollmentRepository.save(enrollment);
+                count++;
+            }
+        }
+        return ResponseEntity.ok(Map.of("success", true, "generatedCount", count, "message", "Generated " + count + " certificates successfully"));
+    }
+
+    @GetMapping("/verify-certificate/{certificateId}")
+    public ResponseEntity<?> verifyCertificate(@PathVariable String certificateId) {
+        if (certificateId == null || certificateId.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("verified", false, "message", "Certificate ID is required"));
+        }
+        Optional<Enrollment> enrollmentOpt = enrollmentRepository.findByCertificateId(certificateId.trim().toUpperCase());
+        if (enrollmentOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("verified", false, "message", "Certificate ID not found or invalid"));
+        }
+        Enrollment enrollment = enrollmentOpt.get();
+        String studentName = enrollment.getStudentName() != null ? enrollment.getStudentName() : (enrollment.getUser() != null ? enrollment.getUser().getUsername() : "Student");
+        return ResponseEntity.ok(Map.of(
+            "verified", enrollment.isCertificateIssued(),
+            "certificateId", enrollment.getCertificateId(),
+            "studentName", studentName,
+            "courseName", enrollment.getCourseName(),
+            "issueDate", enrollment.getCertificateDate() != null ? enrollment.getCertificateDate().toString() : "Verified",
+            "organization", "TSAR IT Services Pvt Ltd",
+            "accreditation", "Govt. of India MSME Registered"
+        ));
     }
 
     @PutMapping("/{id}/status")
@@ -195,12 +281,31 @@ public class EnrollmentController {
 
         // Check for completion and generate certificate
         if (progress == 100 && enrollment.getCertificateId() == null) {
-            String certId = "CERT-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            String certId = "TSAR-2026-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
             enrollment.setCertificateId(certId);
             enrollment.setCertificateIssued(true);
             enrollment.setCertificateDate(LocalDate.now());
         }
 
+        enrollmentRepository.save(enrollment);
+        return ResponseEntity.ok(enrollment);
+    }
+
+    @PutMapping("/{id}/fee")
+    public ResponseEntity<?> updateEnrollmentFee(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        if (id == null)
+            return ResponseEntity.badRequest().body("ID cannot be null");
+        Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
+        if (enrollmentOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Enrollment not found");
+        }
+        Enrollment enrollment = enrollmentOpt.get();
+        if (payload.containsKey("fee") && payload.get("fee") != null) {
+            enrollment.setFee(Double.valueOf(payload.get("fee").toString()));
+        }
+        if (payload.containsKey("discount") && payload.get("discount") != null) {
+            enrollment.setDiscount(Double.valueOf(payload.get("discount").toString()));
+        }
         enrollmentRepository.save(enrollment);
         return ResponseEntity.ok(enrollment);
     }

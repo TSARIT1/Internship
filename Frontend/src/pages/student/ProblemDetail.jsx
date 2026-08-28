@@ -95,18 +95,6 @@ const ProblemDetail = () => {
         javascript: `// Read from stdin\nconst fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8');\n// Your code here\nconsole.log(input);`
     };
 
-    useEffect(() => {
-        loadProblem();
-    }, [id]);
-
-    useEffect(() => {
-        if (!problem) return;
-        // Set default code based on language if code is still default
-        if (code === "// Write your code here...") {
-            setCode(templates[language] || "");
-        }
-    }, [language, problem]);
-
     const loadProblem = async () => {
         setLoading(true);
         const res = await getProblem(id);
@@ -119,6 +107,18 @@ const ProblemDetail = () => {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        loadProblem();
+    }, [id]);
+
+    useEffect(() => {
+        if (!problem) return;
+        // Set default code based on language if code is still default
+        if (code === "// Write your code here...") {
+            setCode(templates[language] || "");
+        }
+    }, [language, problem]);
 
     const handleRun = async () => {
         setIsRunning(true);

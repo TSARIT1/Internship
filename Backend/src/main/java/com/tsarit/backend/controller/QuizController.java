@@ -1,13 +1,14 @@
 package com.tsarit.backend.controller;
 
 import com.tsarit.backend.entity.Quiz;
-import com.tsarit.backend.entity.QuizAttempt;
+// import com.tsarit.backend.entity.QuizAttempt; // Removed unused import
 import com.tsarit.backend.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
@@ -31,7 +32,17 @@ public class QuizController {
     public ResponseEntity<?> submitQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> payload) {
         try {
             Long userId = Long.valueOf(payload.get("userId").toString());
-            List<Integer> answers = (List<Integer>) payload.get("answers");
+            List<Integer> answers = new ArrayList<>();
+            Object answersObj = payload.get("answers");
+            if (answersObj instanceof List<?>) {
+                for (Object obj : (List<?>) answersObj) {
+                    if (obj instanceof Integer) {
+                        answers.add((Integer) obj);
+                    } else if (obj instanceof Number) {
+                        answers.add(((Number) obj).intValue());
+                    }
+                }
+            }
             return ResponseEntity.ok(quizService.submitQuiz(userId, quizId, answers));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error submitting quiz: " + e.getMessage());

@@ -14,10 +14,14 @@ public class ContactQuery {
 
     private String name;
     private String email;
+    private String phone;
+    private String course;
     private String subject;
 
     @Column(columnDefinition = "TEXT")
     private String message;
+
+    private String status = "NEW";
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }

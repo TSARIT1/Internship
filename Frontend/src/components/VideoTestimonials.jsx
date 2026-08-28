@@ -29,10 +29,9 @@ const VideoTestimonials = () => {
 
     return (
         <section className="py-24 bg-slate-50 relative overflow-hidden">
-            {/* Background Decorations */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
-                <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-50"></div>
+                <div className="absolute -top-40 -right-40 w-96 h-96 bg-teal-100 rounded-full blur-3xl opacity-50"></div>
+                <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-cyan-100 rounded-full blur-3xl opacity-50"></div>
             </div>
 
             <div className="container mx-auto px-6 relative z-10">
@@ -42,9 +41,9 @@ const VideoTestimonials = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <span className="text-blue-600 font-bold tracking-wider uppercase text-sm mb-2 block">Student Experiences</span>
+                        <span className="text-teal-600 font-bold tracking-wider uppercase text-sm mb-2 block">Student Experiences</span>
                         <h2 className="text-3xl lg:text-5xl font-bold font-display text-slate-900 mb-6">
-                            See What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Students Say</span>
+                            See What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-600">Students Say</span>
                         </h2>
                         <p className="text-slate-600 max-w-2xl mx-auto text-lg">
                             Watch real stories from our alumni who have successfully transitioned into their dream tech careers.

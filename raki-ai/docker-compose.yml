@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  raki-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: raki-ai:latest
+    container_name: raki-ai-engine
+    restart: always
+    ports:
+      - "8000:8000"
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_ORIGINS=*
+      - RAKI_AI_PORT=8000
+      - DEFAULT_MODEL=llama3.2
+      - AUTO_PULL_MODEL=false
+    volumes:
+      - raki_ollama_data:/root/.ollama
+      - raki_ai_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  raki_ollama_data:
+    name: raki_ollama_models
+  raki_ai_data:
+    name: raki_ai_storage

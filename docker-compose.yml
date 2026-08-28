@@ -53,8 +53,31 @@ services:
     networks:
       - tsar-network
 
+  raki-ai:
+    build:
+      context: ./raki-ai
+      dockerfile: Dockerfile
+    image: raki-ai:latest
+    container_name: raki-ai-engine
+    restart: always
+    ports:
+      - "8000:8000"
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_ORIGINS=*
+      - RAKI_AI_PORT=8000
+      - DEFAULT_MODEL=llama3.2
+    volumes:
+      - raki_ollama_data:/root/.ollama
+      - raki_ai_data:/app/data
+    networks:
+      - tsar-network
+
 volumes:
   mysql_data:
+  raki_ollama_data:
+  raki_ai_data:
 
 networks:
   tsar-network:

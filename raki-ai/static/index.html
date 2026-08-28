@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAKI AI OS • Autonomous Intelligence & Coding Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-4 sticky top-0 z-50 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-teal-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/25">
+                ⚡
+            </div>
+            <div>
+                <h1 class="font-black text-lg text-white tracking-tight flex items-center gap-2">
+                    RAKI AI OS <span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-bold border border-indigo-500/30 uppercase tracking-wider">v2.0 Active</span>
+                </h1>
+                <p class="text-xs text-slate-400">Autonomous LLM Engine & Coding Architect • TSAR IT INTERNSHIP</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 text-xs">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-slate-300 font-medium" id="engineStatus">Ollama Engine Online</span>
+            </div>
+
+            <select id="modelSelector" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500 font-mono">
+                <option value="llama3.2">llama3.2 (Default)</option>
+                <option value="mistral">mistral</option>
+                <option value="deepseek-r1:1.5b">deepseek-r1:1.5b</option>
+                <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
+            </select>
+
+            <a href="/docs" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-colors flex items-center gap-1.5">
+                <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                <span>OpenAPI Docs</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden">
+
+        <!-- Left Navigation Tabs -->
+        <aside class="w-64 bg-slate-900/50 border-r border-slate-800/80 p-4 space-y-2 shrink-0">
+            <button onclick="switchTab('chat')" id="tab-btn-chat" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span>AI Chat & Mentor</span>
+            </button>
+
+            <button onclick="switchTab('codegen')" id="tab-btn-codegen" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i data-lucide="code" class="w-4 h-4"></i>
+                <span>Code Studio</span>
+            </button>
+
+            <button onclick="switchTab('codereview')" id="tab-btn-codereview" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span>Code Reviewer</span>
+            </button>
+
+            <button onclick="switchTab('rag')" id="tab-btn-rag" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span>RAG Knowledge Base</span>
+            </button>
+
+            <button onclick="switchTab('models')" id="tab-btn-models" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+                <span>Model Manager</span>
+            </button>
+
+            <div class="pt-6 mt-6 border-t border-slate-800/80 text-[11px] text-slate-500 space-y-2 px-2">
+                <div class="flex justify-between"><span>Engine:</span> <strong class="text-slate-300">Ollama Core</strong></div>
+                <div class="flex justify-between"><span>FastAPI:</span> <strong class="text-slate-300">Port 8000</strong></div>
+                <div class="flex justify-between"><span>Vector Store:</span> <strong class="text-slate-300">ChromaDB</strong></div>
+            </div>
+        </aside>
+
+        <!-- Right Content Panels -->
+        <section class="flex-1 flex flex-col bg-slate-950 p-6 overflow-y-auto custom-scrollbar">
+
+            <!-- 1. CHAT TAB -->
+            <div id="tab-chat" class="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+                <div class="flex-1 bg-slate-900/60 rounded-3xl border border-slate-800 p-6 mb-4 overflow-y-auto custom-scrollbar space-y-4 min-h-[450px]" id="chatBox">
+                    <div class="flex gap-3 items-start">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">⚡</div>
+                        <div class="bg-slate-800 p-4 rounded-2xl max-w-2xl text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Hello! I am <strong>RAKI AI</strong>, your autonomous software architect and technical mentor. I can generate production code, debug full-stack applications, explain complex algorithms, or review technical architectures. How can I assist you?
+                        </div>
+                    </div>
+                </div>
+
+                <form onsubmit="handleSendChat(event)" class="flex gap-3">
+                    <input
+                        type="text"
+                        id="chatInput"
+                        placeholder="Ask RAKI AI anything (e.g. 'Build a React 19 Kanban board component with Tailwind')..."
+                        class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500"
+                        required
+                    />
+                    <button type="submit" id="chatSendBtn" class="px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-2 cursor-pointer">
+                        <span>Send</span>
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. CODE STUDIO TAB -->
+            <div id="tab-codegen" class="hidden max-w-4xl mx-auto w-full space-y-4">
+                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2">
+                        <i data-lucide="code" class="text-indigo-400"></i> Autonomous Code Generator
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 font-bold mb-1">Language</label>
+                            <select id="codeLang" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                                <option value="Python">Python</option>
+                                <option value="Java">Java (Spring Boot)</option>
+                                <option value="TypeScript / React">TypeScript / React 19</option>
+                                <option value="Node.js">Node.js (Express)</option>
+                                <option value="SQL">SQL (MySQL / Postgres)</option>
+                                <option value="DevOps / Docker">Docker & Kubernetes</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs text-slate-400 font-bold mb-1">Specification / Prompt</label>
+                            <input id="codePrompt" type="text" placeholder="e.g. Implement JWT Authentication Filter in Spring Boot 3" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white" />
+                        </div>
+                    </div>
+
+                    <button onclick="handleGenerateCode()" id="codeGenBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Generate Production Code
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Generated Output</span>
+                        <button onclick="copyCodeOutput()" class="text-xs text-indigo-400 hover:underline">Copy Code</button>
+                    </div>
+                    <pre id="codeOutput" class="bg-slate-950 p-4 rounded-2xl text-xs font-mono text-emerald-400 overflow-x-auto custom-scrollbar border border-slate-800/80 min-h-[200px]">Click "Generate Production Code" to begin...</pre>
+                </div>
+            </div>
+
+            <!-- 3. CODE REVIEWER TAB -->
+            <div id="tab-codereview" class="hidden max-w-4xl mx-auto w-full space-y-4">
+                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2">
+                        <i data-lucide="shield-check" class="text-emerald-400"></i> Code Quality & Security Auditor
+                    </h2>
+                    <textarea id="reviewCodeInput" rows="8" placeholder="Paste your code snippet here for automated security analysis, complexity evaluation, and bug refactoring..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500"></textarea>
+                    <button onclick="handleReviewCode()" id="reviewBtn" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Run Security & Quality Audit
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Audit Report</span>
+                    <div id="reviewOutput" class="text-xs text-slate-300 space-y-2 whitespace-pre-wrap leading-relaxed">Submit code above to inspect findings.</div>
+                </div>
+            </div>
+
+            <!-- 4. RAG KNOWLEDGE BASE TAB -->
+            <div id="tab-rag" class="hidden max-w-4xl mx-auto w-full space-y-4">
+                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2">
+                        <i data-lucide="database" class="text-amber-400"></i> RAG Vector Knowledge Base
+                    </h2>
+                    <p class="text-xs text-slate-400">Query verified technical documentation, project capstones, and curriculum syllabi using vector embeddings.</p>
+                    <div class="flex gap-3">
+                        <input id="ragQueryInput" type="text" placeholder="e.g. What enterprise capstone projects are included in the Data Science track?" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white" />
+                        <button onclick="handleRAGQuery()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-md">Query Vector Store</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Retrieved Context & AI Response</span>
+                    <div id="ragOutput" class="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">Enter a query to test RAG retrieval.</div>
+                </div>
+            </div>
+
+            <!-- 5. MODEL MANAGER TAB -->
+            <div id="tab-models" class="hidden max-w-4xl mx-auto w-full space-y-4">
+                <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 space-y-4">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2">
+                        <i data-lucide="cpu" class="text-teal-400"></i> Ollama AI Model Puller & Manager
+                    </h2>
+                    <div class="flex gap-3">
+                        <input id="pullModelInput" type="text" placeholder="Model tag (e.g. 'llama3.2', 'deepseek-r1:1.5b', 'mistral', 'qwen2.5-coder:1.5b')..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white font-mono" />
+                        <button onclick="handlePullModel()" class="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-xl shadow-md">Pull Model</button>
+                    </div>
+                    <div id="pullStatus" class="text-xs font-mono text-teal-400 hidden"></div>
+                </div>
+
+                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Installed Local Models</span>
+                        <button onclick="fetchLocalModels()" class="text-xs text-indigo-400 hover:underline">Refresh</button>
+                    </div>
+                    <div id="installedModelsList" class="space-y-2 text-xs">
+                        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">Loading models...</div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function switchTab(tabId) {
+            const tabs = ['chat', 'codegen', 'codereview', 'rag', 'models'];
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('tab-btn-' + t);
+                if (t === tabId) {
+                    el.classList.remove('hidden');
+                    btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25";
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-800 hover:text-white";
+                }
+            });
+            lucide.createIcons();
+        }
+
+        async function handleSendChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const prompt = input.value.trim();
+            if (!prompt) return;
+
+            const chatBox = document.getElementById('chatBox');
+            const model = document.getElementById('modelSelector').value;
+
+            // Append User Message
+            chatBox.innerHTML += `
+                <div class="flex gap-3 items-start justify-end">
+                    <div class="bg-indigo-600/90 text-white p-4 rounded-2xl max-w-2xl text-xs sm:text-sm leading-relaxed">${escapeHtml(prompt)}</div>
+                    <div class="w-8 h-8 rounded-xl bg-indigo-900 flex items-center justify-center text-white text-xs font-bold shrink-0">U</div>
+                </div>
+            `;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Append AI Typing Message
+            const aiMsgId = 'ai-msg-' + Date.now();
+            chatBox.innerHTML += `
+                <div class="flex gap-3 items-start" id="${aiMsgId}">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">⚡</div>
+                    <div class="bg-slate-800 p-4 rounded-2xl max-w-2xl text-xs sm:text-sm text-slate-200 leading-relaxed content-box">
+                        <span class="animate-pulse">RAKI AI is thinking...</span>
+                    </div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [{ role: 'user', content: prompt }],
+                        stream: false
+                    })
+                });
+                const data = await res.json();
+                const container = document.getElementById(aiMsgId).querySelector('.content-box');
+                container.innerHTML = formatMarkdown(data.response || 'No response returned.');
+            } catch (err) {
+                const container = document.getElementById(aiMsgId).querySelector('.content-box');
+                container.innerHTML = '<span class="text-red-400">Error communicating with RAKI AI engine. Make sure model is pulled.</span>';
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function handleGenerateCode() {
+            const prompt = document.getElementById('codePrompt').value.trim();
+            const language = document.getElementById('codeLang').value;
+            const model = document.getElementById('modelSelector').value;
+            const btn = document.getElementById('codeGenBtn');
+            const output = document.getElementById('codeOutput');
+
+            if (!prompt) return alert('Please enter a prompt');
+            btn.disabled = true;
+            btn.innerText = 'Generating...';
+            output.innerText = 'Generating code with ' + model + '...';
+
+            try {
+                const res = await fetch('/api/code/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, language, model })
+                });
+                const data = await res.json();
+                output.innerText = data.code || 'No code generated.';
+            } catch (err) {
+                output.innerText = 'Error: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Generate Production Code';
+            }
+        }
+
+        async function handleReviewCode() {
+            const code = document.getElementById('reviewCodeInput').value.trim();
+            const model = document.getElementById('modelSelector').value;
+            const btn = document.getElementById('reviewBtn');
+            const output = document.getElementById('reviewOutput');
+
+            if (!code) return alert('Please paste code to review');
+            btn.disabled = true;
+            btn.innerText = 'Auditing...';
+            output.innerText = 'Auditing code with RAKI AI...';
+
+            try {
+                const res = await fetch('/api/code/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language: 'code', model })
+                });
+                const data = await res.json();
+                output.innerText = data.review || 'Audit completed without findings.';
+            } catch (err) {
+                output.innerText = 'Error: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Run Security & Quality Audit';
+            }
+        }
+
+        async function handleRAGQuery() {
+            const query = document.getElementById('ragQueryInput').value.trim();
+            const model = document.getElementById('modelSelector').value;
+            const output = document.getElementById('ragOutput');
+            if (!query) return;
+
+            output.innerText = 'Querying Vector Store & Synthesizing Answer...';
+            try {
+                const res = await fetch('/api/rag/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, model })
+                });
+                const data = await res.json();
+                output.innerText = `💡 ANSWER:\n${data.answer}\n\n📚 RETRIEVED CONTEXT:\n` + 
+                    data.context_documents.map(d => `• [${d.title}]: ${d.content}`).join('\n');
+            } catch (err) {
+                output.innerText = 'Error: ' + err.message;
+            }
+        }
+
+        async function fetchLocalModels() {
+            const listEl = document.getElementById('installedModelsList');
+            try {
+                const res = await fetch('/api/models');
+                const data = await res.json();
+                if (data.models && data.models.length > 0) {
+                    listEl.innerHTML = data.models.map(m => `
+                        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <strong class="text-white font-mono">${m.name}</strong>
+                                <span class="text-[10px] text-slate-500 block">Size: ${(m.size / (1024*1024*1024)).toFixed(2)} GB • Format: ${m.details?.format || 'GGUF'}</span>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-bold">READY</span>
+                        </div>
+                    `).join('');
+                } else {
+                    listEl.innerHTML = '<div class="p-3 text-slate-500">No models found. Pull a model using the input above.</div>';
+                }
+            } catch (err) {
+                listEl.innerHTML = '<div class="p-3 text-red-400">Failed to load models.</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function formatMarkdown(text) {
+            return escapeHtml(text).replace(/\n/g, '<br/>');
+        }
+
+        function copyCodeOutput() {
+            navigator.clipboard.writeText(document.getElementById('codeOutput').innerText);
+            alert('Code copied to clipboard!');
+        }
+
+        fetchLocalModels();
+    </script>
+</body>
+</html>

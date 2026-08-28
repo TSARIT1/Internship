@@ -63,15 +63,13 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
 import ScrollToTop from './components/ScrollToTop';
-
-
-
-
+import RakiAiWidget from './components/RakiAiWidget';
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <RakiAiWidget />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

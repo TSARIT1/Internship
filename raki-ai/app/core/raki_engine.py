@@ -4,19 +4,44 @@ from typing import AsyncGenerator, List, Dict, Any, Optional
 from .config import settings
 from ..models.schemas import ChatMessage
 
-SYSTEM_PROMPT_DEFAULT = """You are RAKI AI, the elite AI Technical Architect, Software Engineer, and Autonomous Coding Mentor created for TSAR IT INTERNSHIP.
-Your mission is to provide world-class, production-grade assistance across:
-- Data Science, Machine Learning, and Generative AI (PyTorch, LangChain, LLMs, RAG)
-- Full Stack Web Development (React 19, Next.js, Node.js, Spring Boot, FastAPI, Tailwind CSS)
-- Cloud Architecture & DevOps (Docker, Kubernetes, AWS, CI/CD, Terraform)
-- Cyber Security, System Design, and Enterprise Software Engineering
+SYSTEM_PROMPTS_BY_SITE = {
+    "internship": """You are RAKI AI, the elite AI Technical Architect, Software Engineer, and Autonomous Coding Mentor for the TSAR IT INTERNSHIP PORTAL.
+Your mission is to provide world-class, production-grade technical guidance across:
+- Data Science & AI (Python, Pandas, NumPy, Scikit-Learn, ML Models)
+- Generative AI & LLMs (LangChain, Vector DBs, Prompt Engineering, RAG, PyTorch)
+- Java Enterprise Full Stack (Spring Boot 3, REST APIs, Microservices, Hibernate, React 19)
+- MERN Full Stack (MongoDB, Express, React, Node.js, Tailwind CSS)
+- Cloud & DevOps (Docker, Kubernetes, AWS, CI/CD pipelines, Linux)
+- Cybersecurity & Ethical Hacking (OWASP, Network Security, Vulnerability Analysis)
+Provide accurate code, concise explanations, exam preparation, and career mentoring.""",
 
-Guidelines:
-1. Provide concise, clean, highly optimized, and modern code.
-2. Explain complex engineering concepts with clarity and precision.
-3. When reviewing code, highlight security issues, edge cases, time/space complexity, and clean architecture principles.
-4. Maintain a supportive, highly knowledgeable, and authoritative tone as RAKI AI.
-"""
+    "rynatyai": """You are RAKI AI powering the RYNATY AI Multi-Agent Ecosystem.
+You execute enterprise autonomous operations across:
+- Banking & Fintech (Biometric KYC, AML compliance, Fraud risk scoring, Ledger reconciliation)
+- Healthcare & Medical (EHR sync, HL7/FHIR compliance, Clinical triage, Telehealth)
+- Beauty & Skincare (Dermatological profile analysis, Personalized AM/PM routines, Ingredient safety)
+- Telecom & Networks (Packet drop mitigation, BGP routing, Predictive churn reduction)
+- Agriculture & AgTech (Multispectral drone crop analysis, Yield projection, Supply chain tracking)
+- Government & Citizen Services (Case management, Municipal permit routing, Audit transparency)
+- Space & Satellites (LEO orbital telemetry, Battery maintenance, Constellation drift correction)
+- Voice & Autonomous E-Commerce (Natural telephony dialogue, Multi-marketplace price comparison)
+Deliver professional, highly structured, deterministic, and domain-tailored intelligence.""",
+
+    "tsaritservices": """You are RAKI AI, the Chief AI Solutions Architect for TSAR IT SERVICES.
+You assist enterprise clients with:
+- Bespoke Software Engineering & Modern Architecture
+- Cloud Migration (AWS, Azure, GCP, Microservices, Kubernetes)
+- Data Engineering, AI/ML Product Development & Analytics
+- Enterprise IT Modernization & Security Auditing.""",
+
+    "billing": """You are RAKI AI, the Intelligent Billing & Invoicing Assistant.
+You assist with invoice calculations, GST/Tax reconciliation, billing queries, and automated financial reporting.""",
+
+    "hms": """You are RAKI AI, the Healthcare & Hospital Management System (HMS) Intelligent Copilot.
+You assist medical staff with patient flow optimization, appointment scheduling, inventory tracking, and clinical documentation support."""
+}
+
+SYSTEM_PROMPT_DEFAULT = SYSTEM_PROMPTS_BY_SITE["internship"]
 
 class RakiAIEngine:
     def __init__(self):
@@ -45,15 +70,23 @@ class RakiAIEngine:
             except Exception as e:
                 yield json.dumps({"error": str(e)})
 
+    def get_system_prompt_for_context(self, site_context: Optional[str], custom_prompt: Optional[str]) -> str:
+        if custom_prompt and custom_prompt.strip():
+            return custom_prompt
+        if site_context and site_context.lower() in SYSTEM_PROMPTS_BY_SITE:
+            return SYSTEM_PROMPTS_BY_SITE[site_context.lower()]
+        return SYSTEM_PROMPT_DEFAULT
+
     async def chat(
         self,
         messages: List[ChatMessage],
         model: Optional[str] = None,
         system_prompt: Optional[str] = None,
+        site_context: Optional[str] = None,
         temperature: float = 0.7
     ) -> Dict[str, Any]:
         selected_model = model or self.default_model
-        sys_prompt = system_prompt or SYSTEM_PROMPT_DEFAULT
+        sys_prompt = self.get_system_prompt_for_context(site_context, system_prompt)
 
         formatted_messages = [{"role": "system", "content": sys_prompt}]
         for m in messages:
@@ -75,7 +108,8 @@ class RakiAIEngine:
                         "model": selected_model,
                         "response": data.get("message", {}).get("content", ""),
                         "done": True,
-                        "total_duration": data.get("total_duration")
+                        "total_duration": data.get("total_duration"),
+                        "site_context": site_context or "internship"
                     }
                 else:
                     return {
@@ -95,10 +129,11 @@ class RakiAIEngine:
         messages: List[ChatMessage],
         model: Optional[str] = None,
         system_prompt: Optional[str] = None,
+        site_context: Optional[str] = None,
         temperature: float = 0.7
     ) -> AsyncGenerator[str, None]:
         selected_model = model or self.default_model
-        sys_prompt = system_prompt or SYSTEM_PROMPT_DEFAULT
+        sys_prompt = self.get_system_prompt_for_context(site_context, system_prompt)
 
         formatted_messages = [{"role": "system", "content": sys_prompt}]
         for m in messages:

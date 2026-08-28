@@ -43,13 +43,13 @@ const Advantage = () => {
         { step: "02", title: "Hands-on Live Classes", desc: "Attend live coding workshops, mastering foundational and advanced frameworks through practical assignments." },
         { step: "03", title: "Enterprise Capstones", desc: "Build 4+ production-grade projects using standard Git workflows, CI/CD, and peer code reviews." },
         { step: "04", title: "Placement Training", desc: "Resume building, GitHub portfolio optimization, LinkedIn profile makeover, and mock technical interviews." },
-        { step: "05", title: "Job Placement & Certificate", desc: "Receive Govt. MSME verified certificate with QR verification and direct interview opportunities." }
+        { step: "05", title: "Job Placement & Certificate", desc: "Receive industry-recognized verified certificate with QR verification and direct interview opportunities." }
     ];
 
     const benefits = [
         {
             icon: FileCheck2,
-            title: "Govt. MSME Recognized Certification",
+            title: "Industry-Recognized Technical Certification",
             desc: "Nationally recognized credentials with instant online QR code verification accepted across top tech employers.",
             color: "text-blue-600",
             bg: "bg-blue-50"
@@ -84,7 +84,7 @@ const Advantage = () => {
         },
         {
             icon: ShieldCheck,
-            title: "Govt. & MSME Recognized",
+            title: "ISO 9001:2015 Quality Certified",
             desc: "Compliant with national technical training standards and college academic credit requirements.",
             color: "text-purple-600",
             bg: "bg-purple-50"

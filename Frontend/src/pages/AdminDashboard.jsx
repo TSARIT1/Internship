@@ -173,7 +173,7 @@ const AdminDashboard = () => {
                             </span>
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-black uppercase tracking-wider">
                                 <ShieldCheck size={13} />
-                                Govt. MSME Verified
+                                ISO 9001:2015 Verified
                             </span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black font-display tracking-tight text-white mb-2">
@@ -235,7 +235,7 @@ const AdminDashboard = () => {
                     subtitle={`${statsData.pendingCertificates} Pending Issuance`}
                     icon={Award}
                     gradient="bg-amber-600"
-                    badge="MSME Verified"
+                    badge="Verified"
                     onClick={() => navigate('/admin/certificates')}
                 />
                 <StatCard

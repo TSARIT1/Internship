@@ -87,7 +87,7 @@ const DataScience = () => {
             "Build, validate, and deploy production machine learning models",
             "Create executive-ready Tableau and Power BI interactive dashboards",
             "Develop 4 portfolio capstone projects with full GitHub documentation",
-            "Receive Govt. MSME recognized certificate and placement referrals"
+            "Receive industry-recognized verified certificate and placement referrals"
         ],
         careerRoles: [
             { title: "Data Scientist / Junior Data Scientist", salary: "₹6.5 LPA - ₹16.0 LPA" },

@@ -24,7 +24,7 @@ const Home = () => {
         <div className="min-h-screen bg-slate-50 selection:bg-blue-100 selection:text-blue-900 font-sans">
             <SEO
                 title="TSAR IT INTERNSHIP - Premier Online IT Training & Placement Programs"
-                description="Join TSAR IT INTERNSHIP for online certified training in Data Science, AI & Generative AI, Java Full Stack, MERN, AWS Cloud, DevOps, and Cyber Security with 100% placement support and Govt. MSME credentials."
+                description="Join TSAR IT INTERNSHIP for online certified training in Data Science, AI & Generative AI, Java Full Stack, MERN, AWS Cloud, DevOps, and Cyber Security with 100% placement support and industry-recognized credentials."
                 keywords="TSAR IT, IT Internship 2026, Online Tech Courses, Data Science Certification, AI Internship, Java Full Stack Training, DevOps Kubernetes, AWS Solutions Architect, Placement Assistance"
                 canonicalUrl="https://tsaritservices.com/"
             />

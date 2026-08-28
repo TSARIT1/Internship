@@ -68,7 +68,7 @@ const CourseTemplate = ({ data }) => {
         <div className="min-h-screen bg-slate-50 selection:bg-blue-100 selection:text-blue-900 font-sans">
             <SEO
                 title={`${data.title} Internship & Certification`}
-                description={`Enroll in ${data.title} Online Internship at TSAR IT. Real-world projects, live mentor classes, Govt. MSME certification, and 100% placement support.`}
+                description={`Enroll in ${data.title} Online Internship at TSAR IT. Real-world projects, live mentor classes, verified technical certification, and 100% placement support.`}
                 keywords={`${data.title}, ${data.title} online course, ${data.title} internship, TSAR IT ${data.title}, IT certification 2026, software internship`}
                 canonicalUrl={`https://tsaritservices.com${data.slug || ''}`}
                 schema={courseSchema}
@@ -101,7 +101,7 @@ const CourseTemplate = ({ data }) => {
                                 </span>
                                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
                                     <ShieldCheck size={14} />
-                                    <span>Govt. MSME Recognized Certification</span>
+                                    <span>Industry-Recognized Technical Certification</span>
                                 </span>
                             </div>
 
@@ -427,7 +427,7 @@ const CourseTemplate = ({ data }) => {
                                 <div className="mt-4 pt-4 border-t border-slate-100 text-left space-y-2 text-xs text-slate-600">
                                     <div className="flex items-center gap-2">
                                         <CheckCircle size={14} className="text-emerald-500" />
-                                        <span>Verified Govt. MSME Certificate</span>
+                                        <span>Verified Technical Certificate</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <CheckCircle size={14} className="text-emerald-500" />

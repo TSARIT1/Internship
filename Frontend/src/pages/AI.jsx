@@ -87,7 +87,7 @@ const AI = () => {
             "Master LangChain, LlamaIndex, and Vector Databases (Pinecone, Chroma)",
             "Architect and deploy enterprise RAG (Retrieval Augmented Generation) systems",
             "Fine-tune open-source LLMs using LoRA/QLoRA and HuggingFace",
-            "Receive Govt. MSME recognized certificate and high-tier placement support"
+            "Receive industry-recognized verified certificate and high-tier placement support"
         ],
         careerRoles: [
             { title: "Generative AI Engineer", salary: "₹8.5 LPA - ₹24.0 LPA" },

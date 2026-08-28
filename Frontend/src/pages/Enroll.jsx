@@ -330,7 +330,7 @@ const Enroll = () => {
 
                                     <div className="flex items-center justify-center gap-2 text-xs text-slate-500 pt-2">
                                         <ShieldCheck size={16} className="text-teal-600" />
-                                        <span>Instant LMS Access & Govt. MSME Certificate Guarantee</span>
+                                        <span>Instant LMS Access & Verified Technical Certificate Guarantee</span>
                                     </div>
                                 </form>
                             )}

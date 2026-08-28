@@ -86,7 +86,7 @@ const PythonProgramming = () => {
             "Build automated web scrapers, data parsers, and task automation scripts",
             "Develop enterprise-ready web backends using Django and FastAPI",
             "Deploy containerized Python services with PostgreSQL and Redis",
-            "Receive Govt. MSME recognized certificate and interview assistance"
+            "Receive industry-recognized verified certificate and interview assistance"
         ],
         careerRoles: [
             { title: "Python Backend Developer", salary: "₹5.5 LPA - ₹14.0 LPA" },

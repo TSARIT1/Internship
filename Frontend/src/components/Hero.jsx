@@ -85,7 +85,7 @@ const Hero = () => {
                             </div>
 
                             <p className="text-base sm:text-lg text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                                Accelerate your career across <strong className="text-slate-900">Data Science, AI & GenAI, Java Full Stack, MERN Stack, Cloud Computing, DevOps & Cyber Security</strong> with verified <strong className="text-slate-900">Govt. MSME credentials</strong>.
+                                Accelerate your career across <strong className="text-slate-900">Data Science, AI & GenAI, Java Full Stack, MERN Stack, Cloud Computing, DevOps & Cyber Security</strong> with verified <strong className="text-slate-900">industry-recognized credentials</strong>.
                             </p>
 
                             {/* Clean, Sleek Professional CTAs */}

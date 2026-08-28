@@ -38,7 +38,7 @@ const courseMap = {
         outcomes: [
             "Master Python, Pandas, NumPy, and SQL for enterprise data analysis",
             "Build and deploy production machine learning models",
-            "Receive Govt. MSME recognized certificate and placement assistance"
+            "Receive industry-recognized verified certificate and placement assistance"
         ],
         careerRoles: [
             { title: "Data Scientist", salary: "₹6.5 LPA - ₹16.0 LPA" },

@@ -66,7 +66,7 @@ const Header = () => {
                         <div className="flex items-center gap-6">
                             <span className="flex items-center gap-1.5 font-medium text-slate-700">
                                 <Sparkles size={13} className="text-amber-500" />
-                                <span>Govt. of India MSME Recognized TSAR IT INTERNSHIP</span>
+                                <span>ISO 9001:2015 Certified TSAR IT INTERNSHIP</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-5">

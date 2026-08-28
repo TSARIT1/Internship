@@ -87,7 +87,7 @@ const MachineLearning = () => {
             "Build production-ready PyTorch neural network pipelines",
             "Implement Computer Vision and Natural Language Processing models",
             "Deploy trained models as microservices with Docker and FastAPI",
-            "Receive Govt. MSME recognized certificate and interview assistance"
+            "Receive industry-recognized verified certificate and interview assistance"
         ],
         careerRoles: [
             { title: "Machine Learning Engineer", salary: "₹7.0 LPA - ₹18.0 LPA" },

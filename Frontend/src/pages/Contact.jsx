@@ -42,7 +42,7 @@ const Contact = () => {
         },
         {
             q: "Will I receive a verified certificate upon completion?",
-            a: "Yes! All graduates receive a Govt. of India MSME recognized certificate with a unique online verification QR code accepted by universities and top tech employers."
+            a: "Yes! All graduates receive an industry-recognized verified certificate with a unique online verification QR code accepted by universities and top tech employers."
         },
         {
             q: "What are the timings and can college students attend?",
@@ -214,8 +214,8 @@ const Contact = () => {
                                     <ShieldCheck className="text-teal-600" size={24} />
                                     <span className="font-bold text-sm text-slate-900">Recognized Technical Institute</span>
                                 </div>
-                                <p className="text-xs text-slate-600 leading-relaxed">
-                                    TSAR IT INTERNSHIP is an authorized technical training and internship organization registered under Govt. of India MSME quality standards.
+                                <p className="text-slate-600 text-xs leading-relaxed">
+                                    TSAR IT INTERNSHIP is an authorized technical training and internship organization certified under ISO 9001:2015 quality standards.
                                 </p>
                             </div>
                         </div>

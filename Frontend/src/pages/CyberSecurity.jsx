@@ -86,7 +86,7 @@ const CyberSecurity = () => {
             "Master Kali Linux security tools: Nmap, Wireshark, Burp Suite, and Metasploit",
             "Identify and remediate OWASP Top 10 Web Application security flaws",
             "Operate SOC monitoring and analyze security logs with Splunk SIEM",
-            "Receive Govt. MSME recognized certificate and high-demand corporate placement support"
+            "Receive industry-recognized verified certificate and high-demand corporate placement support"
         ],
         careerRoles: [
             { title: "Cyber Security Analyst", salary: "₹6.0 LPA - ₹16.0 LPA" },

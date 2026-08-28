@@ -40,7 +40,7 @@ const CertificateTemplate = forwardRef(({
                                 TSAR <span className="text-blue-600">IT</span> INTERNSHIP
                             </h2>
                             <p className="text-[10px] uppercase font-extrabold tracking-widest text-slate-500">
-                                Govt. of India MSME Registered Technical Organization
+                                Premier Technical Training & Internship Organization
                             </p>
                         </div>
                     </div>
@@ -49,7 +49,7 @@ const CertificateTemplate = forwardRef(({
                     <div className="text-right">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100/80 border border-amber-300 rounded-full text-amber-900 text-xs font-black uppercase tracking-wider">
                             <ShieldCheck size={14} className="text-amber-700" />
-                            <span>ISO 9001:2015 & MSME Certified</span>
+                            <span>ISO 9001:2015 Certified</span>
                         </div>
                         <p className="text-[11px] text-slate-500 font-mono mt-1 font-bold">
                             Credential ID: <span className="text-blue-700">{certificateId}</span>
@@ -102,7 +102,7 @@ const CertificateTemplate = forwardRef(({
                             <span className="font-bold">Issue Date:</span> {date}
                         </div>
                         <div className="text-xs text-slate-600">
-                            <span className="font-bold">Accreditation:</span> MSME Reg. No. UDYAM-AP-03
+                            <span className="font-bold">Accreditation:</span> ISO 9001:2015 Quality Certified
                         </div>
                         <div className="text-[10px] text-slate-400 font-mono">
                             Verify online: internship.tsaritservices.com/verify-certificate/{certificateId}

@@ -213,7 +213,7 @@ const InternshipCards = () => {
                             Industry-Driven <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-500 bg-clip-text text-transparent">Tech Internships</span>
                         </h2>
                         <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
-                            Each internship includes <strong>live technical lectures, real-time enterprise capstone projects, 1-on-1 code reviews, verified Govt. MSME certifications, and guaranteed placement support</strong>.
+                            Each internship includes <strong>live technical lectures, real-time enterprise capstone projects, 1-on-1 code reviews, verified technical certifications, and guaranteed placement support</strong>.
                         </p>
                     </motion.div>
 

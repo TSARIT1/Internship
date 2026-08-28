@@ -86,7 +86,7 @@ const DevOps = () => {
             "Design and execute enterprise CI/CD pipelines with GitHub Actions and Jenkins",
             "Automate cloud infrastructure with Terraform Infrastructure as Code (IaC)",
             "Build full-stack observability pipelines using Prometheus and Grafana",
-            "Receive Govt. MSME recognized certificate and high-tier placement support"
+            "Receive industry-recognized verified certificate and high-tier placement support"
         ],
         careerRoles: [
             { title: "DevOps Engineer", salary: "₹7.5 LPA - ₹20.0 LPA" },

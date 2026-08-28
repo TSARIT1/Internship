@@ -68,7 +68,7 @@ const VerifyCertificate = () => {
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
             <SEO 
                 title="Verify Official Internship Certificate | TSAR IT INTERNSHIP"
-                description="Verify the authenticity of TSAR IT INTERNSHIP certificates and credentials issued under Govt. MSME standards."
+                description="Verify the authenticity of TSAR IT INTERNSHIP certificates and credentials."
             />
             <Header />
 
@@ -79,7 +79,7 @@ const VerifyCertificate = () => {
                     <div className="text-center space-y-3">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider">
                             <ShieldCheck size={16} />
-                            <span>Govt. MSME Credential Registry</span>
+                            <span>Official Credential Registry</span>
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-display">
                             Verify Certificate Authenticity
@@ -166,8 +166,8 @@ const VerifyCertificate = () => {
                                 </div>
 
                                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <span className="text-slate-400 font-bold uppercase text-[10px] block mb-1">Government Recognition</span>
-                                    <strong className="text-emerald-700">{result.accreditation || "Govt. of India MSME Registered"}</strong>
+                                    <span className="text-slate-400 font-bold uppercase text-[10px] block mb-1">Quality & Accreditation</span>
+                                    <strong className="text-emerald-700">{result.accreditation || "ISO 9001:2015 Quality Certified"}</strong>
                                 </div>
                             </div>
 

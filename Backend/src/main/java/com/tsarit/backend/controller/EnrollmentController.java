@@ -235,7 +235,7 @@ public class EnrollmentController {
             "courseName", enrollment.getCourseName(),
             "issueDate", enrollment.getCertificateDate() != null ? enrollment.getCertificateDate().toString() : "Verified",
             "organization", "TSAR IT Services Pvt Ltd",
-            "accreditation", "Govt. of India MSME Registered"
+            "accreditation", "ISO 9001:2015 Quality Certified"
         ));
     }
 

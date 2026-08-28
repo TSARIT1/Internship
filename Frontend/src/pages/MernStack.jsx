@@ -86,7 +86,7 @@ const MernStack = () => {
             "Master React 19, modern State Management, Node.js, Express, and MongoDB",
             "Integrate secure authentication, payment gateways, and real-time WebSockets",
             "Deploy applications to cloud environments using Docker, Vercel, and AWS",
-            "Receive Govt. MSME recognized certificate and full placement assistance"
+            "Receive industry-recognized verified certificate and full placement assistance"
         ],
         careerRoles: [
             { title: "Full Stack Developer (MERN)", salary: "₹6.0 LPA - ₹15.0 LPA" },

@@ -55,7 +55,7 @@ const Footer = () => {
 
                         <div className="flex items-center gap-2 text-xs text-slate-400">
                             <ShieldCheck size={16} className="text-teal-400" />
-                            <span>Govt. of India MSME Registered IT Organization</span>
+                            <span>ISO 9001:2015 Certified IT Organization</span>
                         </div>
 
                         {/* Newsletter Lead Form */}

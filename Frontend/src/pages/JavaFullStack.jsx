@@ -87,7 +87,7 @@ const JavaFullStack = () => {
             "Design enterprise RESTful APIs with Spring Security and JWT authentication",
             "Integrate relational databases using Hibernate ORM and Spring Data JPA",
             "Build full-stack responsive web applications connecting Java backends with React",
-            "Receive Govt. MSME recognized certificate and high-volume corporate placement drives"
+            "Receive industry-recognized verified certificate and high-volume corporate placement drives"
         ],
         careerRoles: [
             { title: "Java Full Stack Developer", salary: "₹6.5 LPA - ₹17.0 LPA" },

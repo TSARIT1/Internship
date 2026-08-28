@@ -68,23 +68,6 @@ public class BackendApplication {
 					existingAdmin.setRole("ADMIN");
 					userService.updatePasswordDirectly(existingAdmin.getId(), userService.getPasswordEncoder().encode("Tsarit@12345"));
 				}
-
-				com.tsarit.backend.entity.User student;
-				if (userService.findByEmail("student2@example.com").isEmpty()) {
-					student = new com.tsarit.backend.entity.User();
-					student.setUsername("student2");
-					student.setEmail("student2@example.com");
-					student.setRole("STUDENT");
-					student.setPassword("Student@123");
-					userService.registerUser(student);
-					log.info("Seeded student user: student2@example.com / Student@123");
-				} else {
-					student = userService.findByEmail("student2@example.com").get();
-					student.setPassword("Student@123");
-					userService.updatePasswordDirectly(student.getId(),
-						userService.getPasswordEncoder().encode("Student@123"));
-					log.info("Updated student password: student2@example.com -> Student@123");
-				}
 			} catch (Exception e) {
 				log.error("Schema update failed or warning: {}", e.getMessage());
 			}

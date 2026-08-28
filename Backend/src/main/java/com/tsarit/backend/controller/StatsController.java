@@ -23,7 +23,7 @@ public class StatsController {
     private UserRepository userRepository;
 
     @Autowired
-    private CourseRepository courseRepository; // Internships/Courses
+    private CourseRepository courseRepository;
 
     @Autowired
     private WebinarRepository webinarRepository;
@@ -33,6 +33,12 @@ public class StatsController {
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private com.tsarit.backend.repository.TicketRepository ticketRepository;
+
+    @Autowired
+    private com.tsarit.backend.repository.ContactRepository contactRepository;
 
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
@@ -44,12 +50,21 @@ public class StatsController {
         long totalWebinars = webinarRepository.count();
         long totalTestimonials = testimonialRepository.count();
         Double totalRevenue = enrollmentRepository.getTotalRevenue();
+        long totalEnrollments = enrollmentRepository.count();
+        long certificatesIssued = enrollmentRepository.findByCertificateIssued(true).size();
+        long openTickets = ticketRepository.countByStatus("OPEN");
+        long totalLeads = contactRepository.count();
 
         stats.put("totalStudents", totalStudents);
-        stats.put("totalCourses", totalCourses); // Can track "Active Workshops" or similar if needed
+        stats.put("totalEnrollments", totalEnrollments);
+        stats.put("totalCourses", totalCourses);
         stats.put("totalWebinars", totalWebinars);
         stats.put("totalTestimonials", totalTestimonials);
         stats.put("totalRevenue", totalRevenue != null ? totalRevenue : 0.0);
+        stats.put("certificatesIssued", certificatesIssued);
+        stats.put("pendingCertificates", Math.max(0, totalEnrollments - certificatesIssued));
+        stats.put("openTickets", openTickets);
+        stats.put("totalLeads", totalLeads);
 
         return ResponseEntity.ok(stats);
     }

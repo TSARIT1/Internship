@@ -215,7 +215,7 @@ const Contact = () => {
                                     <span className="font-bold text-sm text-slate-900">Recognized Technical Institute</span>
                                 </div>
                                 <p className="text-slate-600 text-xs leading-relaxed">
-                                    TSAR IT INTERNSHIP is an authorized technical training and internship organization certified under ISO 9001:2015 quality standards.
+                                    TSAR IT INTERNSHIP is an authorized premier technical training and internship organization.
                                 </p>
                             </div>
                         </div>

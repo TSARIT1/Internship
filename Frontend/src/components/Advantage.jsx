@@ -84,7 +84,7 @@ const Advantage = () => {
         },
         {
             icon: ShieldCheck,
-            title: "ISO 9001:2015 Quality Certified",
+            title: "Industry Quality Standard",
             desc: "Compliant with national technical training standards and college academic credit requirements.",
             color: "text-purple-600",
             bg: "bg-purple-50"

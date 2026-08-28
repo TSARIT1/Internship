@@ -339,7 +339,7 @@ const EnrollButton = ({ className, children, course }) => {
                                 <span>•</span>
                                 <span>Instant LMS Access</span>
                                 <span>•</span>
-                                <span>ISO 9001:2015 Quality Verified</span>
+                                <span>Verified Technical Credential</span>
                             </div>
                         </div>
                     </div>

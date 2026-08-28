@@ -118,7 +118,7 @@ const StudentCertificates = () => {
                 <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold rounded-full">
                         <ShieldCheck size={16} />
-                        <span>ISO 9001:2015 Verified</span>
+                        <span>Verified Credential</span>
                     </span>
                 </div>
             </div>
@@ -150,7 +150,7 @@ const StudentCertificates = () => {
                                     </div>
 
                                     <h3 className="text-xl font-black text-slate-900 mb-1">{item.courseName}</h3>
-                                    <p className="text-xs text-slate-500 mb-4">TSAR IT INTERNSHIP • ISO 9001:2015 Certified Organization</p>
+                                    <p className="text-xs text-slate-500 mb-4">TSAR IT INTERNSHIP • Premier Technical Organization</p>
 
                                     <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-6 space-y-2 text-xs">
                                         <div className="flex justify-between text-slate-600">

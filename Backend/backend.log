@@ -5886,3 +5886,6 @@
 2026-08-28T15:32:18.909+05:30  INFO 13600 --- [backend] [main] com.tsarit.backend.BackendApplication    : Attempting to update database schema for Hackathons...
 2026-08-28T15:32:19.018+05:30  INFO 13600 --- [backend] [main] com.tsarit.backend.BackendApplication    : Schema updated successfully: Hackathon columns resized to TEXT.
 2026-08-28T15:32:19.204+05:30  INFO 13600 --- [backend] [main] com.tsarit.backend.BackendApplication    : Ensured super admin credentials for tsaritservices@gmail.com -> Tsarit@12345
+2026-08-28T15:35:55.867+05:30  INFO 13600 --- [backend] [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-28T15:35:55.868+05:30  INFO 13600 --- [backend] [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-28T15:35:55.871+05:30  INFO 13600 --- [backend] [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms

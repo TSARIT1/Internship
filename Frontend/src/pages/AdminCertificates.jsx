@@ -369,7 +369,7 @@ const AdminCertificates = () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">
                     <div>
                         <span className="text-xs font-extrabold text-indigo-600 uppercase tracking-wider block">Accreditation</span>
-                        <span className="text-sm font-black text-slate-900 mt-1 block">ISO 9001:2015 Quality Certified</span>
+                        <span className="text-sm font-black text-slate-900 mt-1 block">TSAR IT Verified Standard</span>
                     </div>
                     <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-lg">
                         <ShieldCheck size={22} />

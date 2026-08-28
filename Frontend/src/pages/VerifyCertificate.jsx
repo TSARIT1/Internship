@@ -167,7 +167,7 @@ const VerifyCertificate = () => {
 
                                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                                     <span className="text-slate-400 font-bold uppercase text-[10px] block mb-1">Quality & Accreditation</span>
-                                    <strong className="text-emerald-700">{result.accreditation || "ISO 9001:2015 Quality Certified"}</strong>
+                                    <strong className="text-emerald-700">{result.accreditation || "TSAR IT Verified Technical Standard"}</strong>
                                 </div>
                             </div>
 
